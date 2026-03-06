@@ -1,221 +1,263 @@
-# ─── Processes Tab ───────────────────────────────────────────────────
-# Optimised process table with App / Background grouping.
+# ─── Processes Tab (Task Manager style) ──────────────────────────────
+# QTreeWidget with process grouping, expand/collapse, status bar.
 
 import psutil
+from collections import defaultdict
 from PyQt6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QTableWidget, QTableWidgetItem,
-    QLineEdit, QLabel, QMenu, QHeaderView, QAbstractItemView,
+    QWidget, QVBoxLayout, QHBoxLayout, QTreeWidget, QTreeWidgetItem,
+    QLineEdit, QLabel, QMenu, QHeaderView, QAbstractItemView, QFrame,
 )
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QAction, QColor, QFont, QBrush
+from PyQt6.QtGui import QAction, QFont, QColor, QBrush
 
 from core.datastore import DataStore
-from config import PROCESS_COLUMNS, PRIORITY_CLASSES, DARK
+from config import PROCESS_COLUMNS, PRIORITY_CLASSES
 
 
 class ProcessesTab(QWidget):
     def __init__(self, store: DataStore, parent=None):
         super().__init__(parent)
         self._store = store
-        self._sort_col = 2
-        self._sort_order = Qt.SortOrder.DescendingOrder
         self._filter_text = ""
-        self._prev_pids: list[int] = []
-        self._section_rows: set[int] = set()
+        self._expanded_groups: set[str] = set()  # track user expand state
         self._init_ui()
 
     def _init_ui(self):
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(24, 16, 24, 16)
-        layout.setSpacing(12)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
 
-        # Top row
-        top = QHBoxLayout()
-        top.setSpacing(12)
+        # Search bar area
+        search_frame = QFrame()
+        search_layout = QHBoxLayout(search_frame)
+        search_layout.setContentsMargins(12, 8, 12, 8)
+        search_layout.setSpacing(10)
 
         self._search = QLineEdit()
         self._search.setPlaceholderText("Search processes…")
         self._search.setClearButtonEnabled(True)
-        self._search.textChanged.connect(self._on_filter_changed)
-        self._search.setFixedHeight(40)
-        top.addWidget(self._search, 1)
+        self._search.textChanged.connect(self._on_filter)
+        self._search.setFixedHeight(32)
+        search_layout.addWidget(self._search, 1)
 
-        self._count_label = QLabel("0 apps · 0 background")
-        self._count_label.setObjectName("statusLabel")
-        self._count_label.setAlignment(
-            Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter
-        )
-        top.addWidget(self._count_label)
-        layout.addLayout(top)
+        layout.addWidget(search_frame)
 
-        # Table
-        self._table = QTableWidget()
-        self._table.setColumnCount(len(PROCESS_COLUMNS))
-        self._table.setHorizontalHeaderLabels(PROCESS_COLUMNS)
-        self._table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
-        self._table.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
-        self._table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
-        self._table.verticalHeader().setVisible(False)
-        self._table.setShowGrid(False)
-        self._table.setSortingEnabled(False)
-        self._table.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
-        self._table.customContextMenuRequested.connect(self._show_context_menu)
-        self._table.setVerticalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)
-        self._table.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-        self._table.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        # Tree widget
+        self._tree = QTreeWidget()
+        self._tree.setHeaderLabels(PROCESS_COLUMNS)
+        self._tree.setRootIsDecorated(True)
+        self._tree.setUniformRowHeights(True)
+        self._tree.setAnimated(False)
+        self._tree.setAlternatingRowColors(True)
+        self._tree.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
+        self._tree.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
+        self._tree.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self._tree.customContextMenuRequested.connect(self._context_menu)
+        self._tree.setVerticalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)
+        self._tree.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self._tree.setIndentation(20)
+        self._tree.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        self._tree.setStyleSheet("QTreeWidget { border-top: none; }")
 
-        h = self._table.horizontalHeader()
-        h.setHighlightSections(False)
-        h.setSectionResizeMode(0, QHeaderView.ResizeMode.Fixed)
-        h.resizeSection(0, 70)
-        h.setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
-        h.setSectionResizeMode(2, QHeaderView.ResizeMode.Fixed)
+        # Column widths
+        h = self._tree.header()
+        h.setStretchLastSection(True)
+        h.setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)     # Name
+        h.setSectionResizeMode(1, QHeaderView.ResizeMode.Fixed)       # PID
+        h.resizeSection(1, 70)
+        h.setSectionResizeMode(2, QHeaderView.ResizeMode.Fixed)       # Status
         h.resizeSection(2, 80)
-        h.setSectionResizeMode(3, QHeaderView.ResizeMode.Fixed)
-        h.resizeSection(3, 110)
-        h.setSectionResizeMode(4, QHeaderView.ResizeMode.Fixed)
-        h.resizeSection(4, 90)
-        h.setSectionResizeMode(5, QHeaderView.ResizeMode.Stretch)
-        h.sectionClicked.connect(self._on_header_clicked)
+        h.setSectionResizeMode(3, QHeaderView.ResizeMode.Fixed)       # CPU
+        h.resizeSection(3, 80)
+        h.setSectionResizeMode(4, QHeaderView.ResizeMode.Fixed)       # Memory
+        h.resizeSection(4, 100)
+        h.setSectionResizeMode(5, QHeaderView.ResizeMode.Stretch)     # User
+        h.setHighlightSections(False)
 
-        self._table.verticalHeader().setDefaultSectionSize(36)
-        layout.addWidget(self._table)
+        # Track expand/collapse
+        self._tree.itemExpanded.connect(self._on_expand)
+        self._tree.itemCollapsed.connect(self._on_collapse)
+
+        layout.addWidget(self._tree, 1)
+
+        # Status bar
+        self._statusbar = QFrame()
+        self._statusbar.setObjectName("statusbar")
+        self._statusbar.setFixedHeight(28)
+        sb_layout = QHBoxLayout(self._statusbar)
+        sb_layout.setContentsMargins(12, 0, 12, 0)
+        sb_layout.setSpacing(20)
+
+        self._sb_procs = QLabel("Processes: 0")
+        self._sb_cpu = QLabel("CPU: 0%")
+        self._sb_mem = QLabel("Memory: 0%")
+        sb_layout.addWidget(self._sb_procs)
+        sb_layout.addWidget(self._sb_cpu)
+        sb_layout.addWidget(self._sb_mem)
+        sb_layout.addStretch()
+
+        layout.addWidget(self._statusbar)
 
     # ── Refresh ───────────────────────────────────────────────────────
 
     def refresh(self):
         with self._store.lock():
             procs = list(self._store.processes)
+            cpu_total = self._store.cpu_percent
+            ram_pct = self._store.ram_percent
 
+        # Filter
         if self._filter_text:
             ft = self._filter_text.lower()
             procs = [p for p in procs if ft in p["name"].lower() or ft in str(p["pid"])]
 
+        # Split into apps and background
         apps = [p for p in procs if p.get("category") == "app"]
         bg   = [p for p in procs if p.get("category") != "app"]
 
-        key_map = {0:"pid", 1:"name", 2:"cpu", 3:"memory", 4:"status", 5:"user"}
-        key = key_map.get(self._sort_col, "pid")
-        rev = self._sort_order == Qt.SortOrder.DescendingOrder
-        try:
-            apps.sort(key=lambda p: p[key], reverse=rev)
-            bg.sort(key=lambda p: p[key], reverse=rev)
-        except TypeError:
-            pass
+        # Group by base name (strip .exe)
+        app_groups = self._group_by_name(apps)
+        bg_groups  = self._group_by_name(bg)
 
-        rows: list[dict | str] = []
-        if apps:
-            rows.append(f"APPS  ({len(apps)})")
-            rows.extend(apps)
-        if bg:
-            rows.append(f"BACKGROUND PROCESSES  ({len(bg)})")
-            rows.extend(bg)
+        # Save scroll pos and current selection
+        scrollbar = self._tree.verticalScrollBar()
+        scroll_pos = scrollbar.value()
 
-        cur_pids = [r["pid"] for r in rows if isinstance(r, dict)]
-        changed = cur_pids != self._prev_pids
-        self._prev_pids = cur_pids
+        self._tree.setUpdatesEnabled(False)
+        self._tree.clear()
 
-        scroll = self._table.verticalScrollBar().value()
-        self._table.setUpdatesEnabled(False)
+        # Section: Apps
+        if app_groups:
+            section_apps = QTreeWidgetItem(self._tree)
+            section_apps.setText(0, f"Apps ({len(apps)})")
+            section_apps.setFlags(Qt.ItemFlag.ItemIsEnabled)
+            self._style_section(section_apps)
+            section_apps.setExpanded(True)
 
-        if changed:
-            self._section_rows.clear()
-            self._table.setRowCount(len(rows))
-            for i, entry in enumerate(rows):
-                if isinstance(entry, str):
-                    self._write_section(i, entry)
-                else:
-                    self._write_row(i, entry)
+            for name, group in sorted(app_groups.items(), key=lambda x: -sum(p["cpu"] for p in x[1])):
+                self._add_group(section_apps, name, group)
+
+        # Section: Background
+        if bg_groups:
+            section_bg = QTreeWidgetItem(self._tree)
+            section_bg.setText(0, f"Background processes ({len(bg)})")
+            section_bg.setFlags(Qt.ItemFlag.ItemIsEnabled)
+            self._style_section(section_bg)
+            section_bg.setExpanded(True)
+
+            for name, group in sorted(bg_groups.items(), key=lambda x: -sum(p["cpu"] for p in x[1])):
+                self._add_group(section_bg, name, group)
+
+        self._tree.setUpdatesEnabled(True)
+        scrollbar.setValue(scroll_pos)
+
+        # Status bar
+        self._sb_procs.setText(f"Processes: {len(procs)}")
+        self._sb_cpu.setText(f"CPU: {cpu_total:.0f}%")
+        self._sb_mem.setText(f"Memory: {ram_pct:.0f}%")
+
+    # ── Group processes by base name ──────────────────────────────────
+
+    def _group_by_name(self, procs: list[dict]) -> dict[str, list[dict]]:
+        groups: dict[str, list[dict]] = defaultdict(list)
+        for p in procs:
+            base = p["name"]
+            if base.lower().endswith(".exe"):
+                base = base[:-4]
+            groups[base].append(p)
+        return dict(groups)
+
+    # ── Build tree items ──────────────────────────────────────────────
+
+    def _add_group(self, parent: QTreeWidgetItem, name: str, group: list[dict]):
+        if len(group) == 1:
+            # Single process — show directly
+            p = group[0]
+            item = QTreeWidgetItem(parent)
+            self._set_proc_data(item, p, display_name=name)
         else:
-            for i, entry in enumerate(rows):
-                if isinstance(entry, dict):
-                    self._update_row(i, entry)
+            # Multiple processes — expandable group
+            total_cpu = sum(p["cpu"] for p in group)
+            total_mem = sum(p["memory"] for p in group)
+            display = f"{name} ({len(group)})"
 
-        self._table.setUpdatesEnabled(True)
-        self._table.verticalScrollBar().setValue(scroll)
-        self._count_label.setText(
-            f"{len(apps)} app{'s' if len(apps)!=1 else ''} · {len(bg)} background"
-        )
+            group_item = QTreeWidgetItem(parent)
+            group_item.setText(0, display)
+            group_item.setText(3, f"{total_cpu:.1f}")
+            group_item.setText(4, f"{total_mem:.1f}")
+            group_item.setData(0, Qt.ItemDataRole.UserRole, None)  # no single PID
 
-    # ── Row helpers ───────────────────────────────────────────────────
+            f = QFont()
+            f.setBold(True)
+            group_item.setFont(0, f)
 
-    def _write_section(self, row, title):
-        item = QTableWidgetItem(title)
-        f = QFont("Segoe UI Variable", 9)
+            # Restore expand state
+            gkey = name
+            if gkey in self._expanded_groups:
+                group_item.setExpanded(True)
+
+            # Sort children by CPU desc
+            for p in sorted(group, key=lambda x: -x["cpu"]):
+                child = QTreeWidgetItem(group_item)
+                self._set_proc_data(child, p)
+
+    def _set_proc_data(self, item: QTreeWidgetItem, p: dict, display_name: str = None):
+        name = display_name if display_name else p["name"]
+        item.setText(0, name)
+        item.setText(1, str(p["pid"]))
+        item.setText(2, p["status"])
+        item.setText(3, f'{p["cpu"]:.1f}')
+        item.setText(4, f'{p["memory"]:.1f}')
+        item.setText(5, p["user"])
+        item.setData(0, Qt.ItemDataRole.UserRole, p["pid"])
+        # Right-align numeric columns
+        item.setTextAlignment(3, Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+        item.setTextAlignment(4, Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+
+    def _style_section(self, item: QTreeWidgetItem):
+        f = QFont()
         f.setBold(True)
-        f.setLetterSpacing(QFont.SpacingType.AbsoluteSpacing, 1.2)
-        item.setFont(f)
-        item.setFlags(Qt.ItemFlag.NoItemFlags)
-        item.setForeground(QBrush(QColor(DARK["text_muted"])))
-        self._table.setItem(row, 0, item)
-        for c in range(1, len(PROCESS_COLUMNS)):
-            b = QTableWidgetItem("")
-            b.setFlags(Qt.ItemFlag.NoItemFlags)
-            self._table.setItem(row, c, b)
-        self._table.setSpan(row, 0, 1, len(PROCESS_COLUMNS))
-        self._section_rows.add(row)
+        f.setPointSize(11)
+        item.setFont(0, f)
+        for col in range(len(PROCESS_COLUMNS)):
+            item.setBackground(col, QBrush(QColor(0, 0, 0, 0)))
 
-    def _write_row(self, row, p):
-        if row in self._section_rows:
-            self._table.setSpan(row, 0, 1, 1)
-            self._section_rows.discard(row)
-        vals = [
-            (str(p["pid"]),          p["pid"]),
-            (p["name"],              None),
-            (f'{p["cpu"]:.1f}',      p["cpu"]),
-            (f'{p["memory"]:.1f}',   p["memory"]),
-            (p["status"],            None),
-            (p["user"],              None),
-        ]
-        for c, (txt, data) in enumerate(vals):
-            it = QTableWidgetItem(txt)
-            if data is not None:
-                it.setData(Qt.ItemDataRole.UserRole, data)
-            it.setFlags(it.flags() & ~Qt.ItemFlag.ItemIsEditable)
-            self._table.setItem(row, c, it)
+    # ── Expand/collapse tracking ──────────────────────────────────────
 
-    def _update_row(self, row, p):
-        self._table.item(row, 0).setText(str(p["pid"]))
-        self._table.item(row, 0).setData(Qt.ItemDataRole.UserRole, p["pid"])
-        self._table.item(row, 1).setText(p["name"])
-        self._table.item(row, 2).setText(f'{p["cpu"]:.1f}')
-        self._table.item(row, 2).setData(Qt.ItemDataRole.UserRole, p["cpu"])
-        self._table.item(row, 3).setText(f'{p["memory"]:.1f}')
-        self._table.item(row, 3).setData(Qt.ItemDataRole.UserRole, p["memory"])
-        self._table.item(row, 4).setText(p["status"])
-        self._table.item(row, 5).setText(p["user"])
+    def _on_expand(self, item: QTreeWidgetItem):
+        text = item.text(0)
+        # Extract group name (strip count suffix if present)
+        if "(" in text and text.endswith(")"):
+            name = text[:text.rfind("(")].strip()
+        else:
+            name = text
+        self._expanded_groups.add(name)
+
+    def _on_collapse(self, item: QTreeWidgetItem):
+        text = item.text(0)
+        if "(" in text and text.endswith(")"):
+            name = text[:text.rfind("(")].strip()
+        else:
+            name = text
+        self._expanded_groups.discard(name)
 
     # ── Events ────────────────────────────────────────────────────────
 
-    def _on_filter_changed(self, text):
+    def _on_filter(self, text):
         self._filter_text = text
-        self._prev_pids = []
-        self.refresh()
-
-    def _on_header_clicked(self, col):
-        if col == self._sort_col:
-            self._sort_order = (
-                Qt.SortOrder.DescendingOrder
-                if self._sort_order == Qt.SortOrder.AscendingOrder
-                else Qt.SortOrder.AscendingOrder
-            )
-        else:
-            self._sort_col = col
-            self._sort_order = Qt.SortOrder.AscendingOrder
-        self._prev_pids = []
         self.refresh()
 
     # ── Context menu ──────────────────────────────────────────────────
 
-    def _show_context_menu(self, pos):
-        row = self._table.rowAt(pos.y())
-        if row < 0:
+    def _context_menu(self, pos):
+        item = self._tree.itemAt(pos)
+        if not item:
             return
-        pid_item = self._table.item(row, 0)
-        if not pid_item or not pid_item.data(Qt.ItemDataRole.UserRole):
+        pid = item.data(0, Qt.ItemDataRole.UserRole)
+        if pid is None:
             return
-        pid = int(pid_item.data(Qt.ItemDataRole.UserRole))
-        name = self._table.item(row, 1).text()
+        pid = int(pid)
+        name = item.text(0)
 
         menu = QMenu(self)
         end = QAction(f"End Task — {name}", self)
@@ -227,7 +269,7 @@ class ProcessesTab(QWidget):
             a = QAction(label, self)
             a.triggered.connect(lambda ck, v=val: self._prio(pid, v))
             sub.addAction(a)
-        menu.exec(self._table.viewport().mapToGlobal(pos))
+        menu.exec(self._tree.viewport().mapToGlobal(pos))
 
     def _end(self, pid):
         try: psutil.Process(pid).terminate()

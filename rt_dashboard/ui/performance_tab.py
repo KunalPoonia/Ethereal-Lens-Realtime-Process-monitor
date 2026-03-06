@@ -56,11 +56,11 @@ class MetricCard(QFrame):
         pen = pg.mkPen(color=color, width=2)
         self._curve = self._plot_widget.plot([], [], pen=pen)
 
-        # Fill under curve
+        # Persistent baseline + fill (reused each tick — no recreate)
+        self._baseline = pg.PlotDataItem([], [])
         self._fill = pg.FillBetweenItem(
-            self._curve,
-            pg.PlotDataItem([0], [0]),
-            brush=pg.mkBrush(color + "30"),
+            self._curve, self._baseline,
+            brush=pg.mkBrush(color + "25"),
         )
         self._plot_widget.addItem(self._fill)
 
@@ -76,15 +76,7 @@ class MetricCard(QFrame):
         x = np.arange(len(data))
         y = np.array(data, dtype=float)
         self._curve.setData(x, y)
-
-        # Rebuild fill
-        self._plot_widget.removeItem(self._fill)
-        baseline = pg.PlotDataItem(x, np.zeros(len(x)))
-        self._fill = pg.FillBetweenItem(
-            self._curve, baseline,
-            brush=pg.mkBrush(self._color + "25"),
-        )
-        self._plot_widget.addItem(self._fill)
+        self._baseline.setData(x, np.zeros(len(x)))
 
         self._value_label.setText(value_text)
         self._sub_label.setText(sub_text)

@@ -35,7 +35,7 @@ def _build_qss(c: dict) -> str:
     /* ── Tree Widget ──────────────────────────────────────────────── */
     QTreeWidget {{
         background-color: {c['bg']};
-        alternate-background-color: {c['row_alt']};
+        alternate-background-color: {c['bg']};
         border: 1px solid {c['border']};
         border-radius: 0px;
         gridline-color: {c['grid_line']};
@@ -143,6 +143,12 @@ def _build_qss(c: dict) -> str:
         background-color: {c['bg_card']};
         border: 1px solid {c['card_border']};
         border-radius: 8px;
+    }}
+
+    /* ── Section separator ────────────────────────────────────────── */
+    QFrame#sectionSep {{
+        background-color: {c['border']};
+        min-height: 2px; max-height: 2px;
     }}
 
     /* ── Toolbar ──────────────────────────────────────────────────── */

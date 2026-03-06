@@ -6,12 +6,33 @@ from collections import defaultdict
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QTreeWidget, QTreeWidgetItem,
     QLineEdit, QLabel, QMenu, QHeaderView, QAbstractItemView, QFrame,
+    QStyledItemDelegate, QStyleOptionViewItem,
 )
-from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QAction, QFont, QColor, QBrush
+from PyQt6.QtCore import Qt, QRect
+from PyQt6.QtGui import QAction, QFont, QColor, QBrush, QPainter, QPen
 
 from core.datastore import DataStore
-from config import PROCESS_COLUMNS, PRIORITY_CLASSES
+from config import PROCESS_COLUMNS, PRIORITY_CLASSES, DARK
+
+
+class SeparatorDelegate(QStyledItemDelegate):
+    """Draws a thick top border on items flagged as section separators."""
+
+    def paint(self, painter: QPainter, option: QStyleOptionViewItem, index):
+        super().paint(painter, option, index)
+        # Check if parent item has separator flag
+        item = None
+        tree = option.widget
+        if tree and hasattr(tree, 'itemFromIndex'):
+            item = tree.itemFromIndex(index)
+        if item and item.data(0, Qt.ItemDataRole.UserRole + 1) == "separator":
+            painter.save()
+            pen = QPen(QColor(DARK["accent"]))
+            pen.setWidth(2)
+            painter.setPen(pen)
+            painter.drawLine(option.rect.left(), option.rect.top(),
+                             option.rect.right(), option.rect.top())
+            painter.restore()
 
 
 class ProcessesTab(QWidget):
@@ -19,7 +40,7 @@ class ProcessesTab(QWidget):
         super().__init__(parent)
         self._store = store
         self._filter_text = ""
-        self._expanded_groups: set[str] = set()  # track user expand state
+        self._expanded_groups: set[str] = set()
         self._init_ui()
 
     def _init_ui(self):
@@ -27,7 +48,7 @@ class ProcessesTab(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
 
-        # Search bar area
+        # Search bar
         search_frame = QFrame()
         search_layout = QHBoxLayout(search_frame)
         search_layout.setContentsMargins(12, 8, 12, 8)
@@ -39,7 +60,6 @@ class ProcessesTab(QWidget):
         self._search.textChanged.connect(self._on_filter)
         self._search.setFixedHeight(32)
         search_layout.addWidget(self._search, 1)
-
         layout.addWidget(search_frame)
 
         # Tree widget
@@ -48,7 +68,7 @@ class ProcessesTab(QWidget):
         self._tree.setRootIsDecorated(True)
         self._tree.setUniformRowHeights(True)
         self._tree.setAnimated(False)
-        self._tree.setAlternatingRowColors(True)
+        self._tree.setAlternatingRowColors(False)
         self._tree.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
         self._tree.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
         self._tree.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
@@ -58,6 +78,9 @@ class ProcessesTab(QWidget):
         self._tree.setIndentation(20)
         self._tree.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self._tree.setStyleSheet("QTreeWidget { border-top: none; }")
+
+        # Install separator delegate
+        self._tree.setItemDelegate(SeparatorDelegate(self._tree))
 
         # Column widths
         h = self._tree.header()
@@ -74,7 +97,6 @@ class ProcessesTab(QWidget):
         h.setSectionResizeMode(5, QHeaderView.ResizeMode.Stretch)     # User
         h.setHighlightSections(False)
 
-        # Track expand/collapse
         self._tree.itemExpanded.connect(self._on_expand)
         self._tree.itemCollapsed.connect(self._on_collapse)
 
@@ -95,7 +117,6 @@ class ProcessesTab(QWidget):
         sb_layout.addWidget(self._sb_cpu)
         sb_layout.addWidget(self._sb_mem)
         sb_layout.addStretch()
-
         layout.addWidget(self._statusbar)
 
     # ── Refresh ───────────────────────────────────────────────────────
@@ -106,20 +127,16 @@ class ProcessesTab(QWidget):
             cpu_total = self._store.cpu_percent
             ram_pct = self._store.ram_percent
 
-        # Filter
         if self._filter_text:
             ft = self._filter_text.lower()
             procs = [p for p in procs if ft in p["name"].lower() or ft in str(p["pid"])]
 
-        # Split into apps and background
         apps = [p for p in procs if p.get("category") == "app"]
         bg   = [p for p in procs if p.get("category") != "app"]
 
-        # Group by base name (strip .exe)
         app_groups = self._group_by_name(apps)
         bg_groups  = self._group_by_name(bg)
 
-        # Save scroll pos and current selection
         scrollbar = self._tree.verticalScrollBar()
         scroll_pos = scrollbar.value()
 
@@ -137,12 +154,14 @@ class ProcessesTab(QWidget):
             for name, group in sorted(app_groups.items(), key=lambda x: -sum(p["cpu"] for p in x[1])):
                 self._add_group(section_apps, name, group)
 
-        # Section: Background
+        # Section: Background — with thick top separator
         if bg_groups:
             section_bg = QTreeWidgetItem(self._tree)
             section_bg.setText(0, f"Background processes ({len(bg)})")
             section_bg.setFlags(Qt.ItemFlag.ItemIsEnabled)
             self._style_section(section_bg)
+            # Flag this item so the delegate draws a thick top line
+            section_bg.setData(0, Qt.ItemDataRole.UserRole + 1, "separator")
             section_bg.setExpanded(True)
 
             for name, group in sorted(bg_groups.items(), key=lambda x: -sum(p["cpu"] for p in x[1])):
@@ -151,7 +170,6 @@ class ProcessesTab(QWidget):
         self._tree.setUpdatesEnabled(True)
         scrollbar.setValue(scroll_pos)
 
-        # Status bar
         self._sb_procs.setText(f"Processes: {len(procs)}")
         self._sb_cpu.setText(f"CPU: {cpu_total:.0f}%")
         self._sb_mem.setText(f"Memory: {ram_pct:.0f}%")
@@ -171,12 +189,10 @@ class ProcessesTab(QWidget):
 
     def _add_group(self, parent: QTreeWidgetItem, name: str, group: list[dict]):
         if len(group) == 1:
-            # Single process — show directly
             p = group[0]
             item = QTreeWidgetItem(parent)
             self._set_proc_data(item, p, display_name=name)
         else:
-            # Multiple processes — expandable group
             total_cpu = sum(p["cpu"] for p in group)
             total_mem = sum(p["memory"] for p in group)
             display = f"{name} ({len(group)})"
@@ -185,18 +201,16 @@ class ProcessesTab(QWidget):
             group_item.setText(0, display)
             group_item.setText(3, f"{total_cpu:.1f}")
             group_item.setText(4, f"{total_mem:.1f}")
-            group_item.setData(0, Qt.ItemDataRole.UserRole, None)  # no single PID
+            group_item.setData(0, Qt.ItemDataRole.UserRole, None)
 
             f = QFont()
             f.setBold(True)
             group_item.setFont(0, f)
 
-            # Restore expand state
             gkey = name
             if gkey in self._expanded_groups:
                 group_item.setExpanded(True)
 
-            # Sort children by CPU desc
             for p in sorted(group, key=lambda x: -x["cpu"]):
                 child = QTreeWidgetItem(group_item)
                 self._set_proc_data(child, p)
@@ -210,7 +224,6 @@ class ProcessesTab(QWidget):
         item.setText(4, f'{p["memory"]:.1f}')
         item.setText(5, p["user"])
         item.setData(0, Qt.ItemDataRole.UserRole, p["pid"])
-        # Right-align numeric columns
         item.setTextAlignment(3, Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
         item.setTextAlignment(4, Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
 
@@ -219,14 +232,11 @@ class ProcessesTab(QWidget):
         f.setBold(True)
         f.setPointSize(11)
         item.setFont(0, f)
-        for col in range(len(PROCESS_COLUMNS)):
-            item.setBackground(col, QBrush(QColor(0, 0, 0, 0)))
 
     # ── Expand/collapse tracking ──────────────────────────────────────
 
     def _on_expand(self, item: QTreeWidgetItem):
         text = item.text(0)
-        # Extract group name (strip count suffix if present)
         if "(" in text and text.endswith(")"):
             name = text[:text.rfind("(")].strip()
         else:

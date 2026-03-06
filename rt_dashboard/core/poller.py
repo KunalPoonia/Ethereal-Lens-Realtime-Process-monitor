@@ -57,11 +57,13 @@ class Poller(QThread):
     def _poll_performance(self):
         cpu = psutil.cpu_percent(interval=None)
         ram = psutil.virtual_memory()
-        disk = psutil.disk_usage("/")
+        disk_space = psutil.disk_usage("/")
+        disk_io = psutil.disk_io_counters()
         net = psutil.net_io_counters()
         self._store.push_performance(
             cpu, ram.total / (1024**3), ram.used / (1024**3), ram.percent,
-            disk.total / (1024**3), disk.used / (1024**3), disk.percent,
+            disk_io.read_bytes, disk_io.write_bytes,
+            disk_space.used / (1024**3), disk_space.total / (1024**3),
             net.bytes_sent, net.bytes_recv,
         )
 

@@ -48,17 +48,26 @@ def _build_qss(c: dict) -> str:
     /* ── Table ────────────────────────────────────────────────────── */
     QTableWidget {{
         background-color: transparent;
+        alternate-background-color: transparent;
         gridline-color: transparent;
         border: none;
         selection-background-color: {c['selection']};
+        selection-color: {c['text']};
         font-size: 12.5px;
     }}
     QTableWidget::item {{
         padding: 7px 12px;
         border-bottom: 1px solid {c['border_subtle']};
+        background-color: transparent;
+        color: {c['text']};
+    }}
+    QTableWidget::item:selected {{
+        background-color: {c['selection']};
+        color: {c['text']};
     }}
     QTableWidget::item:hover {{
         background-color: {c['row_hover']};
+        color: {c['text']};
     }}
     QHeaderView {{
         background: transparent;
@@ -85,6 +94,7 @@ def _build_qss(c: dict) -> str:
         color: {c['text']};
         font-size: 13px;
         selection-background-color: {c['accent_dim']};
+        selection-color: {c['text']};
     }}
     QLineEdit:focus {{
         border-color: {c['accent']};
@@ -145,19 +155,11 @@ def _build_qss(c: dict) -> str:
         font-size: 12px;
         color: {c['text_muted']};
     }}
-    QLabel#sectionHeader {{
-        font-size: 11px;
-        font-weight: 600;
-        color: {c['text_muted']};
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        padding: 12px 0 4px 2px;
-    }}
 
     /* ── Card frame ───────────────────────────────────────────────── */
     QFrame#card {{
         background-color: {c['bg_card']};
-        border: 1px solid {c['border']};
+        border: 1px solid {c['card_border']};
         border-radius: 16px;
     }}
 
@@ -193,7 +195,7 @@ def _build_qss(c: dict) -> str:
     /* ── Context menu ─────────────────────────────────────────────── */
     QMenu {{
         background-color: {c['bg_card']};
-        border: 1px solid {c['border']};
+        border: 1px solid {c['card_border']};
         border-radius: 12px;
         padding: 6px;
     }}

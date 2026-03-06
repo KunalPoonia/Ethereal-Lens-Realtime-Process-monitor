@@ -13,62 +13,71 @@ class DataStore:
         n = HISTORY_LENGTH
         self._lock = Lock()
 
-        # Rolling graph history (one value per second)
+        # Rolling graph history
         self.cpu_history:  deque[float] = deque([0.0] * n, maxlen=n)
         self.ram_history:  deque[float] = deque([0.0] * n, maxlen=n)
-        self.disk_history: deque[float] = deque([0.0] * n, maxlen=n)
+        self.disk_history: deque[float] = deque([0.0] * n, maxlen=n)  # MB/s
         self.net_sent_history:  deque[float] = deque([0.0] * n, maxlen=n)
         self.net_recv_history:  deque[float] = deque([0.0] * n, maxlen=n)
 
         # Latest snapshot values
-        self.cpu_percent:   float = 0.0
-        self.ram_total:     float = 0.0
-        self.ram_used:      float = 0.0
-        self.ram_percent:   float = 0.0
-        self.disk_total:    float = 0.0
-        self.disk_used:     float = 0.0
-        self.disk_percent:  float = 0.0
-        self.net_sent_rate: float = 0.0   # KB/s
-        self.net_recv_rate: float = 0.0   # KB/s
+        self.cpu_percent:    float = 0.0
+        self.ram_total:      float = 0.0
+        self.ram_used:       float = 0.0
+        self.ram_percent:    float = 0.0
+        self.disk_read_rate: float = 0.0   # MB/s
+        self.disk_write_rate:float = 0.0   # MB/s
+        self.disk_total_rate:float = 0.0   # MB/s (read+write)
+        self.disk_space_used:float = 0.0   # GB (for sub text)
+        self.disk_space_total:float = 0.0  # GB
+        self.net_sent_rate:  float = 0.0   # KB/s
+        self.net_recv_rate:  float = 0.0   # KB/s
 
-        # Process list (list of dicts)
+        # Process list
         self.processes: list[dict] = []
 
-        # Previous net counters for delta calculation
+        # Previous counters for delta calculation
         self._prev_net_sent: int | None = None
         self._prev_net_recv: int | None = None
-
-    # ── Thread-safe update helpers ────────────────────────────────────
+        self._prev_disk_read:  int | None = None
+        self._prev_disk_write: int | None = None
 
     def lock(self):
         return self._lock
 
     def push_performance(
         self, cpu, ram_total, ram_used, ram_pct,
-        disk_total, disk_used, disk_pct,
+        disk_read_bytes, disk_write_bytes,
+        disk_space_used, disk_space_total,
         net_sent_bytes, net_recv_bytes,
     ):
-        """Called by the poller each tick."""
         with self._lock:
             self.cpu_percent  = cpu
             self.ram_total    = ram_total
             self.ram_used     = ram_used
             self.ram_percent  = ram_pct
-            self.disk_total   = disk_total
-            self.disk_used    = disk_used
-            self.disk_percent = disk_pct
+            self.disk_space_used  = disk_space_used
+            self.disk_space_total = disk_space_total
 
-            # Calculate network rate (KB/s)
+            # Disk I/O rate (MB/s)
+            if self._prev_disk_read is not None:
+                self.disk_read_rate  = (disk_read_bytes - self._prev_disk_read) / (1024**2)
+                self.disk_write_rate = (disk_write_bytes - self._prev_disk_write) / (1024**2)
+                self.disk_total_rate = self.disk_read_rate + self.disk_write_rate
+            self._prev_disk_read  = disk_read_bytes
+            self._prev_disk_write = disk_write_bytes
+
+            # Network rate (KB/s)
             if self._prev_net_sent is not None:
                 self.net_sent_rate = (net_sent_bytes - self._prev_net_sent) / 1024
                 self.net_recv_rate = (net_recv_bytes - self._prev_net_recv) / 1024
             self._prev_net_sent = net_sent_bytes
             self._prev_net_recv = net_recv_bytes
 
-            # Append to rolling history
+            # Rolling history
             self.cpu_history.append(cpu)
             self.ram_history.append(ram_pct)
-            self.disk_history.append(disk_pct)
+            self.disk_history.append(self.disk_total_rate)
             self.net_sent_history.append(self.net_sent_rate)
             self.net_recv_history.append(self.net_recv_rate)
 

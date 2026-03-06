@@ -99,7 +99,7 @@ class PerformanceTab(QWidget):
         c = DARK
         self._cpu  = MetricCard("CPU",     c["graph_cpu"])
         self._ram  = MetricCard("MEMORY",  c["graph_ram"])
-        self._disk = MetricCard("DISK",    c["graph_disk"])
+        self._disk = MetricCard("DISK I/O", c["graph_disk"], max_y=50)
         self._net  = MetricCard("NETWORK", c["graph_net"], max_y=500)
 
         grid.addWidget(self._cpu,  0, 0)
@@ -117,12 +117,17 @@ class PerformanceTab(QWidget):
             nsh = list(s.net_sent_history)
             nrh = list(s.net_recv_history)
             cp = s.cpu_percent; ru = s.ram_used; rt = s.ram_total; rp = s.ram_percent
-            du = s.disk_used; dt = s.disk_total; dp = s.disk_percent
+            dr = s.disk_read_rate; dw = s.disk_write_rate; dtr = s.disk_total_rate
+            dsu = s.disk_space_used; dst = s.disk_space_total
             ns = s.net_sent_rate; nr = s.net_recv_rate
 
         self._cpu.update(ch, f"{cp:.1f}%", "Overall utilisation")
         self._ram.update(rh, f"{rp:.1f}%", f"{ru:.1f} / {rt:.1f} GB")
-        self._disk.update(dh, f"{dp:.1f}%", f"{du:.0f} / {dt:.0f} GB")
+        self._disk.update(dh, f"{dtr:.1f} MB/s", f"R {dr:.1f}  W {dw:.1f} MB/s · {dsu:.0f}/{dst:.0f} GB")
+
+        # Auto-scale disk Y axis
+        disk_peak = max(max(dh, default=1), 1) * 1.3
+        self._disk._pw.setYRange(0, disk_peak, padding=0.08)
 
         combined = [a + b for a, b in zip(nsh, nrh)]
         self._net.update(combined, f"↑{ns:.0f}  ↓{nr:.0f}", "KB/s")

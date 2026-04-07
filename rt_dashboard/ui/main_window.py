@@ -1,20 +1,22 @@
 # ─── Main Window ─────────────────────────────────────────────────────
-# Minimal root window — only refreshes the active tab.
+# Root window — clean, minimal chrome.
 
 import os
 from PyQt6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
-    QTabWidget, QPushButton, QFrame, QLabel,
+    QTabWidget, QPushButton, QFrame, QLabel, QGraphicsOpacityEffect,
 )
-from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QIcon
+from PyQt6.QtCore import (
+    Qt, QPropertyAnimation, QEasingCurve,
+)
+from PyQt6.QtGui import QIcon, QFont
 
 from core.datastore import DataStore
 from core.poller import Poller
 from ui.processes_tab import ProcessesTab
 from ui.performance_tab import PerformanceTab
 from ui.styles import dark_qss, light_qss
-from config import APP_TITLE, MIN_WIDTH, MIN_HEIGHT
+from config import APP_TITLE, MIN_WIDTH, MIN_HEIGHT, ANIM_FADE_IN
 
 
 class MainWindow(QMainWindow):
@@ -26,15 +28,16 @@ class MainWindow(QMainWindow):
         self._init_ui()
         self._apply_theme()
 
-        # Wire signals — only refresh the visible tab
         self._poller.data_ready.connect(self._on_perf_tick)
         self._poller.procs_ready.connect(self._on_proc_tick)
         self._poller.start()
 
+        self._fade_in()
+
     def _init_ui(self):
         self.setWindowTitle(APP_TITLE)
         self.setMinimumSize(MIN_WIDTH, MIN_HEIGHT)
-        self.resize(1280, 800)
+        self.resize(1320, 840)
 
         icon_path = os.path.join(os.path.dirname(__file__), "..", "assets", "icon.ico")
         if os.path.exists(icon_path):
@@ -46,18 +49,20 @@ class MainWindow(QMainWindow):
         root.setContentsMargins(0, 0, 0, 0)
         root.setSpacing(0)
 
-        # ── Toolbar ───────────────────────────────────────────────────
+        # ── Toolbar — minimal, flat ──────────────────────────────────
         toolbar = QFrame()
         toolbar.setObjectName("toolbar")
-        toolbar.setFixedHeight(52)
+        toolbar.setFixedHeight(50)
         tb = QHBoxLayout(toolbar)
         tb.setContentsMargins(24, 0, 24, 0)
+        tb.setSpacing(12)
 
         title = QLabel(APP_TITLE)
-        title.setStyleSheet(
-            "font-size:15px; font-weight:700; letter-spacing:0.5px; "
-            "background:transparent;"
-        )
+        tf = QFont("Segoe UI Variable", 13)
+        tf.setWeight(QFont.Weight.Medium)
+        tf.setLetterSpacing(QFont.SpacingType.AbsoluteSpacing, 0.2)
+        title.setFont(tf)
+        title.setStyleSheet("background: transparent;")
         tb.addWidget(title)
         tb.addStretch()
 
@@ -70,7 +75,7 @@ class MainWindow(QMainWindow):
 
         root.addWidget(toolbar)
 
-        # ── Tabs ──────────────────────────────────────────────────────
+        # ── Tabs ─────────────────────────────────────────────────────
         self._tabs = QTabWidget()
         self._tabs.setDocumentMode(True)
 
@@ -80,6 +85,24 @@ class MainWindow(QMainWindow):
         self._tabs.addTab(self._proc_tab, "Processes")
         self._tabs.addTab(self._perf_tab, "Performance")
         root.addWidget(self._tabs)
+
+    # ── Fade-in ───────────────────────────────────────────────────────
+
+    def _fade_in(self):
+        self._opacity_fx = QGraphicsOpacityEffect(self)
+        self.centralWidget().setGraphicsEffect(self._opacity_fx)
+        self._opacity_fx.setOpacity(0.0)
+
+        self._fade_anim = QPropertyAnimation(self._opacity_fx, b"opacity")
+        self._fade_anim.setDuration(ANIM_FADE_IN)
+        self._fade_anim.setStartValue(0.0)
+        self._fade_anim.setEndValue(1.0)
+        self._fade_anim.setEasingCurve(QEasingCurve.Type.OutCubic)
+        self._fade_anim.finished.connect(self._on_fade_done)
+        self._fade_anim.start()
+
+    def _on_fade_done(self):
+        self.centralWidget().setGraphicsEffect(None)
 
     # ── Selective refresh ─────────────────────────────────────────────
 
@@ -101,6 +124,7 @@ class MainWindow(QMainWindow):
         self.setStyleSheet(dark_qss() if self._is_dark else light_qss())
         self._theme_btn.setText("🌙" if self._is_dark else "☀️")
         self._perf_tab.apply_theme(self._is_dark)
+        self._proc_tab.set_dark(self._is_dark)
 
     def closeEvent(self, event):
         self._poller.stop()

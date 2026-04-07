@@ -1,5 +1,5 @@
 # ─── Performance Tab ─────────────────────────────────────────────────
-# Minimalistic metric cards with live rolling graphs.
+# Metric cards with smooth animated values — desaturated, harmonious.
 
 import numpy as np
 import pyqtgraph as pg
@@ -7,79 +7,133 @@ from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
     QLabel, QFrame,
 )
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import (
+    Qt, QPropertyAnimation, QEasingCurve, QObject, pyqtProperty,
+)
+from PyQt6.QtGui import QColor
 
 from core.datastore import DataStore
-from config import DARK, LIGHT, HISTORY_LENGTH
+from config import DARK, LIGHT, HISTORY_LENGTH, ANIM_VALUE_TRANSITION
+
+
+class _AnimatedValue(QObject):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self._value = 0.0
+
+    @pyqtProperty(float)
+    def val(self):
+        return self._value
+
+    @val.setter
+    def val(self, v):
+        self._value = v
 
 
 class MetricCard(QFrame):
-    def __init__(self, title: str, color: str, max_y=100.0, parent=None):
+    def __init__(self, title, color, fill_alpha=32, max_y=100.0, unit="%", parent=None):
         super().__init__(parent)
         self.setObjectName("card")
-        self._color = color
+        self._color_hex = color
+        self._unit = unit
 
         lay = QVBoxLayout(self)
-        lay.setContentsMargins(20, 18, 20, 16)
-        lay.setSpacing(4)
+        lay.setContentsMargins(20, 18, 20, 14)
+        lay.setSpacing(0)
 
-        # Title (uppercase muted)
+        # ── Title — muted, not colored ───────────────────────────────
         self._title = QLabel(title)
         self._title.setObjectName("cardTitle")
         lay.addWidget(self._title)
 
-        # Value row
-        val_row = QHBoxLayout()
-        val_row.setSpacing(0)
+        lay.addSpacing(8)
+
+        # ── Value — standard text color, not accent ──────────────────
         self._value = QLabel("—")
         self._value.setObjectName("cardValue")
-        val_row.addWidget(self._value)
-        val_row.addStretch()
-        lay.addLayout(val_row)
+        lay.addWidget(self._value)
 
-        lay.addSpacing(6)
+        lay.addSpacing(10)
 
-        # Graph
+        # ── Graph — thin line, gentle fill ───────────────────────────
         self._pw = pg.PlotWidget()
         self._pw.setBackground(None)
-        self._pw.setFixedHeight(110)
+        self._pw.setFixedHeight(100)
         self._pw.showGrid(x=False, y=False)
         self._pw.hideButtons()
         self._pw.setMenuEnabled(False)
         self._pw.setMouseEnabled(x=False, y=False)
-        self._pw.getPlotItem().hideAxis("bottom")
-        self._pw.getPlotItem().hideAxis("left")
-        self._pw.setYRange(0, max_y, padding=0.08)
-        self._pw.setXRange(0, HISTORY_LENGTH, padding=0)
-        self._pw.getPlotItem().setContentsMargins(0, 0, 0, 0)
+        pi = self._pw.getPlotItem()
+        pi.hideAxis("bottom")
+        pi.hideAxis("left")
+        pi.setContentsMargins(0, 0, 0, 0)
+        pi.getViewBox().setDefaultPadding(0)
+        self._pw.setYRange(0, max_y, padding=0.05)
+        self._pw.setXRange(0, HISTORY_LENGTH - 1, padding=0)
 
-        pen = pg.mkPen(color=color, width=2.5)
-        self._curve = self._pw.plot([], [], pen=pen)
-        self._baseline = pg.PlotDataItem([], [])
-        self._fill = pg.FillBetweenItem(
-            self._curve, self._baseline,
-            brush=pg.mkBrush(color + "18"),
-        )
+        # Very subtle reference lines
+        for frac in [0.50]:
+            line = pg.InfiniteLine(pos=max_y * frac, angle=0,
+                                   pen=pg.mkPen("#ffffff05", width=1))
+            line.setZValue(-10)
+            self._pw.addItem(line)
+
+        # Thin curve with soft fill
+        self._curve = self._pw.plot([], [],
+                                     pen=pg.mkPen(color, width=1.8),
+                                     antialias=True)
+        self._base = pg.PlotDataItem([], [])
+        fc = QColor(color)
+        fc.setAlpha(fill_alpha)
+        self._fill = pg.FillBetweenItem(self._curve, self._base, brush=pg.mkBrush(fc))
         self._pw.addItem(self._fill)
         lay.addWidget(self._pw)
 
-        # Sub label
+        lay.addSpacing(4)
+
         self._sub = QLabel("")
         self._sub.setObjectName("cardSub")
         lay.addWidget(self._sub)
 
-    def update(self, history, value_text, sub_text):
-        x = np.arange(len(history))
-        y = np.array(history, dtype=float)
-        self._curve.setData(x, y)
-        self._baseline.setData(x, np.zeros(len(x)))
-        self._value.setText(value_text)
-        self._sub.setText(sub_text)
+        # ── Value counter animation ──────────────────────────────────
+        self._anim_val = _AnimatedValue(self)
+        self._val_anim = QPropertyAnimation(self._anim_val, b"val")
+        self._val_anim.setDuration(ANIM_VALUE_TRANSITION)
+        self._val_anim.setEasingCurve(QEasingCurve.Type.OutCubic)
+        self._val_anim.valueChanged.connect(self._on_val_tick)
+        self._current_numeric = 0.0
 
-    def set_color(self, color):
-        self._color = color
-        self._curve.setPen(pg.mkPen(color=color, width=2.5))
-        self._fill.setBrush(pg.mkBrush(color + "18"))
+    def _on_val_tick(self):
+        v = self._anim_val.val
+        self._value.setText(f"{v:.1f}{self._unit}")
+
+    def update(self, hist, val_text, sub, numeric=None):
+        x = np.arange(len(hist))
+        y = np.array(hist, dtype=float)
+        self._curve.setData(x, y)
+        self._base.setData(x, np.zeros(len(x)))
+
+        if numeric is not None:
+            old = self._current_numeric
+            self._current_numeric = numeric
+            if abs(numeric - old) > 0.05:
+                self._val_anim.stop()
+                self._val_anim.setStartValue(old)
+                self._val_anim.setEndValue(numeric)
+                self._val_anim.start()
+            else:
+                self._value.setText(val_text)
+        else:
+            self._value.setText(val_text)
+
+        self._sub.setText(sub)
+
+    def set_color(self, color, alpha=32):
+        self._color_hex = color
+        self._curve.setPen(pg.mkPen(color, width=1.8))
+        fc = QColor(color)
+        fc.setAlpha(alpha)
+        self._fill.setBrush(pg.mkBrush(fc))
 
 
 class PerformanceTab(QWidget):
@@ -90,17 +144,18 @@ class PerformanceTab(QWidget):
 
     def _init_ui(self):
         lay = QVBoxLayout(self)
-        lay.setContentsMargins(24, 16, 24, 16)
-        lay.setSpacing(16)
+        lay.setContentsMargins(20, 16, 20, 16)
+        lay.setSpacing(12)
 
         grid = QGridLayout()
-        grid.setSpacing(16)
+        grid.setSpacing(12)
 
         c = DARK
-        self._cpu  = MetricCard("CPU",     c["graph_cpu"])
-        self._ram  = MetricCard("MEMORY",  c["graph_ram"])
-        self._disk = MetricCard("DISK I/O", c["graph_disk"], max_y=50)
-        self._net  = MetricCard("NETWORK", c["graph_net"], max_y=500)
+        fa = int(c["graph_fill"], 16)
+        self._cpu  = MetricCard("CPU",      c["graph_cpu"],  fa, unit="%")
+        self._ram  = MetricCard("Memory",   c["graph_ram"],  fa, unit="%")
+        self._disk = MetricCard("Disk I/O", c["graph_disk"], fa, max_y=50, unit=" MB/s")
+        self._net  = MetricCard("Network",  c["graph_net"],  fa, max_y=500, unit=" KB/s")
 
         grid.addWidget(self._cpu,  0, 0)
         grid.addWidget(self._ram,  0, 1)
@@ -111,32 +166,34 @@ class PerformanceTab(QWidget):
     def refresh(self):
         s = self._store
         with s.lock():
-            ch = list(s.cpu_history)
-            rh = list(s.ram_history)
+            ch = list(s.cpu_history); rh = list(s.ram_history)
             dh = list(s.disk_history)
-            nsh = list(s.net_sent_history)
-            nrh = list(s.net_recv_history)
-            cp = s.cpu_percent; ru = s.ram_used; rt = s.ram_total; rp = s.ram_percent
+            nsh = list(s.net_sent_history); nrh = list(s.net_recv_history)
+            cp = s.cpu_percent
+            ru = s.ram_used; rt = s.ram_total; rp = s.ram_percent
             dr = s.disk_read_rate; dw = s.disk_write_rate; dtr = s.disk_total_rate
             dsu = s.disk_space_used; dst = s.disk_space_total
             ns = s.net_sent_rate; nr = s.net_recv_rate
 
-        self._cpu.update(ch, f"{cp:.1f}%", "Overall utilisation")
-        self._ram.update(rh, f"{rp:.1f}%", f"{ru:.1f} / {rt:.1f} GB")
-        self._disk.update(dh, f"{dtr:.1f} MB/s", f"R {dr:.1f}  W {dw:.1f} MB/s · {dsu:.0f}/{dst:.0f} GB")
+        self._cpu.update(ch, f"{cp:.1f}%", "Utilisation", numeric=cp)
+        self._ram.update(rh, f"{rp:.1f}%", f"{ru:.1f} / {rt:.1f} GB", numeric=rp)
+        self._disk.update(dh, f"{dtr:.1f} MB/s",
+                          f"R {dr:.1f}  W {dw:.1f}  ·  {dsu:.0f}/{dst:.0f} GB",
+                          numeric=dtr)
 
-        # Auto-scale disk Y axis
-        disk_peak = max(max(dh, default=1), 1) * 1.3
-        self._disk._pw.setYRange(0, disk_peak, padding=0.08)
+        dp = max(max(dh, default=1), 1) * 1.3
+        self._disk._pw.setYRange(0, dp, padding=0.05)
 
-        combined = [a + b for a, b in zip(nsh, nrh)]
-        self._net.update(combined, f"↑{ns:.0f}  ↓{nr:.0f}", "KB/s")
-        peak = max(max(combined, default=1), 1) * 1.3
-        self._net._pw.setYRange(0, peak, padding=0.08)
+        comb = [a + b for a, b in zip(nsh, nrh)]
+        total_net = ns + nr
+        self._net.update(comb, f"↑ {ns:.0f}   ↓ {nr:.0f}", "KB/s", numeric=total_net)
+        np2 = max(max(comb, default=1), 1) * 1.3
+        self._net._pw.setYRange(0, np2, padding=0.05)
 
     def apply_theme(self, is_dark):
         c = DARK if is_dark else LIGHT
-        self._cpu.set_color(c["graph_cpu"])
-        self._ram.set_color(c["graph_ram"])
-        self._disk.set_color(c["graph_disk"])
-        self._net.set_color(c["graph_net"])
+        fa = int(c["graph_fill"], 16)
+        self._cpu.set_color(c["graph_cpu"], fa)
+        self._ram.set_color(c["graph_ram"], fa)
+        self._disk.set_color(c["graph_disk"], fa)
+        self._net.set_color(c["graph_net"], fa)

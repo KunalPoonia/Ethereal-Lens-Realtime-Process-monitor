@@ -6,92 +6,136 @@ APP_TITLE  = "Process Monitor"
 MIN_WIDTH  = 1100
 MIN_HEIGHT = 700
 
-# ── Dark Theme (Task Manager style) ─────────────────────────────────
+# ── Animation durations (ms) ────────────────────────────────────────
+ANIM_FADE_IN          = 600
+ANIM_CARD_HOVER       = 200
+ANIM_TAB_SLIDE        = 250
+ANIM_VALUE_TRANSITION = 400
+
+# ── Dark Theme — soft muted navy, low contrast ─────────────────────
+# Philosophy: all surfaces within 2-3 shades of each other.
+# Accents are desaturated pastels. Text uses opacity hierarchy.
 DARK = {
-    "bg":             "#1c1c1c",
-    "bg_secondary":   "#202020",
-    "bg_card":        "#2d2d2d",
-    "bg_card_hover":  "#333333",
-    "text":           "#e4e4e4",
-    "text_secondary": "#999999",
-    "text_muted":     "#707070",
-    "accent":         "#4cc2e0",
-    "accent_dim":     "#4cc2e018",
-    "accent_hover":   "#60d4f0",
-    "border":         "#3a3a3a",
-    "border_subtle":  "#2f2f2f",
-    "card_border":    "#3a3a3a",
-    "success":        "#4ec9b0",
-    "warning":        "#dcdcaa",
-    "danger":         "#f44747",
-    "graph_cpu":      "#4cc2e0",
-    "graph_ram":      "#b07cd8",
-    "graph_disk":     "#dcdcaa",
-    "graph_net":      "#4ec9b0",
-    "scrollbar":      "#424242",
-    "scrollbar_hover":"#555555",
-    "selection":      "#264f78",
-    "row_hover":      "#2a2d2e",
-    "row_alt":        "#252525",
-    "section_bg":     "#252525",
-    "section_text":   "#e4e4e4",
-    "tab_active":     "#4cc2e0",
-    "tab_inactive":   "#707070",
-    "input_bg":       "#3c3c3c",
-    "shadow":         "#00000040",
-    "resource_tint":  "#2b4a52",
-    "header_bg":      "#252525",
-    "header_text":    "#999999",
-    "header_value":   "#e4e4e4",
-    "grid_line":      "#2f2f2f",
-    "statusbar_bg":   "#1c1c1c",
-    "tree_arrow":     "#888888",
+    # Surfaces — tight tonal range
+    "bg":              "#181c24",
+    "bg_secondary":    "#1c2028",
+    "bg_card":         "#1e222c",
+    "bg_card_hover":   "#222630",
+    "bg_elevated":     "#242830",
+
+    # Text — opacity-based hierarchy
+    "text":            "#b8bcc8",
+    "text_secondary":  "#787e90",
+    "text_muted":      "#505568",
+
+    # Accent — soft muted teal (not neon)
+    "accent":          "#6ba3b8",
+    "accent_dim":      "#6ba3b808",
+    "accent_hover":    "#7eb4c8",
+    "accent_glow":     "#6ba3b812",
+
+    # Borders — barely visible
+    "border":          "#262a34",
+    "card_border":     "#282c38",
+    "card_glow":       "#6ba3b806",
+
+    # Graphs — desaturated, cohesive pastels
+    "graph_cpu":       "#6ba3b8",
+    "graph_ram":       "#9b8abf",
+    "graph_disk":      "#c4a56a",
+    "graph_net":       "#6fb894",
+    "graph_fill":      "18",
+
+    # Interactive states
+    "selection":       "#242e3a",
+    "row_hover":       "#1e2430",
+    "scrollbar":       "#2a2e3a",
+    "scrollbar_hover": "#363a48",
+
+    # Tabs
+    "tab_active":      "#b8bcc8",
+    "tab_inactive":    "#484e60",
+
+    # Inputs
+    "input_bg":        "#161a22",
+    "input_focus":     "#1c2028",
+
+    # Structure
+    "header_bg":       "#181c24",
+    "grid_line":       "#222630",
+    "statusbar_bg":    "#161a22",
+
+    # Semantic — soft tones
+    "danger":          "#c07070",
+    "danger_glow":     "#c0707010",
+    "separator":       "#6ba3b830",
+    "status_run":      "#6fb894",
+    "status_stop":     "#c07070",
+    "status_sleep":    "#c4a56a",
+    "mem_highlight":   "#6ba3b8",
+
+    # Toolbar
+    "toolbar_gradient_start": "#1a1e26",
+    "toolbar_gradient_end":   "#1c2028",
+    "title_glow":      "#6ba3b818",
 }
 
-# ── Light Theme (Task Manager style) ────────────────────────────────
+# ── Light Theme — warm off-white, gentle ────────────────────────────
 LIGHT = {
-    "bg":             "#f3f3f3",
-    "bg_secondary":   "#e8e8e8",
-    "bg_card":        "#ffffff",
-    "bg_card_hover":  "#f8f8f8",
-    "text":           "#1a1a1a",
-    "text_secondary": "#666666",
-    "text_muted":     "#999999",
-    "accent":         "#0078d4",
-    "accent_dim":     "#0078d415",
-    "accent_hover":   "#106ebe",
-    "border":         "#d6d6d6",
-    "border_subtle":  "#e5e5e5",
-    "card_border":    "#d6d6d6",
-    "success":        "#107c10",
-    "warning":        "#ca5010",
-    "danger":         "#d13438",
-    "graph_cpu":      "#0078d4",
-    "graph_ram":      "#881798",
-    "graph_disk":     "#ca5010",
-    "graph_net":      "#107c10",
-    "scrollbar":      "#c8c8c8",
-    "scrollbar_hover":"#a0a0a0",
-    "selection":      "#cde4f7",
-    "row_hover":      "#e8f0f8",
-    "row_alt":        "#f9f9f9",
-    "section_bg":     "#f3f3f3",
-    "section_text":   "#1a1a1a",
-    "tab_active":     "#0078d4",
-    "tab_inactive":   "#999999",
-    "input_bg":       "#ffffff",
-    "shadow":         "#00000010",
-    "resource_tint":  "#d4e8ee",
-    "header_bg":      "#f3f3f3",
-    "header_text":    "#666666",
-    "header_value":   "#1a1a1a",
-    "grid_line":      "#e5e5e5",
-    "statusbar_bg":   "#e8e8e8",
-    "tree_arrow":     "#666666",
+    "bg":              "#f4f5f7",
+    "bg_secondary":    "#edeef2",
+    "bg_card":         "#ffffff",
+    "bg_card_hover":   "#fafbfc",
+    "bg_elevated":     "#ffffff",
+
+    "text":            "#2c3040",
+    "text_secondary":  "#6a7088",
+    "text_muted":      "#9ca0b0",
+
+    "accent":          "#5a8ea8",
+    "accent_dim":      "#5a8ea806",
+    "accent_hover":    "#4a7e98",
+    "accent_glow":     "#5a8ea80e",
+
+    "border":          "#e0e2e8",
+    "card_border":     "#e4e6ec",
+    "card_glow":       "#5a8ea804",
+
+    "graph_cpu":       "#5a8ea8",
+    "graph_ram":       "#7b6ca8",
+    "graph_disk":      "#b09040",
+    "graph_net":       "#509878",
+    "graph_fill":      "14",
+
+    "selection":       "#dce4ee",
+    "row_hover":       "#f0f1f5",
+    "scrollbar":       "#c8cad2",
+    "scrollbar_hover": "#b0b4c0",
+
+    "tab_active":      "#2c3040",
+    "tab_inactive":    "#9ca0b0",
+
+    "input_bg":        "#edeef2",
+    "input_focus":     "#f4f5f7",
+
+    "header_bg":       "#f4f5f7",
+    "grid_line":       "#eaecf0",
+    "statusbar_bg":    "#edeef2",
+
+    "danger":          "#b05858",
+    "danger_glow":     "#b0585808",
+    "separator":       "#5a8ea828",
+    "status_run":      "#509878",
+    "status_stop":     "#b05858",
+    "status_sleep":    "#b09040",
+    "mem_highlight":   "#5a8ea8",
+
+    "toolbar_gradient_start": "#f0f1f5",
+    "toolbar_gradient_end":   "#edeef2",
+    "title_glow":      "#5a8ea810",
 }
 
-# ── Process Table ────────────────────────────────────────────────────
-PROCESS_COLUMNS = ["Name", "PID", "Status", "CPU %", "Memory (MB)", "User"]
+PROCESS_COLUMNS = ["Name", "PID", "CPU %", "Memory (MB)", "Status"]
 
 import psutil
 PRIORITY_CLASSES = {

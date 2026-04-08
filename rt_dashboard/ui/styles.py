@@ -1,9 +1,9 @@
-# ─── QSS — Smooth, minimal, low-contrast ────────────────────────────
+# ─── QSS — Vibrant Glassmorphism Design ─────────────────────────────
 # Design rules:
-#   • Borders are barely visible — structure through spacing, not lines
-#   • Single font weight hierarchy — Regular / Medium / SemiBold only
-#   • Transitions feel continuous — no jarring color jumps
-#   • Hover states are subtle shifts, not color changes
+#   • Glassmorphic surfaces with translucency and depth
+#   • Vibrant gradients and colors for visual interest
+#   • Smooth transitions and hover effects
+#   • Modern, clean typography with good contrast
 
 from config import DARK, LIGHT
 
@@ -15,12 +15,12 @@ def _build_qss(c: dict) -> str:
     QWidget {{
         background: {c['bg']};
         color: {c['text']};
-        font-family: 'Segoe UI Variable', 'Segoe UI', system-ui;
+        font-family: 'Segoe UI Variable', 'Inter', 'Segoe UI', system-ui;
         font-size: 13px;
         border: none;
     }}
 
-    /* ── Tabs — clean underline indicator ─────────────────────────── */
+    /* ── Tabs — vibrant underline with glow ──────────────────────── */
     QTabWidget::pane {{ border: none; }}
     QTabBar {{
         background: {c['bg_secondary']};
@@ -28,18 +28,21 @@ def _build_qss(c: dict) -> str:
     QTabBar::tab {{
         background: transparent;
         color: {c['tab_inactive']};
-        padding: 13px 32px;
+        padding: 14px 36px;
         border: none;
-        border-bottom: 2px solid transparent;
+        border-bottom: 3px solid transparent;
         font-weight: 500;
-        font-size: 13px;
+        font-size: 13.5px;
+        transition: all 0.2s ease;
     }}
     QTabBar::tab:selected {{
         color: {c['tab_active']};
         border-bottom-color: {c['accent']};
+        font-weight: 600;
     }}
     QTabBar::tab:hover:!selected {{
-        color: {c['text_secondary']};
+        color: {c['text']};
+        background: {c['accent_dim']};
     }}
 
     /* ── Tree (process list) — minimal lines ─────────────────────── */
@@ -79,65 +82,71 @@ def _build_qss(c: dict) -> str:
         letter-spacing: 0.6px;
     }}
 
-    /* ── Inputs — subtle recessed look ───────────────────────────── */
+    /* ── Inputs — glassmorphic with vibrant focus ────────────────── */
     QLineEdit {{
         background: {c['input_bg']};
-        border: 1px solid {c['border']};
-        border-radius: 8px;
-        padding: 7px 14px;
+        border: 1.5px solid {c['input_border']};
+        border-radius: 10px;
+        padding: 9px 16px;
         color: {c['text']};
         font-size: 13px;
     }}
     QLineEdit:focus {{
         border-color: {c['accent']};
         background: {c['input_focus']};
+        border-width: 2px;
     }}
 
-    /* ── Buttons — ghost style, subtle hover ─────────────────────── */
+    /* ── Buttons — vibrant with glow effects ─────────────────────── */
     QPushButton {{
-        background: transparent;
-        color: {c['text_secondary']};
-        border: 1px solid {c['border']};
-        border-radius: 8px;
-        padding: 7px 18px;
+        background: {c['accent_dim']};
+        color: {c['text']};
+        border: 1.5px solid {c['border_bright']};
+        border-radius: 10px;
+        padding: 8px 20px;
         font-weight: 500;
-        font-size: 12px;
+        font-size: 12.5px;
     }}
     QPushButton:hover {{
-        color: {c['text']};
-        border-color: {c['text_muted']};
-        background: {c['accent_dim']};
+        color: {c['text_bright']};
+        border-color: {c['accent']};
+        background: {c['accent_glow']};
     }}
     QPushButton:pressed {{
-        background: {c['accent_glow']};
+        background: {c['accent']};
+        border-color: {c['accent']};
+        color: {c['text_bright']};
     }}
     QPushButton:disabled {{
         color: {c['text_muted']};
         border-color: {c['border']};
+        background: transparent;
     }}
 
-    /* Theme toggle — circular, minimal */
+    /* Theme toggle — circular with glow */
     QPushButton#themeToggle {{
-        background: transparent;
-        border: 1px solid {c['border']};
-        min-width: 36px; max-width: 36px;
-        min-height: 36px; max-height: 36px;
-        border-radius: 18px;
-        font-size: 14px; padding: 0;
+        background: {c['bg_elevated']};
+        border: 1.5px solid {c['border_bright']};
+        min-width: 40px; max-width: 40px;
+        min-height: 40px; max-height: 40px;
+        border-radius: 20px;
+        font-size: 16px; padding: 0;
     }}
     QPushButton#themeToggle:hover {{
-        border-color: {c['text_muted']};
+        border-color: {c['accent']};
         background: {c['accent_dim']};
     }}
 
-    /* End task — soft danger */
+    /* End task — vibrant danger */
     QPushButton#actionButtonDanger {{
         color: {c['danger']};
-        border-color: {c['border']};
+        border-color: {c['danger']};
+        background: {c['danger_glow']};
     }}
     QPushButton#actionButtonDanger:hover {{
         border-color: {c['danger']};
-        background: {c['danger_glow']};
+        background: {c['danger']};
+        color: {c['text_bright']};
     }}
 
     /* ── Labels ───────────────────────────────────────────────────── */
@@ -148,21 +157,34 @@ def _build_qss(c: dict) -> str:
         letter-spacing: 0.5px;
     }}
     QLabel#cardValue {{
-        font-size: 28px; font-weight: 300;
-        color: {c['text']};
+        font-size: 32px; font-weight: 300;
+        color: {c['text_bright']};
+        letter-spacing: -0.5px;
     }}
     QLabel#cardSub {{
         font-size: 11px; color: {c['text_muted']};
     }}
 
-    /* ── Cards — barely there borders ────────────────────────────── */
+    /* ── Cards — glassmorphic with glow ─────────────────────────── */
     QFrame#card {{
         background: {c['bg_card']};
         border: 1px solid {c['card_border']};
-        border-radius: 12px;
+        border-radius: 14px;
     }}
     QFrame#card:hover {{
         background: {c['bg_card_hover']};
+        border-color: {c['accent_dim']};
+    }}
+    
+    /* Glassmorphic card variant */
+    QFrame#glassCard {{
+        background: {c['bg_card']};
+        border: 1.5px solid {c['card_border']};
+        border-radius: 14px;
+    }}
+    QFrame#glassCard:hover {{
+        background: {c['bg_card_hover']};
+        border-color: {c['card_glow']};
     }}
 
     /* ── Toolbar — flat blend ────────────────────────────────────── */

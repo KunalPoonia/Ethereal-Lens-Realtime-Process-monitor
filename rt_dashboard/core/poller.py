@@ -85,7 +85,7 @@ def _proc_worker(queue: mp.Queue, stop_event: mp.Event) -> None:
             apps, bg = [], []
             
             for p in psutil.process_iter(
-                ["pid", "name", "cpu_percent", "memory_info", "status", "username"]
+                ["pid", "name", "cpu_percent", "memory_info", "status", "username", "num_threads"]
             ):
                 if stop_event.is_set():
                     return
@@ -103,6 +103,7 @@ def _proc_worker(queue: mp.Queue, stop_event: mp.Event) -> None:
                                  if info["memory_info"] else 0.0,
                         "status": info["status"] or "",
                         "user":   (info["username"] or "").split("\\")[-1],
+                        "threads": info["num_threads"] or 0,
                     }
                     if info["pid"] in windowed:
                         entry["category"] = "app"

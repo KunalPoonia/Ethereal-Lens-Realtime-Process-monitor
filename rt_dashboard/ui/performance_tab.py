@@ -10,10 +10,11 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import (
     Qt, QPropertyAnimation, QEasingCurve, QObject, pyqtProperty,
 )
-from PyQt6.QtGui import QColor
+from PyQt6.QtGui import QColor, QLinearGradient
 
 from core.datastore import DataStore
 from config import DARK, LIGHT, HISTORY_LENGTH, ANIM_VALUE_TRANSITION
+from ui.components.glass_card import GlassCard
 
 
 class _AnimatedValue(QObject):
@@ -30,35 +31,35 @@ class _AnimatedValue(QObject):
         self._value = v
 
 
-class MetricCard(QFrame):
+class MetricCard(GlassCard):
     def __init__(self, title, color, fill_alpha=32, max_y=100.0, unit="%", parent=None):
-        super().__init__(parent)
-        self.setObjectName("card")
+        # Get gradient colors if available
+        super().__init__(parent, blur_radius=12, border_gradient=None)
         self._color_hex = color
         self._unit = unit
 
         lay = QVBoxLayout(self)
-        lay.setContentsMargins(20, 18, 20, 14)
+        lay.setContentsMargins(24, 20, 24, 16)
         lay.setSpacing(0)
 
-        # ── Title — muted, not colored ───────────────────────────────
+        # ── Title — vibrant with icon-like badge ─────────────────────
         self._title = QLabel(title)
         self._title.setObjectName("cardTitle")
         lay.addWidget(self._title)
 
-        lay.addSpacing(8)
+        lay.addSpacing(10)
 
-        # ── Value — standard text color, not accent ──────────────────
+        # ── Value — large, bright, eye-catching ──────────────────────
         self._value = QLabel("—")
         self._value.setObjectName("cardValue")
         lay.addWidget(self._value)
 
-        lay.addSpacing(10)
+        lay.addSpacing(12)
 
-        # ── Graph — thin line, gentle fill ───────────────────────────
+        # ── Graph — vibrant gradient fills ───────────────────────────
         self._pw = pg.PlotWidget()
         self._pw.setBackground(None)
-        self._pw.setFixedHeight(100)
+        self._pw.setFixedHeight(120)
         self._pw.showGrid(x=False, y=False)
         self._pw.hideButtons()
         self._pw.setMenuEnabled(False)
@@ -71,16 +72,16 @@ class MetricCard(QFrame):
         self._pw.setYRange(0, max_y, padding=0.05)
         self._pw.setXRange(0, HISTORY_LENGTH - 1, padding=0)
 
-        # Very subtle reference lines
+        # Vibrant reference line
         for frac in [0.50]:
             line = pg.InfiniteLine(pos=max_y * frac, angle=0,
-                                   pen=pg.mkPen("#ffffff05", width=1))
+                                   pen=pg.mkPen("#ffffff08", width=1))
             line.setZValue(-10)
             self._pw.addItem(line)
 
-        # Thin curve with soft fill
+        # Thicker curve with vibrant gradient fill
         self._curve = self._pw.plot([], [],
-                                     pen=pg.mkPen(color, width=1.8),
+                                     pen=pg.mkPen(color, width=2.5),
                                      antialias=True)
         self._base = pg.PlotDataItem([], [])
         fc = QColor(color)
@@ -89,7 +90,7 @@ class MetricCard(QFrame):
         self._pw.addItem(self._fill)
         lay.addWidget(self._pw)
 
-        lay.addSpacing(4)
+        lay.addSpacing(6)
 
         self._sub = QLabel("")
         self._sub.setObjectName("cardSub")
@@ -130,7 +131,7 @@ class MetricCard(QFrame):
 
     def set_color(self, color, alpha=32):
         self._color_hex = color
-        self._curve.setPen(pg.mkPen(color, width=1.8))
+        self._curve.setPen(pg.mkPen(color, width=2.5))
         fc = QColor(color)
         fc.setAlpha(alpha)
         self._fill.setBrush(pg.mkBrush(fc))
@@ -144,11 +145,11 @@ class PerformanceTab(QWidget):
 
     def _init_ui(self):
         lay = QVBoxLayout(self)
-        lay.setContentsMargins(20, 16, 20, 16)
-        lay.setSpacing(12)
+        lay.setContentsMargins(24, 20, 24, 20)
+        lay.setSpacing(16)
 
         grid = QGridLayout()
-        grid.setSpacing(12)
+        grid.setSpacing(16)
 
         c = DARK
         fa = int(c["graph_fill"], 16)

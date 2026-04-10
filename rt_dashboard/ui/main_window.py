@@ -9,7 +9,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import (
     Qt, QPropertyAnimation, QEasingCurve,
 )
-from PyQt6.QtGui import QIcon, QFont, QPainter, QLinearGradient, QColor, QAction
+from PyQt6.QtGui import QIcon, QFont, QPainter, QColor, QAction
 
 from core.datastore import DataStore
 from core.poller import Poller
@@ -19,32 +19,6 @@ from ui.dashboard_tab import DashboardTab
 from ui.styles import dark_qss, light_qss
 from ui.theme_manager import ThemeManager
 from config import APP_TITLE, MIN_WIDTH, MIN_HEIGHT, ANIM_FADE_IN, DARK, LIGHT
-
-
-class GradientWidget(QWidget):
-    """Widget with animated gradient background"""
-    def __init__(self, is_dark=True, parent=None):
-        super().__init__(parent)
-        self._is_dark = is_dark
-        self._gradient_shift = 0.0
-    
-    def set_dark(self, is_dark):
-        self._is_dark = is_dark
-        self.update()
-    
-    def paintEvent(self, event):
-        painter = QPainter(self)
-        c = DARK if self._is_dark else LIGHT
-        
-        gradient = QLinearGradient(0, 0, self.width(), self.height())
-        
-        start_color = QColor(c['bg_gradient_start'])
-        end_color = QColor(c['bg_gradient_end'])
-        
-        gradient.setColorAt(0, start_color)
-        gradient.setColorAt(1, end_color)
-        
-        painter.fillRect(self.rect(), gradient)
 
 
 class MainWindow(QMainWindow):
@@ -72,39 +46,30 @@ class MainWindow(QMainWindow):
         if os.path.exists(icon_path):
             self.setWindowIcon(QIcon(icon_path))
 
-        # ── Gradient background ──────────────────────────────────────
-        self._gradient_bg = GradientWidget(self._is_dark)
-        self.setCentralWidget(self._gradient_bg)
-        
-        central = QWidget(self._gradient_bg)
-        central.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
-        root = QVBoxLayout(self._gradient_bg)
-        root.setContentsMargins(0, 0, 0, 0)
-        root.setSpacing(0)
-        root.addWidget(central)
-        
+        central = QWidget()
+        self.setCentralWidget(central)
         main_layout = QVBoxLayout(central)
         main_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.setSpacing(0)
 
-        # ── Toolbar — vibrant, elevated ─────────────────────────────
+        # ── Toolbar ─────────────────────────────────────────────────
         toolbar = QFrame()
         toolbar.setObjectName("toolbar")
-        toolbar.setFixedHeight(56)
+        toolbar.setFixedHeight(52)
         tb = QHBoxLayout(toolbar)
-        tb.setContentsMargins(28, 0, 28, 0)
+        tb.setContentsMargins(24, 0, 24, 0)
         tb.setSpacing(12)
 
         title = QLabel(APP_TITLE)
-        tf = QFont("Segoe UI Variable", 14)
+        tf = QFont("Segoe UI Variable", 13)
         tf.setWeight(QFont.Weight.DemiBold)
-        tf.setLetterSpacing(QFont.SpacingType.AbsoluteSpacing, 0.3)
+        tf.setLetterSpacing(QFont.SpacingType.AbsoluteSpacing, 0.2)
         title.setFont(tf)
         title.setStyleSheet("background: transparent;")
         tb.addWidget(title)
         tb.addStretch()
 
-        # Theme button with dropdown menu
+        # Theme button
         self._theme_btn = QPushButton(self._get_theme_icon())
         self._theme_btn.setObjectName("themeToggle")
         self._theme_btn.setToolTip("Theme settings")
@@ -131,7 +96,7 @@ class MainWindow(QMainWindow):
 
     def _fade_in(self):
         self._opacity_fx = QGraphicsOpacityEffect(self)
-        self._gradient_bg.setGraphicsEffect(self._opacity_fx)
+        self.centralWidget().setGraphicsEffect(self._opacity_fx)
         self._opacity_fx.setOpacity(0.0)
 
         self._fade_anim = QPropertyAnimation(self._opacity_fx, b"opacity")
@@ -143,7 +108,7 @@ class MainWindow(QMainWindow):
         self._fade_anim.start()
 
     def _on_fade_done(self):
-        self._gradient_bg.setGraphicsEffect(None)
+        self.centralWidget().setGraphicsEffect(None)
 
     # ── Selective refresh ─────────────────────────────────────────────
 
@@ -161,55 +126,47 @@ class MainWindow(QMainWindow):
     # ── Theme ─────────────────────────────────────────────────────────
 
     def _get_theme_icon(self):
-        """Get icon based on theme mode"""
         mode = self._theme_mgr.get_mode()
         if mode == ThemeManager.MODE_AUTO:
-            return "🌓"  # Auto
+            return "◐"
         elif mode == ThemeManager.MODE_DARK:
-            return "🌙"  # Dark
+            return "●"
         else:
-            return "☀️"  # Light
+            return "○"
 
     def _show_theme_menu(self):
-        """Show theme selection menu"""
         menu = QMenu(self)
-        
-        # Auto theme
-        auto_action = QAction("🌓  Auto (System)", self)
+
+        auto_action = QAction("◐  Auto (System)", self)
         auto_action.setCheckable(True)
         auto_action.setChecked(self._theme_mgr.get_mode() == ThemeManager.MODE_AUTO)
         auto_action.triggered.connect(lambda: self._set_theme_mode(ThemeManager.MODE_AUTO))
         menu.addAction(auto_action)
-        
+
         menu.addSeparator()
-        
-        # Dark theme
-        dark_action = QAction("🌙  Dark", self)
+
+        dark_action = QAction("●  Dark", self)
         dark_action.setCheckable(True)
         dark_action.setChecked(self._theme_mgr.get_mode() == ThemeManager.MODE_DARK)
         dark_action.triggered.connect(lambda: self._set_theme_mode(ThemeManager.MODE_DARK))
         menu.addAction(dark_action)
-        
-        # Light theme
-        light_action = QAction("☀️  Light", self)
+
+        light_action = QAction("○  Light", self)
         light_action.setCheckable(True)
         light_action.setChecked(self._theme_mgr.get_mode() == ThemeManager.MODE_LIGHT)
         light_action.triggered.connect(lambda: self._set_theme_mode(ThemeManager.MODE_LIGHT))
         menu.addAction(light_action)
-        
-        # Show menu below button
+
         button_pos = self._theme_btn.mapToGlobal(self._theme_btn.rect().bottomLeft())
         menu.exec(button_pos)
 
     def _set_theme_mode(self, mode):
-        """Change theme mode"""
         self._theme_mgr.set_mode(mode)
         self._is_dark = self._theme_mgr.is_dark()
         self._theme_btn.setText(self._get_theme_icon())
         self._apply_theme()
 
     def _toggle_theme(self):
-        # Legacy toggle - cycles through modes
         current = self._theme_mgr.get_mode()
         if current == ThemeManager.MODE_AUTO:
             new_mode = ThemeManager.MODE_DARK
@@ -221,7 +178,6 @@ class MainWindow(QMainWindow):
 
     def _apply_theme(self):
         self.setStyleSheet(dark_qss() if self._is_dark else light_qss())
-        self._gradient_bg.set_dark(self._is_dark)
         self._perf_tab.apply_theme(self._is_dark)
         self._proc_tab.set_dark(self._is_dark)
 

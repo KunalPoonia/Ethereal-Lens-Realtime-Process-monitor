@@ -7,202 +7,168 @@ MIN_WIDTH  = 1100
 MIN_HEIGHT = 700
 
 # ── Animation durations (ms) ────────────────────────────────────────
-ANIM_FADE_IN          = 600
+ANIM_FADE_IN          = 400
 ANIM_CARD_HOVER       = 200
-ANIM_TAB_SLIDE        = 250
-ANIM_VALUE_TRANSITION = 400
+ANIM_TAB_SLIDE        = 200
+ANIM_VALUE_TRANSITION = 350
 
-# ── Dark Theme — vibrant glassmorphism design ──────────────────────
-# Philosophy: rich gradients, translucent surfaces, vibrant accents
+# ── Dark Theme — monochromatic, muted, cohesive ────────────────────
+# Philosophy: single-hue accent, quiet surfaces, no glow, no noise
 DARK = {
-    # Surfaces — glassmorphic layers
-    "bg":              "#0a0e17",
-    "bg_secondary":    "#0f1419",
-    "bg_card":         "#1a1f2ecc",  # Semi-transparent for glass effect
-    "bg_card_hover":   "#1f2535dd",
-    "bg_elevated":     "#232936ee",
-    
-    # Gradient backgrounds
-    "bg_gradient_start": "#0a0e17",
-    "bg_gradient_end":   "#151a28",
-    
-    # Text — high contrast with vibrant accents
-    "text":            "#e8eaed",
-    "text_secondary":  "#9ca3af",
-    "text_muted":      "#6b7280",
-    "text_bright":     "#ffffff",
+    # Surfaces — layered neutrals
+    "bg":              "#111318",
+    "bg_secondary":    "#15171d",
+    "bg_card":         "#1a1d24",
+    "bg_card_hover":   "#1f222a",
+    "bg_elevated":     "#1e2129",
 
-    # Accent — vibrant cyan/blue gradient
-    "accent":          "#06b6d4",
-    "accent_secondary":"#3b82f6",
-    "accent_dim":      "#06b6d420",
-    "accent_hover":    "#22d3ee",
-    "accent_glow":     "#06b6d440",
-    
-    # Vibrant gradients for visual interest
-    "gradient_cyan":   ["#06b6d4", "#3b82f6"],
-    "gradient_purple": ["#a855f7", "#ec4899"],
-    "gradient_green":  ["#10b981", "#06b6d4"],
-    "gradient_orange": ["#f59e0b", "#ef4444"],
+    # Gradient backgrounds (kept subtle — same hue, slight shift)
+    "bg_gradient_start": "#111318",
+    "bg_gradient_end":   "#14161c",
 
-    # Borders — subtle with glow
-    "border":          "#1f2937",
-    "border_bright":   "#374151",
-    "card_border":     "#ffffff10",
-    "card_glow":       "#06b6d410",
+    # Text — restrained hierarchy
+    "text":            "#c8cad0",
+    "text_secondary":  "#8b8f99",
+    "text_muted":      "#5c6070",
+    "text_bright":     "#e4e5ea",
 
-    # Graphs — vibrant, distinct colors
-    "graph_cpu":       "#06b6d4",
-    "graph_ram":       "#a855f7",
-    "graph_disk":      "#f59e0b",
-    "graph_net":       "#10b981",
-    "graph_fill":      "32",
-    
-    # Gradient versions for charts
-    "graph_cpu_gradient":   ["#06b6d4", "#0891b2"],
-    "graph_ram_gradient":   ["#a855f7", "#9333ea"],
-    "graph_disk_gradient":  ["#f59e0b", "#d97706"],
-    "graph_net_gradient":   ["#10b981", "#059669"],
+    # Accent — single muted slate-blue
+    "accent":          "#6e7baa",
+    "accent_secondary":"#7d89b5",
+    "accent_dim":      "#6e7baa18",
+    "accent_hover":    "#8490bf",
+    "accent_glow":     "#6e7baa28",
+
+    # Borders — barely visible
+    "border":          "#23262f",
+    "border_bright":   "#2d313b",
+    "card_border":     "#ffffff08",
+    "card_glow":       "#6e7baa0c",
+
+    # Graphs — muted, tonal (all within the same cool-grey family)
+    "graph_cpu":       "#6e7baa",
+    "graph_ram":       "#8a7ba5",
+    "graph_disk":      "#7b9aa0",
+    "graph_net":       "#7ba58a",
+    "graph_fill":      "18",
 
     # Interactive states
-    "selection":       "#1e3a8a40",
-    "row_hover":       "#1f293780",
-    "scrollbar":       "#374151",
-    "scrollbar_hover": "#4b5563",
+    "selection":       "#6e7baa20",
+    "row_hover":       "#ffffff06",
+    "scrollbar":       "#2d313b",
+    "scrollbar_hover": "#3a3f4b",
 
     # Tabs
-    "tab_active":      "#e8eaed",
-    "tab_inactive":    "#6b7280",
+    "tab_active":      "#e4e5ea",
+    "tab_inactive":    "#5c6070",
 
     # Inputs
-    "input_bg":        "#111827cc",
-    "input_focus":     "#1f2937ee",
-    "input_border":    "#374151",
+    "input_bg":        "#15171d",
+    "input_focus":     "#1a1d24",
+    "input_border":    "#2d313b",
 
     # Structure
-    "header_bg":       "#0f1419",
-    "grid_line":       "#1f2937",
-    "statusbar_bg":    "#0a0e17",
+    "header_bg":       "#15171d",
+    "grid_line":       "#1e2129",
+    "statusbar_bg":    "#111318",
 
-    # Semantic — vibrant, clear
-    "danger":          "#ef4444",
-    "danger_glow":     "#ef444430",
-    "warning":         "#f59e0b",
-    "warning_glow":    "#f59e0b30",
-    "success":         "#10b981",
-    "success_glow":    "#10b98130",
-    
-    "separator":       "#06b6d430",
-    "status_run":      "#10b981",
-    "status_stop":     "#ef4444",
-    "status_sleep":    "#f59e0b",
-    "mem_highlight":   "#a855f7",
+    # Semantic — desaturated
+    "danger":          "#b05e5e",
+    "danger_glow":     "#b05e5e20",
+    "warning":         "#7a7e99",
+    "warning_glow":    "#7a7e9920",
+    "success":         "#5ea57b",
+    "success_glow":    "#5ea57b20",
+
+    "separator":       "#6e7baa18",
+    "status_run":      "#5ea57b",
+    "status_stop":     "#b05e5e",
+    "status_sleep":    "#7a7e8a",
+    "mem_highlight":   "#8b8f99",
 
     # Toolbar
-    "toolbar_gradient_start": "#0f1419",
-    "toolbar_gradient_end":   "#1a1f2e",
-    "title_glow":      "#06b6d420",
-    
-    # Blur amounts for glassmorphism
-    "blur_light":      8,
-    "blur_medium":     12,
-    "blur_heavy":      16,
+    "toolbar_gradient_start": "#15171d",
+    "toolbar_gradient_end":   "#1a1d24",
+    "title_glow":      "#6e7baa14",
 }
 
-# ── Light Theme — bright glassmorphism design ──────────────────────
+# ── Light Theme — clean, airy, cohesive ────────────────────────────
 LIGHT = {
-    # Surfaces — glassmorphic layers
-    "bg":              "#f8f9fb",
-    "bg_secondary":    "#f3f4f6",
-    "bg_card":         "#ffffffdd",  # Semi-transparent for glass effect
-    "bg_card_hover":   "#ffffffee",
-    "bg_elevated":     "#fffffff8",
-    
+    # Surfaces
+    "bg":              "#f6f7f9",
+    "bg_secondary":    "#eef0f3",
+    "bg_card":         "#ffffff",
+    "bg_card_hover":   "#f9fafb",
+    "bg_elevated":     "#ffffff",
+
     # Gradient backgrounds
-    "bg_gradient_start": "#f8f9fb",
-    "bg_gradient_end":   "#e5e7eb",
+    "bg_gradient_start": "#f6f7f9",
+    "bg_gradient_end":   "#f0f1f4",
 
-    # Text — sharp contrast
-    "text":            "#111827",
-    "text_secondary":  "#6b7280",
-    "text_muted":      "#9ca3af",
-    "text_bright":     "#000000",
+    # Text
+    "text":            "#2e3038",
+    "text_secondary":  "#6b7080",
+    "text_muted":      "#9ca0ab",
+    "text_bright":     "#1a1c22",
 
-    # Accent — vibrant blue
-    "accent":          "#3b82f6",
-    "accent_secondary":"#06b6d4",
-    "accent_dim":      "#3b82f620",
-    "accent_hover":    "#2563eb",
-    "accent_glow":     "#3b82f640",
-    
-    # Vibrant gradients
-    "gradient_cyan":   ["#06b6d4", "#3b82f6"],
-    "gradient_purple": ["#a855f7", "#ec4899"],
-    "gradient_green":  ["#10b981", "#06b6d4"],
-    "gradient_orange": ["#f59e0b", "#ef4444"],
+    # Accent
+    "accent":          "#5b6894",
+    "accent_secondary":"#6b78a4",
+    "accent_dim":      "#5b689414",
+    "accent_hover":    "#4a577f",
+    "accent_glow":     "#5b689424",
 
-    # Borders — clean with subtle shadows
-    "border":          "#e5e7eb",
-    "border_bright":   "#d1d5db",
-    "card_border":     "#00000010",
-    "card_glow":       "#3b82f610",
+    # Borders
+    "border":          "#e0e2e7",
+    "border_bright":   "#d0d3da",
+    "card_border":     "#00000008",
+    "card_glow":       "#5b68940c",
 
-    # Graphs — vibrant, clear
-    "graph_cpu":       "#3b82f6",
-    "graph_ram":       "#a855f7",
-    "graph_disk":      "#f59e0b",
-    "graph_net":       "#10b981",
-    "graph_fill":      "24",
-    
-    # Gradient versions
-    "graph_cpu_gradient":   ["#3b82f6", "#2563eb"],
-    "graph_ram_gradient":   ["#a855f7", "#9333ea"],
-    "graph_disk_gradient":  ["#f59e0b", "#d97706"],
-    "graph_net_gradient":   ["#10b981", "#059669"],
+    # Graphs
+    "graph_cpu":       "#5b6894",
+    "graph_ram":       "#7a6b8f",
+    "graph_disk":      "#6b8a90",
+    "graph_net":       "#6b8f7a",
+    "graph_fill":      "14",
 
     # Interactive states
-    "selection":       "#dbeafe",
-    "row_hover":       "#f3f4f6",
-    "scrollbar":       "#d1d5db",
-    "scrollbar_hover": "#9ca3af",
+    "selection":       "#5b689418",
+    "row_hover":       "#00000005",
+    "scrollbar":       "#d0d3da",
+    "scrollbar_hover": "#b8bcc6",
 
     # Tabs
-    "tab_active":      "#111827",
-    "tab_inactive":    "#9ca3af",
+    "tab_active":      "#1a1c22",
+    "tab_inactive":    "#9ca0ab",
 
     # Inputs
-    "input_bg":        "#f3f4f6dd",
-    "input_focus":     "#ffffffee",
-    "input_border":    "#d1d5db",
+    "input_bg":        "#f0f1f4",
+    "input_focus":     "#ffffff",
+    "input_border":    "#d0d3da",
 
     # Structure
-    "header_bg":       "#f3f4f6",
-    "grid_line":       "#e5e7eb",
-    "statusbar_bg":    "#f8f9fb",
+    "header_bg":       "#eef0f3",
+    "grid_line":       "#e8eaee",
+    "statusbar_bg":    "#f6f7f9",
 
-    # Semantic — vibrant
-    "danger":          "#ef4444",
-    "danger_glow":     "#ef444430",
-    "warning":         "#f59e0b",
-    "warning_glow":    "#f59e0b30",
-    "success":         "#10b981",
-    "success_glow":    "#10b98130",
-    
-    "separator":       "#3b82f630",
-    "status_run":      "#10b981",
-    "status_stop":     "#ef4444",
-    "status_sleep":    "#f59e0b",
-    "mem_highlight":   "#a855f7",
+    # Semantic
+    "danger":          "#a05050",
+    "danger_glow":     "#a0505018",
+    "warning":         "#6c7088",
+    "warning_glow":    "#6c708818",
+    "success":         "#508f6a",
+    "success_glow":    "#508f6a18",
+
+    "separator":       "#5b689418",
+    "status_run":      "#508f6a",
+    "status_stop":     "#a05050",
+    "status_sleep":    "#7a7e88",
+    "mem_highlight":   "#6b7080",
 
     # Toolbar
-    "toolbar_gradient_start": "#f3f4f6",
-    "toolbar_gradient_end":   "#e5e7eb",
-    "title_glow":      "#3b82f620",
-    
-    # Blur amounts
-    "blur_light":      6,
-    "blur_medium":     10,
-    "blur_heavy":      14,
+    "toolbar_gradient_start": "#eef0f3",
+    "toolbar_gradient_end":   "#e8eaee",
+    "title_glow":      "#5b689414",
 }
 
 PROCESS_COLUMNS = ["Name" , "PID" , "CPU %", "Memory (MB)", "Status"] 

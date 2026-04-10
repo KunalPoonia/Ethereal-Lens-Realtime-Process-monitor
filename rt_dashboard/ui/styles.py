@@ -1,9 +1,9 @@
-# ─── QSS — Vibrant Glassmorphism Design ─────────────────────────────
+# ─── QSS — Quiet Monochromatic Design ────────────────────────────────
 # Design rules:
-#   • Glassmorphic surfaces with translucency and depth
-#   • Vibrant gradients and colors for visual interest
-#   • Smooth transitions and hover effects
-#   • Modern, clean typography with good contrast
+#   • Flat, layered surfaces with subtle depth
+#   • Single-hue accent, muted palette
+#   • Minimal borders, no glow, no noise
+#   • Clean typography, restrained hierarchy
 
 from config import DARK, LIGHT
 
@@ -20,7 +20,7 @@ def _build_qss(c: dict) -> str:
         border: none;
     }}
 
-    /* ── Tabs — vibrant underline with glow ──────────────────────── */
+    /* ── Tabs ────────────────────────────────────────────────────── */
     QTabWidget::pane {{ border: none; }}
     QTabBar {{
         background: {c['bg_secondary']};
@@ -30,10 +30,9 @@ def _build_qss(c: dict) -> str:
         color: {c['tab_inactive']};
         padding: 14px 36px;
         border: none;
-        border-bottom: 3px solid transparent;
+        border-bottom: 2px solid transparent;
         font-weight: 500;
-        font-size: 13.5px;
-        transition: all 0.2s ease;
+        font-size: 13px;
     }}
     QTabBar::tab:selected {{
         color: {c['tab_active']};
@@ -42,10 +41,10 @@ def _build_qss(c: dict) -> str:
     }}
     QTabBar::tab:hover:!selected {{
         color: {c['text']};
-        background: {c['accent_dim']};
+        background: {c['row_hover']};
     }}
 
-    /* ── Tree (process list) — minimal lines ─────────────────────── */
+    /* ── Tree (process list) ─────────────────────────────────────── */
     QTreeWidget {{
         background: {c['bg']};
         border: none;
@@ -58,6 +57,13 @@ def _build_qss(c: dict) -> str:
         border-bottom: 1px solid {c['grid_line']};
     }}
     QTreeWidget::item:selected {{
+        background: {c['selection']};
+        color: {c['text']};
+    }}
+    QTreeWidget::item:selected:active {{
+        background: {c['selection']};
+    }}
+    QTreeWidget::item:selected:!active {{
         background: {c['selection']};
     }}
     QTreeWidget::item:hover:!selected {{
@@ -79,31 +85,30 @@ def _build_qss(c: dict) -> str:
         border-bottom: 1px solid {c['border']};
         font-weight: 600;
         font-size: 10.5px;
-        letter-spacing: 0.6px;
+        letter-spacing: 0.5px;
     }}
 
-    /* ── Inputs — glassmorphic with vibrant focus ────────────────── */
+    /* ── Inputs ───────────────────────────────────────────────────── */
     QLineEdit {{
         background: {c['input_bg']};
-        border: 1.5px solid {c['input_border']};
-        border-radius: 10px;
-        padding: 9px 16px;
+        border: 1px solid {c['input_border']};
+        border-radius: 8px;
+        padding: 9px 14px;
         color: {c['text']};
         font-size: 13px;
     }}
     QLineEdit:focus {{
         border-color: {c['accent']};
         background: {c['input_focus']};
-        border-width: 2px;
     }}
 
-    /* ── Buttons — vibrant with glow effects ─────────────────────── */
+    /* ── Buttons ──────────────────────────────────────────────────── */
     QPushButton {{
         background: {c['accent_dim']};
         color: {c['text']};
-        border: 1.5px solid {c['border_bright']};
-        border-radius: 10px;
-        padding: 8px 20px;
+        border: 1px solid {c['border_bright']};
+        border-radius: 8px;
+        padding: 8px 18px;
         font-weight: 500;
         font-size: 12.5px;
     }}
@@ -113,9 +118,8 @@ def _build_qss(c: dict) -> str:
         background: {c['accent_glow']};
     }}
     QPushButton:pressed {{
-        background: {c['accent']};
+        background: {c['accent_dim']};
         border-color: {c['accent']};
-        color: {c['text_bright']};
     }}
     QPushButton:disabled {{
         color: {c['text_muted']};
@@ -123,24 +127,24 @@ def _build_qss(c: dict) -> str:
         background: transparent;
     }}
 
-    /* Theme toggle — circular with glow */
+    /* Theme toggle */
     QPushButton#themeToggle {{
         background: {c['bg_elevated']};
-        border: 1.5px solid {c['border_bright']};
-        min-width: 40px; max-width: 40px;
-        min-height: 40px; max-height: 40px;
-        border-radius: 20px;
-        font-size: 16px; padding: 0;
+        border: 1px solid {c['border_bright']};
+        min-width: 36px; max-width: 36px;
+        min-height: 36px; max-height: 36px;
+        border-radius: 18px;
+        font-size: 14px; padding: 0;
     }}
     QPushButton#themeToggle:hover {{
         border-color: {c['accent']};
         background: {c['accent_dim']};
     }}
 
-    /* End task — vibrant danger */
+    /* End task — muted danger */
     QPushButton#actionButtonDanger {{
         color: {c['danger']};
-        border-color: {c['danger']};
+        border-color: {c['danger_glow']};
         background: {c['danger_glow']};
     }}
     QPushButton#actionButtonDanger:hover {{
@@ -152,12 +156,12 @@ def _build_qss(c: dict) -> str:
     /* ── Labels ───────────────────────────────────────────────────── */
     QLabel {{ background: transparent; }}
     QLabel#cardTitle {{
-        font-size: 11px; font-weight: 500;
+        font-size: 11px; font-weight: 600;
         color: {c['text_muted']};
-        letter-spacing: 0.5px;
+        letter-spacing: 0.4px;
     }}
     QLabel#cardValue {{
-        font-size: 32px; font-weight: 300;
+        font-size: 28px; font-weight: 300;
         color: {c['text_bright']};
         letter-spacing: -0.5px;
     }}
@@ -165,29 +169,26 @@ def _build_qss(c: dict) -> str:
         font-size: 11px; color: {c['text_muted']};
     }}
 
-    /* ── Cards — glassmorphic with glow ─────────────────────────── */
+    /* ── Cards ────────────────────────────────────────────────────── */
     QFrame#card {{
         background: {c['bg_card']};
         border: 1px solid {c['card_border']};
-        border-radius: 14px;
+        border-radius: 10px;
     }}
     QFrame#card:hover {{
         background: {c['bg_card_hover']};
-        border-color: {c['accent_dim']};
     }}
-    
-    /* Glassmorphic card variant */
+
     QFrame#glassCard {{
         background: {c['bg_card']};
-        border: 1.5px solid {c['card_border']};
-        border-radius: 14px;
+        border: 1px solid {c['card_border']};
+        border-radius: 10px;
     }}
     QFrame#glassCard:hover {{
         background: {c['bg_card_hover']};
-        border-color: {c['card_glow']};
     }}
 
-    /* ── Toolbar — flat blend ────────────────────────────────────── */
+    /* ── Toolbar ──────────────────────────────────────────────────── */
     QFrame#toolbar {{
         background: {c['bg_secondary']};
         border-bottom: 1px solid {c['border']};
@@ -197,7 +198,7 @@ def _build_qss(c: dict) -> str:
         border-bottom: 1px solid {c['grid_line']};
     }}
 
-    /* ── Status bar ───────────────────────────────────────────────── */
+    /* ── Status bar ──────────────────────────────────────────────── */
     QFrame#statusbar {{
         background: {c['statusbar_bg']};
         border-top: 1px solid {c['border']};
@@ -206,9 +207,9 @@ def _build_qss(c: dict) -> str:
         font-size: 11px; color: {c['text_muted']};
     }}
 
-    /* ── Scrollbar — whisper thin ─────────────────────────────────── */
+    /* ── Scrollbar ───────────────────────────────────────────────── */
     QScrollBar:vertical {{
-        background: transparent; width: 5px;
+        background: transparent; width: 4px;
         margin: 6px 1px;
     }}
     QScrollBar::handle:vertical {{
@@ -229,12 +230,12 @@ def _build_qss(c: dict) -> str:
     QMenu {{
         background: {c['bg_elevated']};
         border: 1px solid {c['border']};
-        border-radius: 10px;
-        padding: 6px;
+        border-radius: 8px;
+        padding: 4px;
     }}
     QMenu::item {{
-        padding: 8px 22px;
-        border-radius: 6px;
+        padding: 8px 20px;
+        border-radius: 4px;
         color: {c['text']};
     }}
     QMenu::item:selected {{
@@ -243,7 +244,7 @@ def _build_qss(c: dict) -> str:
     QMenu::separator {{
         height: 1px;
         background: {c['border']};
-        margin: 4px 10px;
+        margin: 4px 8px;
     }}
 
     /* ── Tooltips ─────────────────────────────────────────────────── */
@@ -251,7 +252,7 @@ def _build_qss(c: dict) -> str:
         background: {c['bg_elevated']};
         color: {c['text']};
         border: 1px solid {c['border']};
-        border-radius: 6px;
+        border-radius: 4px;
         padding: 6px 10px;
         font-size: 11px;
     }}

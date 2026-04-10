@@ -1,5 +1,5 @@
 # ─── Performance Tab ─────────────────────────────────────────────────
-# Metric cards with smooth animated values — desaturated, harmonious.
+# Metric cards with smooth animated values and clean graphs.
 
 import numpy as np
 import pyqtgraph as pg
@@ -10,7 +10,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import (
     Qt, QPropertyAnimation, QEasingCurve, QObject, pyqtProperty,
 )
-from PyQt6.QtGui import QColor, QLinearGradient
+from PyQt6.QtGui import QColor
 
 from core.datastore import DataStore
 from config import DARK, LIGHT, HISTORY_LENGTH, ANIM_VALUE_TRANSITION
@@ -32,34 +32,46 @@ class _AnimatedValue(QObject):
 
 
 class MetricCard(GlassCard):
-    def __init__(self, title, color, fill_alpha=32, max_y=100.0, unit="%", parent=None):
-        # Get gradient colors if available
+    def __init__(self, title, color, fill_alpha=24, max_y=100.0, unit="%", parent=None):
         super().__init__(parent, blur_radius=12, border_gradient=None)
         self._color_hex = color
         self._unit = unit
 
         lay = QVBoxLayout(self)
-        lay.setContentsMargins(24, 20, 24, 16)
+        lay.setContentsMargins(22, 18, 22, 14)
         lay.setSpacing(0)
 
-        # ── Title — vibrant with icon-like badge ─────────────────────
+        # ── Header ───────────────────────────────────────────────────
+        header = QHBoxLayout()
+        header.setSpacing(8)
+
         self._title = QLabel(title)
         self._title.setObjectName("cardTitle")
-        lay.addWidget(self._title)
+        header.addWidget(self._title)
+        header.addStretch()
+
+        # Trend indicator (text only, no emoji)
+        self._trend = QLabel("")
+        self._trend.setStyleSheet("font-size: 11px; font-weight: 500; background: transparent;")
+        header.addWidget(self._trend)
+
+        lay.addLayout(header)
+        lay.addSpacing(8)
+
+        # ── Value ────────────────────────────────────────────────────
+        value_row = QHBoxLayout()
+        self._value = QLabel("—")
+        self._value.setObjectName("cardValue")
+        value_row.addWidget(self._value)
+        value_row.addStretch()
+        lay.addLayout(value_row)
 
         lay.addSpacing(10)
 
-        # ── Value — large, bright, eye-catching ──────────────────────
-        self._value = QLabel("—")
-        self._value.setObjectName("cardValue")
-        lay.addWidget(self._value)
-
-        lay.addSpacing(12)
-
-        # ── Graph — vibrant gradient fills ───────────────────────────
+        # ── Graph ────────────────────────────────────────────────────
         self._pw = pg.PlotWidget()
         self._pw.setBackground(None)
-        self._pw.setFixedHeight(120)
+        self._pw.setFixedHeight(110)
         self._pw.showGrid(x=False, y=False)
         self._pw.hideButtons()
         self._pw.setMenuEnabled(False)
@@ -72,16 +84,16 @@ class MetricCard(GlassCard):
         self._pw.setYRange(0, max_y, padding=0.05)
         self._pw.setXRange(0, HISTORY_LENGTH - 1, padding=0)
 
-        # Vibrant reference line
-        for frac in [0.50]:
+        # Subtle reference lines
+        for frac in [0.25, 0.50, 0.75]:
             line = pg.InfiniteLine(pos=max_y * frac, angle=0,
-                                   pen=pg.mkPen("#ffffff08", width=1))
+                                   pen=pg.mkPen("#ffffff04", width=1))
             line.setZValue(-10)
             self._pw.addItem(line)
 
-        # Thicker curve with vibrant gradient fill
+        # Clean curve with soft fill
         self._curve = self._pw.plot([], [],
-                                     pen=pg.mkPen(color, width=2.5),
+                                     pen=pg.mkPen(color, width=1.5),
                                      antialias=True)
         self._base = pg.PlotDataItem([], [])
         fc = QColor(color)
@@ -90,7 +102,7 @@ class MetricCard(GlassCard):
         self._pw.addItem(self._fill)
         lay.addWidget(self._pw)
 
-        lay.addSpacing(6)
+        lay.addSpacing(4)
 
         self._sub = QLabel("")
         self._sub.setObjectName("cardSub")
@@ -104,9 +116,33 @@ class MetricCard(GlassCard):
         self._val_anim.valueChanged.connect(self._on_val_tick)
         self._current_numeric = 0.0
 
+        # Trend tracking
+        self._prev_values = []
+
     def _on_val_tick(self):
         v = self._anim_val.val
         self._value.setText(f"{v:.1f}{self._unit}")
+
+    def _update_trend(self, current):
+        self._prev_values.append(current)
+        if len(self._prev_values) > 10:
+            self._prev_values.pop(0)
+
+        if len(self._prev_values) >= 5:
+            avg_old = sum(self._prev_values[:3]) / 3
+            avg_new = sum(self._prev_values[-3:]) / 3
+            diff = avg_new - avg_old
+            pct = (diff / max(avg_old, 0.1)) * 100
+
+            if abs(pct) < 2:
+                self._trend.setText("—")
+                self._trend.setStyleSheet("font-size: 11px; font-weight: 500; background: transparent; color: #5c6070;")
+            elif pct > 0:
+                self._trend.setText(f"▲ {abs(pct):.0f}%")
+                self._trend.setStyleSheet("font-size: 11px; font-weight: 500; background: transparent; color: #b05e5e;")
+            else:
+                self._trend.setText(f"▼ {abs(pct):.0f}%")
+                self._trend.setStyleSheet("font-size: 11px; font-weight: 500; background: transparent; color: #5ea57b;")
 
     def update(self, hist, val_text, sub, numeric=None):
         x = np.arange(len(hist))
@@ -117,6 +153,7 @@ class MetricCard(GlassCard):
         if numeric is not None:
             old = self._current_numeric
             self._current_numeric = numeric
+            self._update_trend(numeric)
             if abs(numeric - old) > 0.05:
                 self._val_anim.stop()
                 self._val_anim.setStartValue(old)
@@ -129,9 +166,9 @@ class MetricCard(GlassCard):
 
         self._sub.setText(sub)
 
-    def set_color(self, color, alpha=32):
+    def set_color(self, color, alpha=24):
         self._color_hex = color
-        self._curve.setPen(pg.mkPen(color, width=2.5))
+        self._curve.setPen(pg.mkPen(color, width=1.5))
         fc = QColor(color)
         fc.setAlpha(alpha)
         self._fill.setBrush(pg.mkBrush(fc))
@@ -145,11 +182,11 @@ class PerformanceTab(QWidget):
 
     def _init_ui(self):
         lay = QVBoxLayout(self)
-        lay.setContentsMargins(24, 20, 24, 20)
-        lay.setSpacing(16)
+        lay.setContentsMargins(20, 18, 20, 18)
+        lay.setSpacing(14)
 
         grid = QGridLayout()
-        grid.setSpacing(16)
+        grid.setSpacing(14)
 
         c = DARK
         fa = int(c["graph_fill"], 16)

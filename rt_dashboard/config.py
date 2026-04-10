@@ -205,9 +205,9 @@ LIGHT = {
     "blur_heavy":      14,
 }
 
-PROCESS_COLUMNS = ["Name", "PID", "CPU %", "Memory (MB)", "Status"]
+PROCESS_COLUMNS = ["Name" , "PID" , "CPU %", "Memory (MB)", "Status"] 
 
-import psutil
+import psutil 
 PRIORITY_CLASSES = {
     "Realtime":      psutil.REALTIME_PRIORITY_CLASS,
     "High":          psutil.HIGH_PRIORITY_CLASS,
@@ -215,4 +215,4 @@ PRIORITY_CLASSES = {
     "Normal":        psutil.NORMAL_PRIORITY_CLASS,
     "Below Normal":  psutil.BELOW_NORMAL_PRIORITY_CLASS,
     "Low (Idle)":    psutil.IDLE_PRIORITY_CLASS,
-}
+}       

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Process Monitor Overview</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  
+  <header class="header">
+    <h1>System Overview</h1>
+    <div id="connection-status" style="font-size: 13px; color: var(--text-secondary);">Connecting...</div>
+  </header>
+
+  <section class="metrics-panel">
+    <div class="card">
+      <div class="card-title">CPU</div>
+      <div class="card-value" id="val-cpu">0%</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Memory</div>
+      <div class="card-value" id="val-mem">0 GB</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Disk (I/O)</div>
+      <div class="card-value" id="val-disk">0 MB/s</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Network</div>
+      <div class="card-value" id="val-net">0 KB/s</div>
+    </div>
+  </section>
+
+  <section class="toolbar">
+    <input type="text" id="search-input" class="search-input" placeholder="Search processes...">
+  </section>
+
+  <section class="table-container">
+    <table id="process-table">
+      <thead>
+        <tr>
+          <th class="col-name">Process Name</th>
+          <th>PID</th>
+          <th>CPU</th>
+          <th>Memory</th>
+        </tr>
+      </thead>
+      <tbody id="process-list">
+        <!-- Rows dynamically injected via WebSocket in app.js -->
+      </tbody>
+    </table>
+  </section>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

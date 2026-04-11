@@ -1,0 +1,174 @@
+:root {
+  /* 
+   * Strict 4-color monochrome palette 
+   */
+  --c-white: #FFFFFF;
+  --c-light-grey: #D4D4D4;
+  --c-mid-grey: #B3B3B3;
+  --c-dark-charcoal: #2B2B2B;
+
+  /* Semantic UI Mapping - Pure Light Architecture */
+  --bg-app: var(--c-white);
+  --bg-surface: var(--c-white);
+  --border-line: var(--c-light-grey);
+  
+  --text-primary: var(--c-dark-charcoal);
+  --text-secondary: var(--c-mid-grey);
+  
+  /* Interactions */
+  --bg-selection: var(--c-dark-charcoal);
+  --text-selection: var(--c-white);
+  --bg-hover: var(--c-light-grey);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  background-color: var(--bg-app);
+  color: var(--text-primary);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ── Header ── */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border-line);
+  background-color: var(--bg-surface);
+}
+
+.header h1 {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* ── Performance Cards Grid ── */
+.metrics-panel {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  padding: 24px;
+  background-color: var(--bg-app);
+}
+
+.card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-line);
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.card-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.card-value {
+  font-size: 28px;
+  font-weight: 300;
+  color: var(--text-primary);
+}
+
+/* ── Search & Actions ── */
+.toolbar {
+  padding: 0 24px 16px 24px;
+  display: flex;
+  gap: 12px;
+}
+
+.search-input {
+  flex: 1;
+  padding: 10px 16px;
+  font-size: 14px;
+  border: 1px solid var(--border-line);
+  border-radius: 6px;
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.search-input:focus {
+  border-color: var(--text-primary);
+}
+
+.search-input::placeholder {
+  color: var(--text-secondary);
+}
+
+/* ── Process Table ── */
+.table-container {
+  flex: 1;
+  overflow-y: auto;
+  border-top: 1px solid var(--border-line);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: right; /* Default align right for numeric strings */
+}
+
+th, td {
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border-line);
+}
+
+th {
+  position: sticky;
+  top: 0;
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Name column specifically aligned left */
+.col-name {
+  text-align: left;
+  width: 45%;
+  font-weight: 500;
+}
+
+.process-row:hover {
+  background-color: var(--bg-hover);
+  cursor: default;
+}
+
+.process-row.selected {
+  background-color: var(--bg-selection);
+  color: var(--text-selection);
+}
+
+.process-row.selected td {
+  border-bottom-color: var(--bg-selection);
+}
+
+/* We style child spans inside rows to ensure color flips cleanly when selected */
+.process-row.selected .text-muted {
+  color: var(--text-selection); 
+}
+
+.text-muted {
+  color: var(--text-secondary);
+}

@@ -7,7 +7,8 @@ import ctypes.wintypes
 import multiprocessing as mp
 import psutil
 import time
-from PyQt6.QtCore import QThread, pyqtSignal
+import threading
+import queue
 from config import POLL_INTERVAL_MS
 from core.datastore import DataStore
 
@@ -33,15 +34,14 @@ def _get_windowed_pids() -> set[int]:
 
 
 # ═══════════════════════════════════════════════════════════════════════
-#  Stats Poller (QThread with sleep loop)
+#  Stats Poller (Standard Thread with sleep loop)
 # ═══════════════════════════════════════════════════════════════════════
 
-class StatsPoller(QThread):
+class StatsPoller(threading.Thread):
     """Polls CPU/RAM/Disk/Net stats every second."""
-    stats_ready = pyqtSignal()
 
-    def __init__(self, store: DataStore, parent=None):
-        super().__init__(parent)
+    def __init__(self, store: DataStore):
+        super().__init__(daemon=True)
         self._store = store
         self._running = True
         psutil.cpu_percent(interval=None)  # prime
@@ -60,21 +60,20 @@ class StatsPoller(QThread):
                     disk_space.used / (1024**3), disk_space.total / (1024**3),
                     net.bytes_sent, net.bytes_recv,
                 )
-                self.stats_ready.emit()
             except Exception:
                 pass
-            self.msleep(POLL_INTERVAL_MS)
+            time.sleep(POLL_INTERVAL_MS / 1000.0)
 
     def stop(self):
         self._running = False
-        self.wait(2000)
+        self.join(timeout=2.0)
 
 
 # ═══════════════════════════════════════════════════════════════════════
 #  Process Worker (runs in child process to avoid GIL blocking)
 # ═══════════════════════════════════════════════════════════════════════
 
-def _proc_worker(queue: mp.Queue, stop_event: mp.Event) -> None:
+def _proc_worker(q: mp.Queue, stop_event: mp.Event) -> None:
     """Runs in a child process. Collects process list and sends via queue."""
     PROC_POLL_INTERVAL = 2.0  # seconds between polls
     
@@ -115,8 +114,8 @@ def _proc_worker(queue: mp.Queue, stop_event: mp.Event) -> None:
                         psutil.ZombieProcess, OSError):
                     continue
             
-            if not queue.full():
-                queue.put(apps + bg)
+            if not q.full():
+                q.put(apps + bg)
         except Exception:
             pass
 
@@ -125,12 +124,11 @@ def _proc_worker(queue: mp.Queue, stop_event: mp.Event) -> None:
         stop_event.wait(timeout=remaining)
 
 
-class ProcessPoller(QThread):
-    """Thin QThread that reads from the child-process queue and emits a signal."""
-    procs_ready = pyqtSignal()
+class ProcessPoller(threading.Thread):
+    """Thin Thread that reads from the child-process queue and updates DataStore."""
 
-    def __init__(self, store: DataStore, parent=None):
-        super().__init__(parent)
+    def __init__(self, store: DataStore):
+        super().__init__(daemon=True)
         self._store = store
         self._running = True
         self._queue: mp.Queue = mp.Queue(maxsize=2)
@@ -149,7 +147,8 @@ class ProcessPoller(QThread):
             try:
                 procs = self._queue.get(timeout=0.25)
                 self._store.push_processes(procs)
-                self.procs_ready.emit()
+            except queue.Empty:
+                pass
             except Exception:
                 pass
 
@@ -157,30 +156,23 @@ class ProcessPoller(QThread):
         self._running = False
         self._stop_event.set()
         if self._child and self._child.is_alive():
-            self._child.join(timeout=2)
+            self._child.join(timeout=2.0)
             if self._child.is_alive():
                 self._child.terminate()
-        self.wait(2000)
+        self.join(timeout=2.0)
 
 
 # ═══════════════════════════════════════════════════════════════════════
 #  Combined Poller (starts both sub-pollers)
 # ═══════════════════════════════════════════════════════════════════════
 
-class Poller(QThread):
+class Poller:
     """Starts both stats and process pollers."""
-    data_ready  = pyqtSignal()
-    procs_ready = pyqtSignal()
 
-    def __init__(self, store: DataStore, parent=None):
-        super().__init__(parent)
+    def __init__(self, store: DataStore):
         self._store = store
         self._stats_poller = StatsPoller(store)
         self._proc_poller = ProcessPoller(store)
-        
-        # Forward signals
-        self._stats_poller.stats_ready.connect(self.data_ready.emit)
-        self._proc_poller.procs_ready.connect(self.procs_ready.emit)
 
     def start(self):
         self._stats_poller.start()

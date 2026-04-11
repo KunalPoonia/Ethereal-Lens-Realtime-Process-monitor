@@ -7,36 +7,36 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from PyQt6.QtWidgets import QApplication
 from PyQt6.QtGui import QPalette, QColor
-from config import DARK
+from config import LIGHT
 
 
 def _build_palette():
-    """Full custom palette matching DARK theme — prevents all OS accent leakage."""
+    """Neutral palette for Qt widget-level rendering."""
     p = QPalette()
-    d = DARK
+    d = LIGHT
     p.setColor(QPalette.ColorRole.Window,          QColor(d["bg"]))
     p.setColor(QPalette.ColorRole.WindowText,      QColor(d["text"]))
     p.setColor(QPalette.ColorRole.Base,            QColor(d["surface"]))
     p.setColor(QPalette.ColorRole.AlternateBase,   QColor(d["surface2"]))
     p.setColor(QPalette.ColorRole.Text,            QColor(d["text"]))
-    p.setColor(QPalette.ColorRole.BrightText,      QColor("#ffffff"))
+    p.setColor(QPalette.ColorRole.BrightText,      QColor("#FFFFFF"))
     p.setColor(QPalette.ColorRole.PlaceholderText, QColor(d["text3"]))
     p.setColor(QPalette.ColorRole.Button,          QColor(d["surface"]))
     p.setColor(QPalette.ColorRole.ButtonText,      QColor(d["text"]))
-    p.setColor(QPalette.ColorRole.Highlight,       QColor(d["accent"]))
-    p.setColor(QPalette.ColorRole.HighlightedText, QColor("#ffffff"))
-    p.setColor(QPalette.ColorRole.Link,            QColor(d["accent"]))
-    p.setColor(QPalette.ColorRole.LinkVisited,     QColor(d["accent"]))
-    p.setColor(QPalette.ColorRole.Light,           QColor(d["surface2"]))
-    p.setColor(QPalette.ColorRole.Midlight,        QColor(d["border"]))
+    p.setColor(QPalette.ColorRole.Highlight,       QColor(d["selection"]))
+    p.setColor(QPalette.ColorRole.HighlightedText, QColor(d["text"]))
+    p.setColor(QPalette.ColorRole.Link,            QColor(d["text2"]))
+    p.setColor(QPalette.ColorRole.LinkVisited,     QColor(d["text3"]))
+    p.setColor(QPalette.ColorRole.Light,           QColor(d["surface"]))
+    p.setColor(QPalette.ColorRole.Midlight,        QColor(d["border_subtle"]))
     p.setColor(QPalette.ColorRole.Mid,             QColor(d["border"]))
-    p.setColor(QPalette.ColorRole.Dark,            QColor(d["bg"]))
-    p.setColor(QPalette.ColorRole.Shadow,          QColor("#000000"))
-    p.setColor(QPalette.ColorRole.ToolTipBase,     QColor(d["surface2"]))
+    p.setColor(QPalette.ColorRole.Dark,            QColor(d["surface2"]))
+    p.setColor(QPalette.ColorRole.Shadow,          QColor("#00000020"))
+    p.setColor(QPalette.ColorRole.ToolTipBase,     QColor(d["surface"]))
     p.setColor(QPalette.ColorRole.ToolTipText,     QColor(d["text"]))
     # Inactive
     for role, color in [
-        (QPalette.ColorRole.Highlight, d["border"]),
+        (QPalette.ColorRole.Highlight, d["border_subtle"]),
         (QPalette.ColorRole.HighlightedText, d["text"]),
     ]:
         p.setColor(QPalette.ColorGroup.Inactive, role, QColor(color))

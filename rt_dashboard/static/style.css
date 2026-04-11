@@ -1,174 +1,216 @@
-:root {
-  /* 
-   * Strict 4-color monochrome palette 
-   */
-  --c-white: #FFFFFF;
-  --c-light-grey: #D4D4D4;
-  --c-mid-grey: #B3B3B3;
-  --c-dark-charcoal: #2B2B2B;
-
-  /* Semantic UI Mapping - Pure Light Architecture */
-  --bg-app: var(--c-white);
-  --bg-surface: var(--c-white);
-  --border-line: var(--c-light-grey);
-  
-  --text-primary: var(--c-dark-charcoal);
-  --text-secondary: var(--c-mid-grey);
-  
-  /* Interactions */
-  --bg-selection: var(--c-dark-charcoal);
-  --text-selection: var(--c-white);
-  --bg-hover: var(--c-light-grey);
-}
-
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
+/* Extracted directly from blueprint HTML into standalone file */
+.material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
 
 body {
-  background-color: var(--bg-app);
-  color: var(--text-primary);
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  overflow: hidden;
+    margin: 0;
+    padding: 0;
 }
 
-/* ── Header ── */
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px 24px;
-  border-bottom: 1px solid var(--border-line);
-  background-color: var(--bg-surface);
+.glass-card {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 8px 32px 0 rgba(77, 71, 92, 0.08); /* specific to light mode */
 }
 
-.header h1 {
-  font-size: 20px;
-  font-weight: 600;
-  color: var(--text-primary);
+.dark .glass-card {
+    background: rgba(34, 27, 57, 0.4);
+    border: 1px solid rgba(75, 66, 106, 0.15);
+    box-shadow: none;
 }
 
-/* ── Performance Cards Grid ── */
-.metrics-panel {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-  padding: 24px;
-  background-color: var(--bg-app);
+/* Custom Webkit scrollbar for modern nested scrolling */
+.custom-scrollbar::-webkit-scrollbar { 
+    width: 4px; 
+}
+.custom-scrollbar::-webkit-scrollbar-track { 
+    background: transparent; 
+}
+.custom-scrollbar::-webkit-scrollbar-thumb { 
+    background: rgba(137, 154, 190, 0.3); 
+    border-radius: 10px; 
 }
 
-.card {
-  background: var(--bg-surface);
-  border: 1px solid var(--border-line);
-  border-radius: 8px;
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+/* Keyframe Animations */
+@keyframes fadeInScale {
+    from { opacity: 0; transform: scale(0.98) translateY(10px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
 }
 
-.card-title {
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+@keyframes pulseGlow {
+    0% { box-shadow: 0 0 0 0 rgba(137, 154, 190, 0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(137, 154, 190, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(137, 154, 190, 0); }
 }
 
-.card-value {
-  font-size: 28px;
-  font-weight: 300;
-  color: var(--text-primary);
+.animate-entrance { 
+    animation: fadeInScale 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards; 
 }
 
-/* ── Search & Actions ── */
-.toolbar {
-  padding: 0 24px 16px 24px;
-  display: flex;
-  gap: 12px;
+.animate-fade-in { 
+    animation: fadeInScale 0.8s ease-out forwards; 
 }
 
-.search-input {
-  flex: 1;
-  padding: 10px 16px;
-  font-size: 14px;
-  border: 1px solid var(--border-line);
-  border-radius: 6px;
-  background-color: var(--bg-surface);
-  color: var(--text-primary);
-  outline: none;
-  transition: border-color 0.15s ease;
+/* Interactivity Classes (Hover, active state, lift) */
+.btn-advanced { 
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important; 
+}
+.btn-advanced:hover { 
+    transform: translateY(-2px) scale(1.05); 
+    box-shadow: 0 10px 20px -5px rgba(137, 154, 190, 0.4), 0 0 15px rgba(137, 154, 190, 0.2); 
 }
 
-.search-input:focus {
-  border-color: var(--text-primary);
+.row-hover-advanced { 
+    transition: all 0.3s ease; 
+}
+.row-hover-advanced:hover { 
+    background-color: rgba(137, 154, 190, 0.08) !important; 
+    cursor: pointer; 
+}
+.row-hover-advanced.selected { 
+    background-color: rgba(224, 226, 236, 0.5) !important; 
+    border-left: 4px solid #4e5f80; 
 }
 
-.search-input::placeholder {
-  color: var(--text-secondary);
+.nav-active-pulse { 
+    animation: pulseGlow 2s infinite; 
 }
 
-/* ── Process Table ── */
-.table-container {
-  flex: 1;
-  overflow-y: auto;
-  border-top: 1px solid var(--border-line);
+.hover-lift { 
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+}
+.hover-lift:hover { 
+    transform: translateY(-4px) scale(1.02); 
+    box-shadow: 0 10px 25px -5px rgba(78, 95, 128, 0.2), 0 8px 10px -6px rgba(78, 95, 128, 0.2); 
 }
 
-table {
-  width: 100%;
-  border-collapse: collapse;
-  text-align: right; /* Default align right for numeric strings */
+.btn-hover-effect {
+    transition: all 0.3s ease;
+}
+.btn-hover-effect:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 15px rgba(78, 95, 128, 0.3);
 }
 
-th, td {
-  padding: 10px 16px;
-  border-bottom: 1px solid var(--border-line);
+/* ═══════════════════════════════════════════════ */
+/*  DARK MODE — Matching reference palette exactly */
+/* ═══════════════════════════════════════════════ */
+
+/* Body & background */
+.dark body,
+.dark {
+    background-color: #0f0c19;
+    color: #eae1ff;
 }
 
-th {
-  position: sticky;
-  top: 0;
-  background: var(--bg-surface);
-  color: var(--text-secondary);
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+/* Glass cards: deep purple glass, near-invisible border */
+.dark .glass-card {
+    background: rgba(40, 32, 69, 0.4);
+    backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: none;
 }
 
-/* Name column specifically aligned left */
-.col-name {
-  text-align: left;
-  width: 45%;
-  font-weight: 500;
+/* Top navbar */
+.dark nav.fixed.top-0 {
+    background: rgba(15, 12, 25, 0.6) !important;
+    border-bottom: none !important;
+    box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.3);
 }
 
-.process-row:hover {
-  background-color: var(--bg-hover);
-  cursor: default;
+/* Sidebar */
+.dark aside.fixed {
+    background-color: #151123;
+    border-right: 1px solid rgba(75, 66, 106, 0.1) !important;
 }
 
-.process-row.selected {
-  background-color: var(--bg-selection);
-  color: var(--text-selection);
+/* Strip ALL visible borders from components in dark mode */
+.dark [class*="border-outline-variant"] {
+    border-color: rgba(75, 66, 106, 0.08) !important;
 }
 
-.process-row.selected td {
-  border-bottom-color: var(--bg-selection);
+/* Utility bar, table wrapper, dropdown — near-invisible borders */
+.dark .bg-surface-container-low {
+    background-color: #151123;
 }
 
-/* We style child spans inside rows to ensure color flips cleanly when selected */
-.process-row.selected .text-muted {
-  color: var(--text-selection); 
+/* Search input in dark mode */
+.dark input[type="text"] {
+    background-color: #151123 !important;
+    border: none !important;
+    color: #eae1ff;
+}
+.dark input[type="text"]::placeholder {
+    color: rgba(176, 165, 210, 0.4);
+}
+.dark input[type="text"]:focus {
+    background-color: #1b162e !important;
 }
 
-.text-muted {
-  color: var(--text-secondary);
+/* Table header row */
+.dark .bg-surface-container\/50 {
+    background-color: rgba(27, 22, 46, 0.5);
+}
+
+/* Process row hover in dark mode */
+.dark .row-hover-advanced:hover {
+    background-color: rgba(181, 199, 237, 0.05) !important;
+}
+
+/* Selected row in dark mode */
+.dark .row-hover-advanced.selected {
+    background-color: rgba(54, 71, 102, 0.3) !important;
+    border-left-color: #b5c7ed !important;
+}
+
+/* Scrollbar dark mode */
+.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(181, 199, 237, 0.2);
+}
+
+/* Summary bar */
+.dark .bg-primary {
+    background-color: #b5c7ed;
+}
+
+/* Dropdown / more-menu */
+.dark .bg-surface-container-lowest {
+    background-color: #000000;
+}
+
+/* Performance footer */
+.dark footer {
+    border-color: rgba(75, 66, 106, 0.15) !important;
+}
+
+/* Mobile bottom nav */
+.dark nav.fixed.bottom-0 {
+    background: rgba(15, 12, 25, 0.9) !important;
+    border-top: none !important;
+}
+
+/* Modal backgrounds in dark mode */
+.dark .bg-surface-container-lowest {
+    background-color: #0f0c19;
+}
+
+/* Button borders in dark mode — near-invisible */
+.dark button[class*="border-primary"] {
+    border-color: rgba(181, 199, 237, 0.15) !important;
+}
+.dark button[class*="border-outline-variant"] {
+    border-color: rgba(75, 66, 106, 0.1) !important;
+}
+.dark button[class*="border-error"] {
+    border-color: rgba(238, 125, 119, 0.15) !important;
+}
+
+/* Hover shadow adjustments for dark mode */
+.dark .hover-lift:hover {
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+}
+.dark .btn-advanced:hover {
+    box-shadow: 0 0 15px rgba(181, 199, 237, 0.2);
 }

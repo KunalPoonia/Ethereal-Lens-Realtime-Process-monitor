@@ -1,57 +1,406 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="light" lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Process Monitor Overview</title>
-  <link rel="stylesheet" href="/static/style.css">
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Process Monitor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <script src="/static/theme.js"></script>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        "on-background": "var(--tw-on-background)",
+                        "primary-fixed-dim": "var(--tw-primary-fixed-dim)",
+                        "tertiary-fixed": "var(--tw-tertiary-fixed)",
+                        "primary-dim": "var(--tw-primary-dim)",
+                        "inverse-on-surface": "var(--tw-inverse-on-surface)",
+                        "tertiary-dim": "var(--tw-tertiary-dim)",
+                        "surface-container-lowest": "var(--tw-surface-container-lowest)",
+                        "surface-variant": "var(--tw-surface-variant)",
+                        "on-error": "var(--tw-on-error)",
+                        "error-container": "var(--tw-error-container)",
+                        "background": "var(--tw-background)",
+                        "surface-container-high": "var(--tw-surface-container-high)",
+                        "on-primary-fixed": "var(--tw-on-primary-fixed)",
+                        "error-dim": "var(--tw-error-dim)",
+                        "inverse-surface": "var(--tw-inverse-surface)",
+                        "secondary-fixed-dim": "var(--tw-secondary-fixed-dim)",
+                        "secondary-container": "var(--tw-secondary-container)",
+                        "primary": "var(--tw-primary)",
+                        "inverse-primary": "var(--tw-inverse-primary)",
+                        "surface": "var(--tw-surface)",
+                        "on-secondary-container": "var(--tw-on-secondary-container)",
+                        "on-surface": "var(--tw-on-surface)",
+                        "on-secondary": "var(--tw-on-secondary)",
+                        "surface-tint": "var(--tw-surface-tint)",
+                        "secondary-dim": "var(--tw-secondary-dim)",
+                        "surface-bright": "var(--tw-surface-bright)",
+                        "on-surface-variant": "var(--tw-on-surface-variant)",
+                        "on-primary-fixed-variant": "var(--tw-on-primary-fixed-variant)",
+                        "on-primary": "var(--tw-on-primary)",
+                        "tertiary-container": "var(--tw-tertiary-container)",
+                        "surface-container-low": "var(--tw-surface-container-low)",
+                        "on-secondary-fixed": "var(--tw-on-secondary-fixed)",
+                        "on-primary-container": "var(--tw-on-primary-container)",
+                        "surface-container": "var(--tw-surface-container)",
+                        "secondary-fixed": "var(--tw-secondary-fixed)",
+                        "outline": "var(--tw-outline)",
+                        "primary-fixed": "var(--tw-primary-fixed)",
+                        "error": "var(--tw-error)",
+                        "on-tertiary-container": "var(--tw-on-tertiary-container)",
+                        "tertiary": "var(--tw-tertiary)",
+                        "surface-container-highest": "var(--tw-surface-container-highest)",
+                        "on-tertiary-fixed-variant": "var(--tw-on-tertiary-fixed-variant)",
+                        "on-tertiary-fixed": "var(--tw-on-tertiary-fixed)",
+                        "on-secondary-fixed-variant": "var(--tw-on-secondary-fixed-variant)",
+                        "on-tertiary": "var(--tw-on-tertiary)",
+                        "secondary": "var(--tw-secondary)",
+                        "primary-container": "var(--tw-primary-container)",
+                        "surface-dim": "var(--tw-surface-dim)",
+                        "tertiary-fixed-dim": "var(--tw-tertiary-fixed-dim)",
+                        "outline-variant": "var(--tw-outline-variant)",
+                        "on-error-container": "var(--tw-on-error-container)"
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.25rem",
+                        lg: "0.5rem",
+                        xl: "0.75rem",
+                        full: "9999px"
+                    },
+                    fontFamily: {
+                        headline: ["Space Grotesk"],
+                        body: ["Manrope"],
+                        label: ["Manrope"]
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="/static/style.css">
 </head>
-<body>
-  
-  <header class="header">
-    <h1>System Overview</h1>
-    <div id="connection-status" style="font-size: 13px; color: var(--text-secondary);">Connecting...</div>
-  </header>
 
-  <section class="metrics-panel">
-    <div class="card">
-      <div class="card-title">CPU</div>
-      <div class="card-value" id="val-cpu">0%</div>
-    </div>
-    <div class="card">
-      <div class="card-title">Memory</div>
-      <div class="card-value" id="val-mem">0 GB</div>
-    </div>
-    <div class="card">
-      <div class="card-title">Disk (I/O)</div>
-      <div class="card-value" id="val-disk">0 MB/s</div>
-    </div>
-    <div class="card">
-      <div class="card-title">Network</div>
-      <div class="card-value" id="val-net">0 KB/s</div>
-    </div>
-  </section>
+<body class="bg-background text-on-background font-body selection:bg-primary/20 min-h-screen overflow-x-hidden">
 
-  <section class="toolbar">
-    <input type="text" id="search-input" class="search-input" placeholder="Search processes...">
-  </section>
+    <!-- TopNavBar -->
+    <nav class="fixed top-0 w-full z-50 flex justify-between items-center px-8 h-20 bg-[var(--tw-surface)]/60 backdrop-blur-3xl shadow-[0_10px_30px_-5px_rgba(0,0,0,0.1)] border-b border-outline-variant/10">
+        <div class="flex items-center gap-4">
+            <span class="text-2xl font-headline font-bold tracking-tight text-primary">Process Monitor</span>
+        </div>
+        <div class="flex items-center gap-6">
+            <button id="theme-toggle" class="text-secondary hover:bg-surface-variant transition-all rounded-full active:scale-95 duration-200 btn-advanced w-12 h-12 flex items-center justify-center">
+                <span class="material-symbols-outlined" data-icon="light_mode">light_mode</span>
+            </button>
+        </div>
+    </nav>
 
-  <section class="table-container">
-    <table id="process-table">
-      <thead>
-        <tr>
-          <th class="col-name">Process Name</th>
-          <th>PID</th>
-          <th>CPU</th>
-          <th>Memory</th>
-        </tr>
-      </thead>
-      <tbody id="process-list">
-        <!-- Rows dynamically injected via WebSocket in app.js -->
-      </tbody>
-    </table>
-  </section>
+    <!-- SideNavBar -->
+    <aside class="fixed left-0 top-0 h-full w-52 bg-surface-container-low flex flex-col pt-24 hidden md:flex border-r border-outline-variant/30">
+        <div class="px-8 mb-12">
+            <h2 class="font-headline font-bold text-primary text-xl tracking-wide uppercase text-xs opacity-60">System</h2>
+            <p class="text-on-surface-variant text-xs font-medium">V2.0.4</p>
+        </div>
+        <nav class="flex flex-col gap-2">
+            <button id="nav-processes" onclick="switchView('processes')"
+                class="flex items-center gap-4 bg-primary text-white rounded-full px-6 py-3 mx-3 my-1 font-['Manrope'] font-medium shadow-md btn-advanced nav-active-pulse"
+                style="width: calc(100% - 1.5rem)">
+                <span class="material-symbols-outlined" data-icon="terminal">terminal</span>
+                <span>Processes</span>
+            </button>
+            <button id="nav-performance" onclick="switchView('performance')"
+                class="flex items-center gap-4 text-on-surface-variant px-6 py-3 mx-3 my-1 font-['Manrope'] font-medium hover:bg-surface-container transition-colors rounded-full btn-advanced"
+                style="width: calc(100% - 1.5rem)">
+                <span class="material-symbols-outlined" data-icon="monitoring">monitoring</span>
+                <span>Performance</span>
+            </button>
+        </nav>
+        <div class="mt-auto px-4 py-3">
+            <div class="flex items-center gap-2 px-4">
+                <div class="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
+                <span id="connection-status" class="text-[10px] font-bold tracking-widest text-on-surface-variant uppercase">Connecting...</span>
+            </div>
+        </div>
+    </aside>
 
-  <script src="/static/app.js"></script>
+    <!-- Main Canvas -->
+    <main class="md:pl-60 pt-24 pb-12 px-8 min-h-screen">
+
+        <!-- ======================= PROCESSES VIEW ======================= -->
+        <div id="view-processes" class="max-w-[1400px] mx-auto space-y-6">
+            <!-- Utility Actions Bar -->
+            <div
+                class="flex flex-wrap items-center justify-between gap-4 bg-surface-container-low px-6 py-4 rounded-xl border border-outline-variant/20 animate-entrance relative z-30 overflow-visible">
+                <div class="flex items-center gap-2">
+                    <span class="font-headline font-bold text-lg text-on-surface">Processes</span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <button id="btn-run-task" onclick="openRunTaskModal()"
+                        class="flex items-center gap-2 text-xs font-bold text-primary hover:bg-primary/10 px-4 py-2 rounded-lg transition-colors border border-primary/20 btn-advanced shadow-sm hover:shadow-primary/20">
+                        <span class="material-symbols-outlined text-sm" data-icon="add">add</span>
+                        Run new task
+                    </button>
+                    <button id="btn-end-task" onclick="endSelectedTask()"
+                        class="flex items-center gap-2 text-xs font-bold text-on-surface-variant/40 cursor-not-allowed px-4 py-2 rounded-lg border border-outline-variant/20 btn-advanced"
+                        disabled>
+                        <span class="material-symbols-outlined text-sm" data-icon="block">block</span>
+                        End task
+                    </button>
+                    <div class="relative">
+                        <button id="btn-more" onclick="toggleMoreMenu()"
+                            class="text-on-surface-variant hover:bg-surface-variant p-2 rounded-lg transition-colors btn-advanced">
+                            <span class="material-symbols-outlined" data-icon="more_horiz">more_horiz</span>
+                        </button>
+                        <div id="more-menu" class="hidden absolute right-0 top-full mt-2 w-48 bg-surface-container-lowest rounded-xl border border-outline-variant/20 shadow-xl z-50 overflow-hidden">
+                            <button onclick="refreshProcessList()" class="w-full text-left px-4 py-3 text-sm text-on-surface hover:bg-surface-container transition-colors flex items-center gap-3">
+                                <span class="material-symbols-outlined text-sm">refresh</span> Refresh
+                            </button>
+                            <button onclick="sortByMemory()" class="w-full text-left px-4 py-3 text-sm text-on-surface hover:bg-surface-container transition-colors flex items-center gap-3">
+                                <span class="material-symbols-outlined text-sm">sort</span> Sort by Memory
+                            </button>
+                            <button onclick="sortByCPU()" class="w-full text-left px-4 py-3 text-sm text-on-surface hover:bg-surface-container transition-colors flex items-center gap-3">
+                                <span class="material-symbols-outlined text-sm">speed</span> Sort by CPU
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search Area -->
+            <div class="relative group animate-entrance">
+                <div
+                    class="absolute inset-y-0 left-5 flex items-center pointer-events-none text-on-surface-variant group-focus-within:text-primary transition-colors">
+                    <span class="material-symbols-outlined" data-icon="search">search</span>
+                </div>
+                <input id="search-input"
+                    class="w-full h-12 pl-14 pr-6 bg-surface-container-lowest rounded-xl border-none focus:ring-2 focus:ring-primary/20 text-on-surface placeholder:text-on-surface-variant/50 font-body transition-all focus:bg-white shadow-sm"
+                    placeholder="Type a name, publisher, or PID to search" type="text" />
+            </div>
+
+            <!-- Table Section -->
+            <div
+                class="bg-surface-container-low rounded-2xl overflow-hidden border border-outline-variant/20 animate-entrance">
+                <div
+                    class="grid grid-cols-[2fr_1fr_90px_100px_100px_100px] bg-surface-container/50 px-6 py-3 text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/70">
+                    <div class="flex items-center gap-2">Name<span
+                            class="material-symbols-outlined text-[14px] rotate-180"
+                            data-icon="expand_more">expand_more</span></div>
+                    <div>Status</div>
+                    <div class="text-right">CPU (%)</div>
+                    <div class="text-right">Memory (MB)</div>
+                    <div class="text-right">Disk (MB/s)</div>
+                    <div class="text-right">Network (Mbps)</div>
+                </div>
+                <!-- Scrollable Body for Processes -->
+                <div id="process-list" class="max-h-[70vh] overflow-y-auto custom-scrollbar pb-8">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- Summary Bar -->
+            <div
+                class="flex justify-between items-center px-8 py-6 bg-primary text-white rounded-xl shadow-lg animate-entrance">
+                <div class="flex gap-12">
+                    <div class="flex flex-col">
+                        <span class="text-[10px] uppercase tracking-widest opacity-70">CPU</span>
+                        <span id="sum-cpu" class="text-xl font-bold">0%</span>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-[10px] uppercase tracking-widest opacity-70">Memory</span>
+                        <span id="sum-mem" class="text-xl font-bold">0%</span>
+                    </div>
+                </div>
+                <button
+                    class="bg-white/20 hover:bg-white/30 px-8 py-3 rounded-xl text-xs font-bold transition-all uppercase tracking-widest btn-advanced">
+                    Snapshot System
+                </button>
+            </div>
+
+            <footer class="py-2 mt-2">
+                <div class="flex items-center gap-2">
+                    <div class="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
+                    <span class="text-xs font-bold tracking-widest text-on-surface-variant uppercase">All Systems Nominal</span>
+                </div>
+            </footer>
+        </div>
+
+        <!-- ======================= PERFORMANCE VIEW ======================= -->
+        <div id="view-performance" class="max-w-7xl mx-auto space-y-4 hidden">
+            <!-- Header Section -->
+            <div class="mb-4 animate-entrance">
+                <h1 class="text-2xl font-headline font-bold text-on-background tracking-tight mb-1">System Analytics</h1>
+                <p class="text-on-surface-variant font-body text-sm">Real-time performance metrics and resource utilization.</p>
+            </div>
+
+            <!-- Bento Grid Layout -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <!-- CPU Card -->
+                <section class="glass-card rounded-xl p-5 transition-all hover:shadow-xl group hover-lift animate-fade-in">
+                    <div class="flex justify-between items-start mb-6">
+                        <div>
+                            <h3 class="font-headline text-primary text-sm font-bold uppercase tracking-wider mb-4">CPU Usage</h3>
+                            <div class="flex items-baseline gap-2">
+                                <span id="perf-cpu" class="text-5xl font-headline font-bold text-on-background">0%</span>
+                                <span id="perf-cpu-delta" class="text-primary font-bold flex items-center text-lg"><span class="material-symbols-outlined text-sm">north_east</span> 0%</span>
+                            </div>
+                        </div>
+                        <div class="text-right hidden sm:block">
+                            <p class="text-[10px] text-on-surface-variant uppercase tracking-widest mb-1">Peak Value</p>
+                            <p id="perf-cpu-peak" class="font-headline font-bold text-lg text-on-background">0%</p>
+                        </div>
+                    </div>
+                    <!-- Live Bar Graph -->
+                    <div id="graph-cpu" class="h-48 w-full mt-4 flex items-end gap-[2px] overflow-hidden">
+                    </div>
+                </section>
+
+                <!-- RAM Card -->
+                <section class="glass-card rounded-xl p-5 transition-all hover:shadow-xl group hover-lift animate-fade-in" style="animation-delay: 0.1s;">
+                    <div class="flex justify-between items-start mb-6">
+                        <div>
+                            <h3 class="font-headline text-secondary text-sm font-bold uppercase tracking-wider mb-4">Memory</h3>
+                            <div class="flex items-baseline gap-2">
+                                <span id="perf-mem" class="text-5xl font-headline font-bold text-on-background">0 <span class="text-xl font-light text-on-surface-variant">/ 0 GB</span></span>
+                            </div>
+                        </div>
+                        <div class="text-right hidden sm:block">
+                            <p class="text-[10px] text-on-surface-variant uppercase tracking-widest mb-1">Usage</p>
+                            <p id="perf-mem-pct" class="font-headline font-bold text-lg text-on-background">0%</p>
+                        </div>
+                    </div>
+                    <!-- Live Bar Graph -->
+                    <div id="graph-mem" class="h-48 w-full mt-4 flex items-end gap-[2px] overflow-hidden">
+                    </div>
+                </section>
+
+                <!-- Disk Card -->
+                <section class="glass-card rounded-xl p-5 transition-all hover:shadow-xl group hover-lift animate-fade-in" style="animation-delay: 0.2s;">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="font-headline text-on-surface-variant text-sm font-bold uppercase tracking-wider mb-4">Disk I/O</h3>
+                            <div class="flex items-baseline gap-2">
+                                <span id="perf-disk" class="text-5xl font-headline font-bold text-on-background">0 <span class="text-xl font-light text-on-surface-variant">MB/s</span></span>
+                            </div>
+                        </div>
+                        <div class="text-right hidden sm:block">
+                            <p class="text-[10px] text-on-surface-variant uppercase tracking-widest mb-1">Read</p>
+                            <p id="perf-disk-read" class="font-headline font-bold text-lg text-on-background">0 MB/s</p>
+                            <p class="text-[10px] text-on-surface-variant uppercase tracking-widest mb-1 mt-2">Write</p>
+                            <p id="perf-disk-write" class="font-headline font-bold text-lg text-on-background">0 MB/s</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Network Card -->
+                <section class="glass-card rounded-xl p-5 transition-all hover:shadow-xl group hover-lift animate-fade-in" style="animation-delay: 0.3s;">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="font-headline text-outline text-sm font-bold uppercase tracking-wider mb-4">Network</h3>
+                            <div class="flex items-baseline gap-2">
+                                <span id="perf-net" class="text-5xl font-headline font-bold text-on-background">0 <span class="text-xl font-light text-on-surface-variant">Kbps</span></span>
+                            </div>
+                        </div>
+                        <div class="text-right hidden sm:block">
+                            <p class="text-[10px] text-on-surface-variant uppercase tracking-widest mb-1">Download</p>
+                            <p id="perf-net-recv" class="font-headline font-bold text-lg text-on-background">0 KB/s</p>
+                            <p class="text-[10px] text-on-surface-variant uppercase tracking-widest mb-1 mt-2">Upload</p>
+                            <p id="perf-net-sent" class="font-headline font-bold text-lg text-on-background">0 KB/s</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Footer Meta Info -->
+            <footer class="mt-4 py-4 border-t border-outline-variant/30">
+                <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                    <div class="flex items-center gap-6">
+                        <div class="flex items-center gap-2">
+                            <div class="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
+                            <span class="text-xs font-bold tracking-widest text-on-surface-variant uppercase">All Systems Nominal</span>
+                        </div>
+                        <span class="text-on-surface-variant text-xs font-medium">Uptime: 14d 06h 22m</span>
+                        <span class="text-on-surface-variant text-xs font-medium">Last Sync: Just now</span>
+                    </div>
+                </div>
+            </footer>
+        </div>
+
+    </main>
+
+    <!-- Mobile Bottom Navigation -->
+    <nav
+        class="md:hidden fixed bottom-0 w-full bg-white/90 backdrop-blur-xl border-t border-outline-variant/10 flex justify-around py-4 px-2 z-50">
+        <button onclick="switchView('processes')" id="mob-nav-processes"
+            class="flex flex-col items-center gap-1 text-primary btn-hover-effect active-pulse">
+            <span class="material-symbols-outlined" data-icon="terminal">terminal</span>
+            <span class="text-[10px] font-bold uppercase">Procs</span>
+        </button>
+        <button onclick="switchView('performance')" id="mob-nav-performance"
+            class="flex flex-col items-center gap-1 text-on-surface-variant btn-hover-effect">
+            <span class="material-symbols-outlined" data-icon="monitoring">monitoring</span>
+            <span class="text-[10px] font-bold uppercase">Perf</span>
+        </button>
+    </nav>
+
+    <!-- Run Task Modal -->
+    <div id="run-task-modal" class="fixed inset-0 z-[100] hidden items-center justify-center">
+        <div class="absolute inset-0 bg-black/30 backdrop-blur-sm" onclick="closeRunTaskModal()"></div>
+        <div class="relative bg-surface-container-lowest rounded-2xl shadow-2xl w-full max-w-md mx-4 p-8 animate-entrance">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="font-headline font-bold text-xl text-on-surface">Run New Task</h2>
+                <button onclick="closeRunTaskModal()" class="text-on-surface-variant hover:bg-surface-variant w-8 h-8 flex items-center justify-center rounded-full transition-colors">
+                    <span class="material-symbols-outlined text-sm">close</span>
+                </button>
+            </div>
+            <p class="text-sm text-on-surface-variant mb-4">Enter the name of a program, folder, or command to open.</p>
+            <input id="run-task-input" type="text" placeholder="e.g. notepad, calc, cmd"
+                class="w-full h-12 px-4 bg-surface-container rounded-xl border border-outline-variant/30 focus:ring-2 focus:ring-primary/20 text-on-surface placeholder:text-on-surface-variant/50 font-body transition-all mb-6"
+                onkeydown="if(event.key==='Enter') executeRunTask()" />
+            <div class="flex justify-end gap-3">
+                <button onclick="closeRunTaskModal()" class="px-5 py-2.5 text-sm font-bold text-on-surface-variant hover:bg-surface-container rounded-lg transition-colors">
+                    Cancel
+                </button>
+                <button onclick="executeRunTask()" class="px-5 py-2.5 text-sm font-bold text-white bg-primary hover:bg-primary-dim rounded-lg transition-colors shadow-md">
+                    Run
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="fixed bottom-8 right-8 z-[200] flex flex-col gap-3"></div>
+
+    <!-- Confirm End Task Modal -->
+    <div id="end-task-modal" class="fixed inset-0 z-[100] hidden items-center justify-center">
+        <div class="absolute inset-0 bg-black/30 backdrop-blur-sm" onclick="closeEndTaskModal()"></div>
+        <div class="relative bg-surface-container-lowest rounded-2xl shadow-2xl w-full max-w-sm mx-4 p-8 animate-entrance">
+            <div class="flex items-center gap-3 mb-5">
+                <div class="w-10 h-10 rounded-full bg-error/10 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-error">warning</span>
+                </div>
+                <h2 class="font-headline font-bold text-lg text-on-surface">End Task</h2>
+            </div>
+            <p id="end-task-msg" class="text-sm text-on-surface-variant mb-6">Are you sure you want to end this process? Unsaved data may be lost.</p>
+            <div class="flex justify-end gap-3">
+                <button onclick="closeEndTaskModal()" class="px-5 py-2.5 text-sm font-bold text-on-surface-variant hover:bg-surface-container rounded-lg transition-colors">
+                    Cancel
+                </button>
+                <button onclick="confirmEndTask()" class="px-5 py-2.5 text-sm font-bold text-white bg-error hover:bg-error-dim rounded-lg transition-colors shadow-md">
+                    End Task
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/app.js"></script>
 </body>
+
 </html>

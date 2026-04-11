@@ -76,13 +76,13 @@ class StatsPoller(threading.Thread):
 def _proc_worker(q: mp.Queue, stop_event: mp.Event) -> None:
     """Runs in a child process. Collects process list and sends via queue."""
     PROC_POLL_INTERVAL = 2.0  # seconds between polls
+    num_cores = psutil.cpu_count(logical=True) or 1  # For normalizing per-process CPU
     
     while not stop_event.is_set():
         t0 = time.monotonic()
         try:
             windowed = _get_windowed_pids()
-            apps, bg = [], []
-            
+            groups = {}
             for p in psutil.process_iter(
                 ["pid", "name", "cpu_percent", "memory_info", "status", "username", "num_threads"]
             ):
@@ -90,29 +90,78 @@ def _proc_worker(q: mp.Queue, stop_event: mp.Event) -> None:
                     return
                 try:
                     info = p.info
-                    name = info["name"] or ""
-                    # Skip empty-named processes
-                    if not name.strip():
+                    raw_name = info["name"]
+                    if not raw_name or not raw_name.strip():
                         continue
-                    entry = {
-                        "pid":    info["pid"],
-                        "name":   name,
-                        "cpu":    info["cpu_percent"] or 0.0,
-                        "memory": round(info["memory_info"].rss / (1024**2), 1)
-                                 if info["memory_info"] else 0.0,
-                        "status": info["status"] or "",
-                        "user":   (info["username"] or "").split("\\")[-1],
-                        "threads": info["num_threads"] or 0,
-                    }
-                    if info["pid"] in windowed:
-                        entry["category"] = "app"
-                        apps.append(entry)
-                    else:
-                        entry["category"] = "background"
-                        bg.append(entry)
+                    
+                    # Remove .exe extension for cleaner display matching Task Manager
+                    name = raw_name
+                    if name.lower().endswith('.exe'):
+                        name = name[:-4]
+                    
+                    # Some stylistic capitalisation for common ones
+                    if name.lower() == 'brave':
+                        name = 'Brave Browser'
+                    elif name.lower() == 'spotify':
+                        name = 'Spotify'
+                    elif name.lower() == 'code':
+                        name = 'VS Code'
+                    elif name.lower() == 'explorer':
+                        name = 'Windows Explorer'
+                    elif name.lower() == 'taskmgr':
+                        name = 'Task Manager'
+
+                    # Normalize CPU: psutil gives per-core %, divide by core count for whole-system %
+                    cpu = (info["cpu_percent"] or 0.0) / num_cores
+                    
+                    # Use private working set (USS) to match Task Manager, fall back to RSS
+                    mem = 0.0
+                    if info["memory_info"]:
+                        try:
+                            mem = p.memory_full_info().uss / (1024**2)
+                        except (psutil.AccessDenied, psutil.NoSuchProcess, AttributeError):
+                            mem = info["memory_info"].rss / (1024**2)
+                    
+                    threads = info["num_threads"] or 0
+                    pid = info["pid"]
+                    
+                    if name not in groups:
+                        groups[name] = {
+                            "name": name,
+                            "cpu": 0.0,
+                            "memory": 0.0,
+                            "threads": 0,
+                            "pids": set(),
+                            "status": info["status"] or "",
+                            "category": "background"
+                        }
+                    
+                    groups[name]["cpu"] += cpu
+                    groups[name]["memory"] += mem
+                    groups[name]["threads"] += threads
+                    groups[name]["pids"].add(pid)
+                    
+                    if pid in windowed:
+                        groups[name]["category"] = "app"
+                        
                 except (psutil.NoSuchProcess, psutil.AccessDenied,
                         psutil.ZombieProcess, OSError):
                     continue
+            
+            apps = []
+            bg = []
+            for name, g in groups.items():
+                g["memory"] = round(g["memory"], 1)
+                g["cpu"] = round(g["cpu"], 1)
+                
+                # Pick the lowest PID consistently so selection stays stable across polls
+                g["pid"] = min(g["pids"])
+                g["pids"] = list(g["pids"])  # Convert set to list for JSON serialization
+                
+                if g["category"] == "app":
+                    apps.append(g)
+                else:
+                    bg.append(g)
             
             if not q.full():
                 q.put(apps + bg)

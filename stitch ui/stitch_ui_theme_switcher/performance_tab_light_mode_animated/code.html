@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Manrope:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-background": "#433f4e",
+                        "primary-fixed-dim": "#c3d5fb",
+                        "tertiary-fixed": "#fbf2ee",
+                        "primary-dim": "#4e5f80",
+                        "inverse-on-surface": "#eae1ff",
+                        "tertiary-dim": "#f2e9e5",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-variant": "#f4f1f8",
+                        "on-error": "#ffffff",
+                        "error-container": "#f9dedc",
+                        "background": "#ece3df",
+                        "surface-container-high": "#f7f2f1",
+                        "on-primary-fixed": "#2e3f5f",
+                        "error-dim": "#bb5551",
+                        "inverse-surface": "#1b162e",
+                        "secondary-fixed-dim": "#d1d3ec",
+                        "secondary-container": "#e0e2ec",
+                        "primary": "#4e5f80",
+                        "inverse-primary": "#b5c7ed",
+                        "surface": "#ece3df",
+                        "on-secondary-container": "#1c1f31",
+                        "on-surface": "#433f4e",
+                        "on-secondary": "#ffffff",
+                        "surface-tint": "#4e5f80",
+                        "secondary-dim": "#575a6f",
+                        "surface-bright": "#ffffff",
+                        "on-surface-variant": "#6b6562",
+                        "on-primary-fixed-variant": "#4b5c7c",
+                        "on-primary": "#ffffff",
+                        "tertiary-container": "#f2e9e5",
+                        "surface-container-low": "#fdf7ff",
+                        "on-secondary-fixed": "#3b3e52",
+                        "on-primary-container": "#001a41",
+                        "surface-container": "#f3eeed",
+                        "secondary-fixed": "#dfe1fa",
+                        "outline": "#796f9a",
+                        "primary-fixed": "#d7e2ff",
+                        "error": "#b3261e",
+                        "on-tertiary-container": "#5b5653",
+                        "tertiary": "#645e5b",
+                        "surface-container-highest": "#e6e1e5",
+                        "on-tertiary-fixed-variant": "#6b6562",
+                        "on-tertiary-fixed": "#4e4946",
+                        "on-secondary-fixed-variant": "#575a6f",
+                        "on-tertiary": "#ffffff",
+                        "secondary": "#575a6f",
+                        "primary-container": "#d7e2ff",
+                        "surface-dim": "#ded8d7",
+                        "tertiary-fixed-dim": "#ede3df",
+                        "outline-variant": "#c9c5d0",
+                        "on-error-container": "#410002"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Space Grotesk"],
+                        "body": ["Manrope"],
+                        "label": ["Manrope"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #ece3df;
+            color: #433f4e;
+            font-family: 'Manrope', sans-serif;
+        }
+        .glass-card {
+            background: #ffffff;
+            border: 1px solid rgba(121, 111, 154, 0.15);
+            box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.04);
+        }
+    
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 0 0 rgba(78, 95, 128, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(78, 95, 128, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(78, 95, 128, 0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.8s ease-out forwards;
+        }
+        .hover-lift {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .hover-lift:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 10px 25px -5px rgba(78, 95, 128, 0.2), 0 8px 10px -6px rgba(78, 95, 128, 0.2);
+        }
+        .btn-hover-effect {
+            transition: all 0.3s ease;
+        }
+        .btn-hover-effect:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(78, 95, 128, 0.3);
+        }
+        .active-pulse {
+            animation: pulseGlow 2s infinite;
+        }
+    </style>
+</head>
+<body class="bg-background min-h-screen overflow-x-hidden text-on-background selection:bg-primary/20">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 flex justify-between items-center px-8 h-20 bg-[#ece3df]/60 backdrop-blur-3xl shadow-[0_10px_30px_-5px_rgba(77,71,92,0.04)]">
+<div class="flex items-center gap-4">
+<span class="text-2xl font-['Space_Grotesk'] font-bold tracking-tight text-primary">Process Monitor</span>
+</div>
+<div class="flex items-center gap-6">
+<button class="text-secondary hover:bg-surface-variant transition-all p-2 rounded-full btn-hover-effect">
+<span class="material-symbols-outlined" data-icon="light_mode">light_mode</span>
+</button>
+<button class="text-secondary hover:bg-surface-variant transition-all p-2 rounded-full btn-hover-effect">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+<button class="text-secondary hover:bg-surface-variant transition-all p-2 rounded-full btn-hover-effect">
+<span class="material-symbols-outlined" data-icon="close">close</span>
+</button>
+</div>
+</nav>
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-full w-64 bg-surface-container-low flex flex-col pt-24 hidden md:flex border-r border-outline-variant/30">
+<div class="px-8 mb-12">
+<h2 class="font-['Space_Grotesk'] font-bold text-primary text-xl tracking-wide uppercase text-xs opacity-60">System</h2>
+<p class="text-on-surface-variant text-xs font-medium">V2.0.4</p>
+</div>
+<nav class="flex flex-col gap-2">
+<a class="flex items-center gap-4 text-on-surface-variant px-6 py-3 mx-4 my-2 font-['Manrope'] font-medium hover:bg-surface-container transition-colors rounded-full btn-hover-effect" href="#">
+<span class="material-symbols-outlined" data-icon="terminal">terminal</span>
+<span>Processes</span>
+</a>
+<!-- Active Tab: Performance -->
+<a class="flex items-center gap-4 bg-primary text-white rounded-full px-6 py-3 mx-4 my-2 font-['Manrope'] font-medium shadow-md btn-hover-effect active-pulse" href="#">
+<span class="material-symbols-outlined" data-icon="monitoring">monitoring</span>
+<span>Performance</span>
+</a>
+</nav>
+<div class="mt-auto p-8">
+<div class="bg-white/70 backdrop-blur-xl border border-outline-variant/30 rounded-xl p-4 flex items-center gap-3 shadow-sm">
+<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center overflow-hidden border border-outline-variant/30">
+<img alt="System Status Avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBKt3Ch8jf-1lpT2Y5fAhFHNmWm6xDIRxwC-II2jrZ33Va0RjhVzWBUTKmkRC3_7xnQMy8xDaKl0zmbGpt_A6e69XsHYx7Bi6UqQyel8pScu3Wuabga5iK1F0Hw8MjNvTcJKZ0oCzouHLjPeayc-9-k0S6uqSAv47vRhmZXahO_bv6uexKbYdqIx0GNCIvt78bu_ZTvE6UedM-g2d_O2Pq-mEmdXyyXghoB6fNKdLrY53chFptTbNMankc4IqwPYkfus88VnJRAr_A"/>
+</div>
+<div class="flex flex-col">
+<span class="text-xs font-bold text-primary">System Core</span>
+<span class="text-[10px] text-on-surface-variant">Active Connection</span>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="md:pl-64 pt-24 px-8 pb-12">
+<div class="max-w-7xl mx-auto">
+<!-- Header Section -->
+<div class="mb-12">
+<h1 class="text-4xl font-headline font-bold text-on-background tracking-tight mb-2">System Analytics</h1>
+<p class="text-on-surface-variant font-body">Real-time performance metrics and resource utilization.</p>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+<!-- CPU Card -->
+<section class="glass-card rounded-xl p-8 transition-all hover:shadow-xl group hover-lift">
+<div class="flex justify-between items-start mb-6">
+<div>
+<h3 class="font-headline text-primary text-sm font-bold uppercase tracking-wider mb-4">CPU Usage</h3>
+<div class="flex items-baseline gap-2">
+<span class="text-5xl font-headline font-bold text-on-background">47.3%</span>
+<span class="text-primary font-bold flex items-center text-lg"><span class="material-symbols-outlined text-sm">north_east</span> 2.1%</span>
+</div>
+</div>
+<div class="text-right">
+<p class="text-[10px] text-on-surface-variant uppercase tracking-widest mb-1">Peak Value</p>
+<p class="font-headline font-bold text-lg">94.1%</p>
+</div>
+</div>
+<!-- Mock Graph -->
+<div class="h-48 w-full mt-4 flex items-end gap-1 overflow-hidden animate-fade-in">
+<div class="bg-primary/20 w-full h-[40%] rounded-t-sm group-hover:h-[45%] transition-all duration-700"></div>
+<div class="bg-primary/20 w-full h-[35%] rounded-t-sm group-hover:h-[30%] transition-all duration-700"></div>
+<div class="bg-primary/20 w-full h-[55%] rounded-t-sm group-hover:h-[60%] transition-all duration-700"></div>
+<div class="bg-primary/30 w-full h-[45%] rounded-t-sm group-hover:h-[50%] transition-all duration-700"></div>
+<div class="bg-primary/40 w-full h-[65%] rounded-t-sm group-hover:h-[70%] transition-all duration-700"></div>
+<div class="bg-primary/20 w-full h-[40%] rounded-t-sm group-hover:h-[35%] transition-all duration-700"></div>
+<div class="bg-primary w-full h-[47%] rounded-t-sm group-hover:h-[52%] transition-all duration-700"></div>
+</div>
+</section>
+<!-- RAM Card -->
+<section class="glass-card rounded-xl p-8 transition-all hover:shadow-xl group hover-lift">
+<div class="flex justify-between items-start mb-6">
+<div>
+<h3 class="font-headline text-secondary text-sm font-bold uppercase tracking-wider mb-4">Memory</h3>
+<div class="flex items-baseline gap-2">
+<span class="text-5xl font-headline font-bold text-on-background">8.2<span class="text-xl font-light text-on-surface-variant">/ 16 GB</span></span>
+<span class="text-secondary font-bold flex items-center text-lg"><span class="material-symbols-outlined text-sm">north_east</span> 0.4</span>
+</div>
+</div>
+<div class="text-right">
+<p class="text-[10px] text-on-surface-variant uppercase tracking-widest mb-1">Cached</p>
+<p class="font-headline font-bold text-lg">2.1 GB</p>
+</div>
+</div>
+<!-- Mock Graph -->
+<div class="h-48 w-full mt-4 flex items-end gap-1 overflow-hidden animate-fade-in">
+<div class="bg-secondary/30 w-full h-[51%] rounded-t-sm"></div>
+<div class="bg-secondary/30 w-full h-[50%] rounded-t-sm"></div>
+<div class="bg-secondary/30 w-full h-[52%] rounded-t-sm"></div>
+<div class="bg-secondary/40 w-full h-[51%] rounded-t-sm"></div>
+<div class="bg-secondary/20 w-full h-[52%] rounded-t-sm"></div>
+<div class="bg-secondary/20 w-full h-[51%] rounded-t-sm"></div>
+<div class="bg-secondary/40 w-full h-[51%] rounded-t-sm"></div>
+</div>
+</section>
+<!-- Disk Card -->
+<section class="glass-card rounded-xl p-8 transition-all hover:shadow-xl group hover-lift">
+<div class="flex justify-between items-start mb-6">
+<div>
+<h3 class="font-headline text-on-surface-variant text-sm font-bold uppercase tracking-wider mb-4">Disk I/O</h3>
+<div class="flex items-baseline gap-2">
+<span class="text-5xl font-headline font-bold text-on-background">5.2 <span class="text-xl font-light text-on-surface-variant">MB/s</span></span>
+<span class="text-error font-bold flex items-center text-lg"><span class="material-symbols-outlined text-sm">south_east</span> 1.2</span>
+</div>
+</div>
+<div class="text-right">
+<p class="text-[10px] text-on-surface-variant uppercase tracking-widest mb-1">Read/Write</p>
+<p class="font-headline font-bold text-lg">84% Read</p>
+</div>
+</div>
+<!-- Mock Graph -->
+<div class="h-48 w-full mt-4 relative overflow-hidden flex items-end animate-fade-in">
+<svg class="w-full h-full preserve-3d" preserveaspectratio="none" viewbox="0 0 100 40">
+<path d="M0 40 Q 10 10, 20 25 T 40 15 T 60 30 T 80 10 T 100 25 L 100 40 L 0 40 Z" fill="rgba(121, 111, 154, 0.1)" stroke="rgba(121, 111, 154, 0.2)" stroke-width="0.5"></path>
+<path d="M0 35 Q 15 20, 30 30 T 50 10 T 75 25 T 100 15" fill="none" stroke="#796f9a" stroke-width="1.5"></path>
+</svg>
+</div>
+</section>
+<!-- Network Card -->
+<section class="glass-card rounded-xl p-8 transition-all hover:shadow-xl group hover-lift">
+<div class="flex justify-between items-start mb-6">
+<div>
+<h3 class="font-headline text-outline text-sm font-bold uppercase tracking-wider mb-4">Network</h3>
+<div class="flex items-baseline gap-2">
+<span class="text-5xl font-headline font-bold text-on-background">1.2 <span class="text-xl font-light text-on-surface-variant">Mbps</span></span>
+<span class="text-primary font-bold flex items-center text-lg"><span class="material-symbols-outlined text-sm">north_east</span> 0.3</span>
+</div>
+</div>
+<div class="text-right">
+<p class="text-[10px] text-on-surface-variant uppercase tracking-widest mb-1">Total Sent</p>
+<p class="font-headline font-bold text-lg">452 GB</p>
+</div>
+</div>
+<!-- Mock Graph -->
+<div class="h-48 w-full mt-4 flex items-center justify-center animate-fade-in">
+<div class="w-full h-full bg-surface-variant/50 rounded-lg flex flex-col justify-center gap-4 px-6">
+<div class="space-y-1">
+<div class="flex justify-between text-[10px] text-on-surface-variant font-bold uppercase">
+<span>Download</span>
+<span>840 Kbps</span>
+</div>
+<div class="h-1.5 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-gradient-to-r from-primary to-[#364766] w-[65%] rounded-full"></div>
+</div>
+</div>
+<div class="space-y-1">
+<div class="flex justify-between text-[10px] text-on-surface-variant font-bold uppercase">
+<span>Upload</span>
+<span>360 Kbps</span>
+</div>
+<div class="h-1.5 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-gradient-to-r from-secondary-dim to-secondary-container w-[30%] rounded-full"></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Footer Meta Info -->
+<footer class="mt-12 py-12 border-t border-outline-variant/30">
+<div class="flex flex-col md:flex-row justify-between items-center gap-6">
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
+<span class="text-xs font-bold tracking-widest text-on-surface-variant uppercase">All Systems Nominal</span>
+</div>
+<span class="text-on-surface-variant text-xs font-medium">Uptime: 14d 06h 22m</span>
+<span class="text-on-surface-variant text-xs font-medium">Last Sync: Just now</span>
+</div>
+<div class="flex gap-8 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/50">
+<button class="hover:text-primary transition-colors">Export Logs</button>
+<button class="hover:text-primary transition-colors">Documentation</button>
+<a class="hover:text-primary transition-colors" href="#">API Reference</a>
+</div>
+</div>
+</footer>
+</div>
+</main>
+<!-- Mobile Bottom Navigation -->
+<nav class="md:hidden fixed bottom-0 w-full bg-white/90 backdrop-blur-xl border-t border-outline-variant/10 flex justify-around py-4 px-2 z-50">
+<a class="flex flex-col items-center gap-1 text-on-surface-variant btn-hover-effect" href="#">
+<span class="material-symbols-outlined" data-icon="terminal">terminal</span>
+<span class="text-[10px] font-bold uppercase">Procs</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-primary btn-hover-effect active-pulse" href="#">
+<span class="material-symbols-outlined" data-icon="monitoring">monitoring</span>
+<span class="text-[10px] font-bold uppercase">Perf</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-on-surface-variant btn-hover-effect" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="text-[10px] font-bold uppercase">Setup</span>
+</a>
+</nav>
+</body></html>

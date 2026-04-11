@@ -1,0 +1,123 @@
+const lightThemeArgs = {
+    "on-background": "#433f4e",
+    "primary-fixed-dim": "#c3d5fb",
+    "tertiary-fixed": "#fbf2ee",
+    "primary-dim": "#4e5f80",
+    "inverse-on-surface": "#eae1ff",
+    "tertiary-dim": "#f2e9e5",
+    "surface-container-lowest": "#ffffff",
+    "surface-variant": "#f4f1f8",
+    "on-error": "#ffffff",
+    "error-container": "#f9dedc",
+    "background": "#ece3df",
+    "surface-container-high": "#f7f2f1",
+    "on-primary-fixed": "#2e3f5f",
+    "error-dim": "#bb5551",
+    "inverse-surface": "#1b162e",
+    "secondary-fixed-dim": "#d1d3ec",
+    "secondary-container": "#e0e2ec",
+    "primary": "#4e5f80",
+    "inverse-primary": "#b5c7ed",
+    "surface": "#ece3df",
+    "on-secondary-container": "#1c1f31",
+    "on-surface": "#433f4e",
+    "on-secondary": "#ffffff",
+    "surface-tint": "#4e5f80",
+    "secondary-dim": "#575a6f",
+    "surface-bright": "#ffffff",
+    "on-surface-variant": "#6b6562",
+    "on-primary-fixed-variant": "#4b5c7c",
+    "on-primary": "#ffffff",
+    "tertiary-container": "#f2e9e5",
+    "surface-container-low": "#fdf7ff",
+    "on-secondary-fixed": "#3b3e52",
+    "on-primary-container": "#001a41",
+    "surface-container": "#f3eeed",
+    "secondary-fixed": "#dfe1fa",
+    "outline": "#796f9a",
+    "primary-fixed": "#d7e2ff",
+    "error": "#b3261e",
+    "on-tertiary-container": "#5b5653",
+    "tertiary": "#645e5b",
+    "surface-container-highest": "#e6e1e5",
+    "on-tertiary-fixed-variant": "#6b6562",
+    "on-tertiary-fixed": "#4e4946",
+    "on-secondary-fixed-variant": "#575a6f",
+    "on-tertiary": "#ffffff",
+    "secondary": "#575a6f",
+    "primary-container": "#d7e2ff",
+    "surface-dim": "#ded8d7",
+    "tertiary-fixed-dim": "#ede3df",
+    "outline-variant": "#c9c5d0",
+    "on-error-container": "#410002"
+};
+
+const darkThemeArgs = {
+    "on-background": "#eae1ff",
+    "primary-fixed-dim": "#c3d5fb",
+    "tertiary-fixed": "#fbf2ee",
+    "primary-dim": "#a8b9de",
+    "inverse-on-surface": "#575362",
+    "tertiary-dim": "#f2e9e5",
+    "surface-container-lowest": "#000000",
+    "surface-variant": "#282045",
+    "on-error": "#490106",
+    "error-container": "#7f2927",
+    "background": "#0f0c19",
+    "surface-container-high": "#221b39",
+    "on-primary-fixed": "#2e3f5f",
+    "error-dim": "#bb5551",
+    "inverse-surface": "#fdf7ff",
+    "secondary-fixed-dim": "#d1d3ec",
+    "secondary-container": "#373a4e",
+    "primary": "#b5c7ed",
+    "inverse-primary": "#4e5f80",
+    "surface": "#0f0c19",
+    "on-secondary-container": "#bbbed6",
+    "on-surface": "#eae1ff",
+    "on-secondary": "#1c1f31",
+    "surface-tint": "#b5c7ed",
+    "secondary-dim": "#9a9cb4",
+    "surface-bright": "#2f2551",
+    "on-surface-variant": "#b0a5d2",
+    "on-primary-fixed-variant": "#4b5c7c",
+    "on-primary": "#2f405f",
+    "tertiary-container": "#f2e9e5",
+    "surface-container-low": "#151123",
+    "on-secondary-fixed": "#3b3e52",
+    "on-primary-container": "#bfd0f7",
+    "surface-container": "#1b162e",
+    "secondary-fixed": "#dfe1fa",
+    "outline": "#796f9a",
+    "primary-fixed": "#d7e2ff",
+    "error": "#ee7d77",
+    "on-tertiary-container": "#5b5653",
+    "tertiary": "#fff8f5",
+    "surface-container-highest": "#282045",
+    "on-tertiary-fixed-variant": "#6b6562",
+    "on-tertiary-fixed": "#4e4946",
+    "on-secondary-fixed-variant": "#575a6f",
+    "on-tertiary": "#645e5b",
+    "secondary": "#9a9cb4",
+    "primary-container": "#364766",
+    "surface-dim": "#0f0c19",
+    "tertiary-fixed-dim": "#ede3df",
+    "outline-variant": "#4b426a",
+    "on-error-container": "#ff9993"
+};
+
+function injectStyles() {
+    let style = document.createElement('style');
+    let lightVars = Object.entries(lightThemeArgs).map(([k, v]) => `--tw-${k}: ${v};`).join('\n');
+    let darkVars = Object.entries(darkThemeArgs).map(([k, v]) => `--tw-${k}: ${v};`).join('\n');
+    style.innerHTML = `
+        :root {
+            ${lightVars}
+        }
+        .dark {
+            ${darkVars}
+        }
+    `;
+    document.head.appendChild(style);
+}
+injectStyles();

@@ -355,6 +355,29 @@ function switchView(viewName) {
 }
 
 
+// ── Snapshot System ──
+async function snapshotSystem() {
+    try {
+        const res = await fetch('/api/snapshot');
+        const data = await res.json();
+        
+        // Create a downloadable JSON file
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        const ts = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+        a.href = url;
+        a.download = `snapshot_${ts}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        showToast(`System snapshot saved (${data.summary.total_processes} processes captured).`, 'success');
+    } catch (err) {
+        showToast('Failed to capture snapshot.', 'error');
+    }
+}
 
 
 // ── Toast Notification System ──

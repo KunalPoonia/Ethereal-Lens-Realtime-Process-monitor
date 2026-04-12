@@ -155,6 +155,56 @@ async def run_task(req: RunTaskRequest):
         return {"status": "error", "message": f"Could not launch '{command}': {str(e)}"}
 
 
+@app.get("/api/snapshot")
+async def snapshot_system():
+    """Capture a complete freeze-frame of the current system state."""
+    from datetime import datetime
+    import platform
+
+    with store.lock():
+        snapshot = {
+            "timestamp": datetime.now().isoformat(),
+            "hostname": platform.node(),
+            "platform": platform.platform(),
+            "performance": {
+                "cpu_percent": round(store.cpu_percent, 1),
+                "ram_used_gb": round(store.ram_used, 2),
+                "ram_total_gb": round(store.ram_total, 2),
+                "ram_percent": round(store.ram_percent, 1),
+                "disk_read_rate_mbps": round(store.disk_read_rate, 2),
+                "disk_write_rate_mbps": round(store.disk_write_rate, 2),
+                "net_sent_rate_kbps": round(store.net_sent_rate, 2),
+                "net_recv_rate_kbps": round(store.net_recv_rate, 2),
+            },
+            "processes": [
+                {
+                    "name": p.get("name", ""),
+                    "pid": p.get("pid", 0),
+                    "pids": p.get("pids", []),
+                    "cpu": p.get("cpu", 0),
+                    "memory_mb": p.get("memory", 0),
+                    "status": p.get("status", ""),
+                    "category": p.get("category", ""),
+                    "threads": p.get("threads", 0),
+                }
+                for p in store.processes
+            ],
+            "summary": {
+                "total_processes": len(store.processes),
+                "apps": sum(1 for p in store.processes if p.get("category") == "app"),
+                "background": sum(1 for p in store.processes if p.get("category") != "app"),
+            }
+        }
+
+    from fastapi.responses import JSONResponse
+    return JSONResponse(
+        content=snapshot,
+        headers={
+            "Content-Disposition": f'attachment; filename="snapshot_{datetime.now().strftime("%Y%m%d_%H%M%S")}.json"'
+        }
+    )
+
+
 @app.post("/api/end-task")
 async def end_task(req: EndTaskRequest):
     """Terminate all processes in a group by their PIDs."""

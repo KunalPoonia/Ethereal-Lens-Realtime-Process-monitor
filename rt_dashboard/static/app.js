@@ -526,9 +526,18 @@ document.getElementById('theme-toggle').addEventListener('click', () => {
     }
 });
 
-// Restore saved theme on load
-if (localStorage.theme === 'dark') {
+// Force light mode as default and restore saved theme on load
+const savedTheme = localStorage.theme;
+if (savedTheme === 'dark') {
     document.documentElement.classList.add('dark');
+    document.documentElement.classList.remove('light');
     const btnIcon = document.querySelector('#theme-toggle .material-symbols-outlined');
     if (btnIcon) btnIcon.textContent = 'dark_mode';
+} else {
+    // Force light mode by default
+    document.documentElement.classList.remove('dark');
+    document.documentElement.classList.add('light');
+    const btnIcon = document.querySelector('#theme-toggle .material-symbols-outlined');
+    if (btnIcon) btnIcon.textContent = 'light_mode';
+    localStorage.theme = 'light';
 }

@@ -1,4 +1,7 @@
 @echo off
 cd /d "%~dp0"
-python rt_dashboard\main.py
+echo Starting Process Monitor Web Server...
+echo.
+cd rt_dashboard
+python -m uvicorn server:app --reload
 pause

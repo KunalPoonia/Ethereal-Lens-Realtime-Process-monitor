@@ -1,4 +1,4 @@
-PyQt6>=6.5
+fastapi>=0.100
+uvicorn[standard]>=0.23
 psutil>=5.9
-pyqtgraph>=0.13
-numpy>=1.24
+websockets>=11.0

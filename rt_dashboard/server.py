@@ -1,4 +1,5 @@
 import asyncio
+import psutil
 import subprocess
 import os
 import signal
@@ -259,6 +260,7 @@ async def websocket_endpoint(websocket: WebSocket):
                     "disk_history": list(store.disk_history),
                     "net_sent_history": list(store.net_sent_history),
                     "net_recv_history": list(store.net_recv_history),
+                    "boot_time": psutil.boot_time(),
                     "processes": store.processes
                 }
             

@@ -96,6 +96,27 @@ function updateMetrics(state) {
     // ── Live Bar Graphs ──
     if (state.cpu_history) renderBarGraph('graph-cpu', state.cpu_history, 'primary');
     if (state.ram_history) renderBarGraph('graph-mem', state.ram_history, 'secondary');
+
+    // ── Uptime & Last Sync ──
+    if (state.boot_time) {
+        const uptimeSec = Math.floor(Date.now() / 1000 - state.boot_time);
+        const days = Math.floor(uptimeSec / 86400);
+        const hrs  = Math.floor((uptimeSec % 86400) / 3600);
+        const mins = Math.floor((uptimeSec % 3600) / 60);
+        const uptimeEl = document.getElementById('perf-uptime');
+        if (uptimeEl) {
+            let parts = [];
+            if (days > 0) parts.push(`${days}d`);
+            parts.push(`${String(hrs).padStart(2,'0')}h`);
+            parts.push(`${String(mins).padStart(2,'0')}m`);
+            uptimeEl.textContent = `Uptime: ${parts.join(' ')}`;
+        }
+    }
+    const syncEl = document.getElementById('perf-last-sync');
+    if (syncEl) {
+        const now = new Date();
+        syncEl.textContent = `Last Sync: ${now.toLocaleTimeString()}`;
+    }
 }
 
 /**

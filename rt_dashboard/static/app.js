@@ -48,11 +48,11 @@ let cpuPeak = 0;
 let prevCpu = 0;
 
 function updateMetrics(state) {
-    // Top summary bar in Processes View
+    // Top summary bar in the Processes View
     document.getElementById('sum-cpu').textContent = `${Math.round(state.cpu_percent)}%`;
     document.getElementById('sum-mem').textContent = `${Math.round(state.ram_percent)}%`;
 
-    // ── CPU Card ──
+    // -- CPU Card --
     document.getElementById('perf-cpu').textContent = `${state.cpu_percent.toFixed(1)}%`;
     
     // CPU delta (change from previous reading)
@@ -181,7 +181,7 @@ function createProcessRowHTML(proc, isApp) {
         rowClass += ' selected';
     }
     if (!isApp) {
-        rowClass += ' opacity-80'; // Dim background processes
+        rowClass += 'opacity-80'; // Dim background processes
     }
 
     // Material Icon selection logic based on name

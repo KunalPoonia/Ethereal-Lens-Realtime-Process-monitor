@@ -1,14 +1,150 @@
-# ─── Configuration ───────────────────────────────────────────────────
-POLL_INTERVAL_MS = 1000
-HISTORY_LENGTH   = 60
+# ─── config.py ───────────────────────────────────────────────────────────────
+#  Process Monitor — Central Configuration
+#  All tunables live here. Do not hardcode values elsewhere.
+# ─────────────────────────────────────────────────────────────────────────────
 
-APP_TITLE  = "Process Monitor"
-MIN_WIDTH  = 1100
-MIN_HEIGHT = 700
+import psutil
+from typing import TypedDict
 
-# ── Light Theme — Apple-neutral ─────────────────────────────────────
-# True neutral palette. White canvas. Charcoal ink. No decorative color.
-LIGHT = {
+
+# ══════════════════════════════════════════════════════════════════════════════
+#  POLLING & HISTORY
+# ══════════════════════════════════════════════════════════════════════════════
+
+POLL_INTERVAL_MS   = 1000   # How often the UI refreshes (ms)
+HISTORY_LENGTH     = 60     # Number of data-points kept in rolling graphs
+ALERT_CPU_PERCENT  = 85.0   # CPU % above which a process is flagged
+ALERT_MEM_MB       = 1024   # Memory (MB) above which a process is flagged
+MAX_PROCESSES      = 512    # Upper bound on processes shown in the table
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+#  WINDOW
+# ══════════════════════════════════════════════════════════════════════════════
+
+APP_TITLE   = "Process Monitor"
+APP_VERSION = "1.0.0"
+MIN_WIDTH   = 1100
+MIN_HEIGHT  = 700
+DEFAULT_W   = 1280
+DEFAULT_H   = 800
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+#  PROCESS TABLE
+# ══════════════════════════════════════════════════════════════════════════════
+
+PROCESS_COLUMNS = ["Name", "PID", "CPU %", "Memory (MB)", "Threads", "Status"]
+
+COLUMN_WIDTHS = {
+    "Name":        220,
+    "PID":          70,
+    "CPU %":        80,
+    "Memory (MB)": 110,
+    "Threads":      75,
+    "Status":       90,
+}
+
+# Columns that are right-aligned (numeric)
+RIGHT_ALIGN_COLS = {"PID", "CPU %", "Memory (MB)", "Threads"}
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+#  PRIORITY CLASSES  (Windows — psutil constants)
+# ══════════════════════════════════════════════════════════════════════════════
+
+PRIORITY_CLASSES: dict[str, int] = {
+    "Realtime":     psutil.REALTIME_PRIORITY_CLASS,
+    "High":         psutil.HIGH_PRIORITY_CLASS,
+    "Above Normal": psutil.ABOVE_NORMAL_PRIORITY_CLASS,
+    "Normal":       psutil.NORMAL_PRIORITY_CLASS,
+    "Below Normal": psutil.BELOW_NORMAL_PRIORITY_CLASS,
+    "Low (Idle)":   psutil.IDLE_PRIORITY_CLASS,
+}
+
+# Default priority applied when spawning new processes from the UI
+DEFAULT_PRIORITY = "Normal"
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+#  HEATMAP THRESHOLDS  (CPU %)
+# ══════════════════════════════════════════════════════════════════════════════
+#  Ordered list of (threshold, heat_key) pairs.
+#  The first threshold the value exceeds determines the cell color.
+
+HEAT_THRESHOLDS: list[tuple[float, str]] = [
+    (0.0,  "heat_0"),
+    (10.0, "heat_1"),
+    (30.0, "heat_2"),
+    (50.0, "heat_3"),
+    (70.0, "heat_4"),
+    (85.0, "heat_5"),
+    (95.0, "heat_critical"),
+]
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+#  THEME TYPE
+# ══════════════════════════════════════════════════════════════════════════════
+
+class Theme(TypedDict):
+    # Surfaces
+    bg:               str
+    surface:          str
+    surface2:         str
+    surface_elevated: str
+
+    # Text
+    text:             str
+    text2:            str
+    text3:            str
+
+    # Accent
+    accent:           str
+    accent_subtle:    str
+
+    # Borders
+    border:           str
+    border_subtle:    str
+
+    # Interactive states
+    hover:            str
+    selection:        str
+    active:           str
+
+    # Danger / destructive actions
+    danger:           str
+    danger_hover:     str
+
+    # Heatmap
+    heat_0:           str
+    heat_1:           str
+    heat_2:           str
+    heat_3:           str
+    heat_4:           str
+    heat_5:           str
+    heat_critical:    str
+
+    # Graph colors
+    graph_line:       str
+    graph_fill:       int   # alpha (0-255) for the area fill under lines
+    graph_cpu:        str
+    graph_mem:        str
+    graph_disk:       str
+    graph_net:        str
+
+    # Badges / status chips
+    badge_running:    str
+    badge_sleeping:   str
+    badge_stopped:    str
+    badge_zombie:     str
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+#  LIGHT THEME  — Apple-neutral white canvas
+# ══════════════════════════════════════════════════════════════════════════════
+
+LIGHT: Theme = {
     # Surfaces
     "bg":               "#FFFFFF",
     "surface":          "#FFFFFF",
@@ -17,10 +153,10 @@ LIGHT = {
 
     # Text
     "text":             "#2B2B2B",
-    "text2":            "#2B2B2B",
+    "text2":            "#5A5A5A",
     "text3":            "#B3B3B3",
 
-    # Accent (used sparingly — selection, active tab underline only)
+    # Accent
     "accent":           "#2B2B2B",
     "accent_subtle":    "#D4D4D4",
 
@@ -29,15 +165,15 @@ LIGHT = {
     "border_subtle":    "#D4D4D4",
 
     # Interactive
-    "hover":            "#D4D4D4",
+    "hover":            "#EFEFEF",
     "selection":        "#2B2B2B",
     "active":           "#B3B3B3",
 
     # Danger
-    "danger":           "#B3B3B3",
-    "danger_hover":     "#2B2B2B",
+    "danger":           "#CC3333",
+    "danger_hover":     "#991111",
 
-    # Heatmap (monochrome charcoal — strictly within approved palette)
+    # Heatmap — monochrome charcoal
     "heat_0":           "#00000000",
     "heat_1":           "#D4D4D480",
     "heat_2":           "#B3B3B3",
@@ -48,16 +184,25 @@ LIGHT = {
 
     # Graphs
     "graph_line":       "#2B2B2B",
-    "graph_fill":       8,
+    "graph_fill":       18,
     "graph_cpu":        "#2B2B2B",
-    "graph_mem":        "#B3B3B3",
-    "graph_disk":       "#D4D4D4",
-    "graph_net":        "#2B2B2B",
+    "graph_mem":        "#888888",
+    "graph_disk":       "#B3B3B3",
+    "graph_net":        "#5A5A5A",
+
+    # Badges
+    "badge_running":    "#1A7F3C",   # green
+    "badge_sleeping":   "#5A5A5A",   # neutral
+    "badge_stopped":    "#CC8800",   # amber
+    "badge_zombie":     "#CC3333",   # red
 }
 
-# ── Dark Theme — Apple-neutral ──────────────────────────────────────
-# True black canvas. Warm white text. Zero chromatic noise.
-DARK = {
+
+# ══════════════════════════════════════════════════════════════════════════════
+#  DARK THEME  — True black canvas, warm white text
+# ══════════════════════════════════════════════════════════════════════════════
+
+DARK: Theme = {
     # Surfaces
     "bg":               "#000000",
     "surface":          "#1C1C1E",
@@ -86,7 +231,7 @@ DARK = {
     "danger":           "#FF453A",
     "danger_hover":     "#E03E35",
 
-    # Heatmap (neutral warm progression — transparent → warm amber on dark)
+    # Heatmap — neutral warm amber progression on dark
     "heat_0":           "#00000000",
     "heat_1":           "#3D2E1F",
     "heat_2":           "#4A3828",
@@ -97,45 +242,54 @@ DARK = {
 
     # Graphs
     "graph_line":       "#F5F5F7",
-    "graph_fill":       12,
+    "graph_fill":       20,
     "graph_cpu":        "#F5F5F7",
     "graph_mem":        "#98989D",
     "graph_disk":       "#636366",
     "graph_net":        "#48484A",
+
+    # Badges
+    "badge_running":    "#30D158",
+    "badge_sleeping":   "#636366",
+    "badge_stopped":    "#FFD60A",
+    "badge_zombie":     "#FF453A",
 }
 
-# ── Mid Theme — Between Light and Dark ──────────────────────────────
-# A sleek, neutral twilight graphite.
-MID = {
-    # Base Layout (Dark Charcoal Base)
-    "bg":               "#2B2B2B",
-    "surface":          "#2B2B2B",
-    "surface2":         "#FFFFFF1A",
-    "surface_elevated": "#2B2B2B",
 
-    # Text Elements (Crisp White & Grey)
+# ══════════════════════════════════════════════════════════════════════════════
+#  MID THEME  — Twilight graphite; balanced between Light and Dark
+# ══════════════════════════════════════════════════════════════════════════════
+
+MID: Theme = {
+    # Surfaces
+    "bg":               "#2B2B2B",
+    "surface":          "#333333",
+    "surface2":         "#3D3D3D",
+    "surface_elevated": "#3D3D3D",
+
+    # Text
     "text":             "#FFFFFF",
     "text2":            "#D4D4D4",
     "text3":            "#B3B3B3",
 
-    # Theme Accent
+    # Accent
     "accent":           "#FFFFFF",
     "accent_subtle":    "#FFFFFF1A",
 
-    # Structural Lines
+    # Borders
     "border":           "#B3B3B3",
     "border_subtle":    "#B3B3B34D",
 
-    # States
+    # Interactive
     "hover":            "#FFFFFF1A",
     "selection":        "#FFFFFF33",
     "active":           "#FFFFFF4D",
 
-    # Danger Fallback
-    "danger":           "#B3B3B3",
+    # Danger
+    "danger":           "#FF6B6B",
     "danger_hover":     "#FFFFFF",
 
-    # Monochromatic Heatmap (Grey to White Opacities)
+    # Heatmap — grey-to-white opacity ramp
     "heat_0":           "#00000000",
     "heat_1":           "#D4D4D41A",
     "heat_2":           "#D4D4D433",
@@ -144,23 +298,49 @@ MID = {
     "heat_5":           "#D4D4D480",
     "heat_critical":    "#FFFFFF",
 
-    # Monochromatic Graphs
+    # Graphs
     "graph_line":       "#FFFFFF",
-    "graph_fill":       15,
+    "graph_fill":       24,
     "graph_cpu":        "#FFFFFF",
     "graph_mem":        "#D4D4D4",
     "graph_disk":       "#B3B3B3",
     "graph_net":        "#FFFFFF",
+
+    # Badges
+    "badge_running":    "#4ADE80",
+    "badge_sleeping":   "#B3B3B3",
+    "badge_stopped":    "#FBBF24",
+    "badge_zombie":     "#FF6B6B",
 }
 
-PROCESS_COLUMNS = ["Name", "PID", "CPU %", "Memory (MB)", "Status"]
 
-import psutil
-PRIORITY_CLASSES = {
-    "Realtime":      psutil.REALTIME_PRIORITY_CLASS,
-    "High":          psutil.HIGH_PRIORITY_CLASS,
-    "Above Normal":  psutil.ABOVE_NORMAL_PRIORITY_CLASS,
-    "Normal":        psutil.NORMAL_PRIORITY_CLASS,
-    "Below Normal":  psutil.BELOW_NORMAL_PRIORITY_CLASS,
-    "Low (Idle)":    psutil.IDLE_PRIORITY_CLASS,
+# ══════════════════════════════════════════════════════════════════════════════
+#  THEME REGISTRY
+# ══════════════════════════════════════════════════════════════════════════════
+
+THEMES: dict[str, Theme] = {
+    "light": LIGHT,
+    "dark":  DARK,
+    "mid":   MID,
 }
+
+DEFAULT_THEME = "dark"
+
+
+def get_theme(name: str | None = None) -> Theme:
+    """Return a theme dict by name, falling back to DEFAULT_THEME."""
+    return THEMES.get(name or DEFAULT_THEME, THEMES[DEFAULT_THEME])
+
+
+def heat_color(cpu_percent: float, theme: Theme) -> str:
+    """
+    Map a CPU percentage to the appropriate heatmap color key for the given theme.
+
+    Example:
+        color = heat_color(72.5, DARK)  # → DARK["heat_5"]
+    """
+    key = "heat_0"
+    for threshold, heat_key in HEAT_THRESHOLDS:
+        if cpu_percent >= threshold:
+            key = heat_key
+    return theme[key]  # type: ignore[literal-required]

@@ -14,33 +14,33 @@ class DataStore:
         self._lock = Lock()
 
         # Rolling graph history
-        self.cpu_history:  deque[float] = deque([0.0] * n, maxlen=n)
-        self.ram_history:  deque[float] = deque([0.0] * n, maxlen=n)
-        self.disk_history: deque[float] = deque([0.0] * n, maxlen=n)  # MB/s
-        self.net_sent_history:  deque[float] = deque([0.0] * n, maxlen=n)
-        self.net_recv_history:  deque[float] = deque([0.0] * n, maxlen=n)
+        self.cpu_history       = deque([0.0] * n, maxlen=n)
+        self.ram_history       = deque([0.0] * n, maxlen=n)
+        self.disk_history      = deque([0.0] * n, maxlen=n)  # MB/s
+        self.net_sent_history  = deque([0.0] * n, maxlen=n)
+        self.net_recv_history  = deque([0.0] * n, maxlen=n)
 
         # Latest snapshot values
-        self.cpu_percent:    float = 0.0
-        self.ram_total:      float = 0.0
-        self.ram_used:       float = 0.0
-        self.ram_percent:    float = 0.0
-        self.disk_read_rate: float = 0.0   # MB/s
-        self.disk_write_rate:float = 0.0   # MB/s
-        self.disk_total_rate:float = 0.0   # MB/s (read+write)
-        self.disk_space_used:float = 0.0   # GB (for sub text)
-        self.disk_space_total:float = 0.0  # GB
-        self.net_sent_rate:  float = 0.0   # KB/s
-        self.net_recv_rate:  float = 0.0   # KB/s
+        self.cpu_percent       = 0.0
+        self.ram_total         = 0.0
+        self.ram_used          = 0.0
+        self.ram_percent       = 0.0
+        self.disk_read_rate    = 0.0   # MB/s
+        self.disk_write_rate   = 0.0   # MB/s
+        self.disk_total_rate   = 0.0   # MB/s (read + write)
+        self.disk_space_used   = 0.0   # GB
+        self.disk_space_total  = 0.0   # GB
+        self.net_sent_rate     = 0.0   # KB/s
+        self.net_recv_rate     = 0.0   # KB/s
 
         # Process list
-        self.processes: list[dict] = []
+        self.processes = []
 
         # Previous counters for delta calculation
-        self._prev_net_sent: int | None = None
-        self._prev_net_recv: int | None = None
-        self._prev_disk_read:  int | None = None
-        self._prev_disk_write: int | None = None
+        self._prev_net_sent   = None
+        self._prev_net_recv   = None
+        self._prev_disk_read  = None
+        self._prev_disk_write = None
 
     def lock(self):
         return self._lock
@@ -52,17 +52,17 @@ class DataStore:
         net_sent_bytes, net_recv_bytes,
     ):
         with self._lock:
-            self.cpu_percent  = cpu
-            self.ram_total    = ram_total
-            self.ram_used     = ram_used
-            self.ram_percent  = ram_pct
+            self.cpu_percent      = cpu
+            self.ram_total        = ram_total
+            self.ram_used         = ram_used
+            self.ram_percent      = ram_pct
             self.disk_space_used  = disk_space_used
             self.disk_space_total = disk_space_total
 
             # Disk I/O rate (MB/s)
             if self._prev_disk_read is not None:
-                self.disk_read_rate  = (disk_read_bytes - self._prev_disk_read) / (1024**2)
-                self.disk_write_rate = (disk_write_bytes - self._prev_disk_write) / (1024**2)
+                self.disk_read_rate  = (disk_read_bytes  - self._prev_disk_read)  / 1024 ** 2
+                self.disk_write_rate = (disk_write_bytes - self._prev_disk_write) / 1024 ** 2
                 self.disk_total_rate = self.disk_read_rate + self.disk_write_rate
             self._prev_disk_read  = disk_read_bytes
             self._prev_disk_write = disk_write_bytes
@@ -81,6 +81,6 @@ class DataStore:
             self.net_sent_history.append(self.net_sent_rate)
             self.net_recv_history.append(self.net_recv_rate)
 
-    def push_processes(self, proc_list: list[dict]):
+    def push_processes(self, proc_list: list):
         with self._lock:
             self.processes = proc_list

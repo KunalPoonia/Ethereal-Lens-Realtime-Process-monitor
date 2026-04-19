@@ -39,65 +39,142 @@ ws.onclose = () => {
 ws.onmessage = (event) => {
     cachedState = JSON.parse(event.data);
     updateMetrics(cachedState);
-    if (!document.getElementById('view-processes').classList.contains('hidden')) {
+    if (!document.getElementById('processes-tab').classList.contains('hidden-tab')) {
         renderProcesses();
     }
 };
 
+
 let cpuPeak = 0;
 let prevCpu = 0;
 
+const metricHistory = { cpu: [], mem: [], disk: [], net: [] };
+const HISTORY_MAX = 20;
+
+
 function updateMetrics(state) {
-    // Top summary bar in the Processes View
-    document.getElementById('sum-cpu').textContent = `${Math.round(state.cpu_percent)}%`;
-    document.getElementById('sum-mem').textContent = `${Math.round(state.ram_percent)}%`;
+    // Top summary bar in Footer
+    const sumCpu = document.getElementById('sum-cpu');
+    if(sumCpu) sumCpu.textContent = `${Math.round(state.cpu_percent)}%`;
+    const sumMem = document.getElementById('sum-mem');
+    if(sumMem) sumMem.textContent = `${Math.round(state.ram_percent)}%`;
 
-    // -- CPU Card --
-    document.getElementById('perf-cpu').textContent = `${state.cpu_percent.toFixed(1)}%`;
-    
-    // CPU delta (change from previous reading)
-    const cpuDelta = state.cpu_percent - prevCpu;
-    const deltaEl = document.getElementById('perf-cpu-delta');
-    if (deltaEl) {
-        const arrow = cpuDelta >= 0 ? 'north_east' : 'south_east';
-        deltaEl.innerHTML = `<span class="material-symbols-outlined text-sm">${arrow}</span> ${Math.abs(cpuDelta).toFixed(1)}%`;
-    }
-    prevCpu = state.cpu_percent;
-
-    // CPU peak
-    if (state.cpu_percent > cpuPeak) cpuPeak = state.cpu_percent;
-    const peakEl = document.getElementById('perf-cpu-peak');
-    if (peakEl) peakEl.textContent = `${cpuPeak.toFixed(1)}%`;
-    
-    // ── RAM Card ──
-    const ramSpan = document.getElementById('perf-mem');
-    ramSpan.innerHTML = `${state.ram_used.toFixed(1)} <span class="text-xl font-light text-on-surface-variant">/ ${state.ram_total.toFixed(1)} GB</span>`;
-    const memPctEl = document.getElementById('perf-mem-pct');
-    if (memPctEl) memPctEl.textContent = `${Math.round(state.ram_percent)}%`;
-    
-    // ── Disk Card ──
     const diskTotal = state.disk_read_rate + state.disk_write_rate;
-    const diskSpan = document.getElementById('perf-disk');
-    diskSpan.innerHTML = `${diskTotal.toFixed(1)} <span class="text-xl font-light text-on-surface-variant">MB/s</span>`;
-    const diskReadEl = document.getElementById('perf-disk-read');
-    if (diskReadEl) diskReadEl.textContent = `${state.disk_read_rate.toFixed(1)} MB/s`;
-    const diskWriteEl = document.getElementById('perf-disk-write');
-    if (diskWriteEl) diskWriteEl.textContent = `${state.disk_write_rate.toFixed(1)} MB/s`;
-    
-    // ── Network Card ──
     const netTotal = state.net_sent_rate + state.net_recv_rate;
-    const netSpan = document.getElementById('perf-net');
-    netSpan.innerHTML = `${Math.round(netTotal)} <span class="text-xl font-light text-on-surface-variant">KB/s</span>`;
-    const netRecvEl = document.getElementById('perf-net-recv');
-    if (netRecvEl) netRecvEl.textContent = `${state.net_recv_rate.toFixed(1)} KB/s`;
-    const netSentEl = document.getElementById('perf-net-sent');
-    if (netSentEl) netSentEl.textContent = `${state.net_sent_rate.toFixed(1)} KB/s`;
 
-    // ── Live Bar Graphs ──
-    if (state.cpu_history) renderBarGraph('graph-cpu', state.cpu_history, 'primary');
-    if (state.ram_history) renderBarGraph('graph-mem', state.ram_history, 'secondary');
+    // Push to History
+    metricHistory.cpu.push(state.cpu_percent);
+    metricHistory.mem.push(state.ram_used);
+    
+    // Normalize disk to a 0-100 scale approximately (assuming 500MB/s is 100% for visual sake)
+    const diskMax = 500;
+    metricHistory.disk.push(Math.min(100, (diskTotal / diskMax) * 100));
+    
+    // Normalize net to a 0-100 scale (assuming 10000KB/s is 100%)
+    const netMax = 10000;
+    metricHistory.net.push(Math.min(100, (netTotal / netMax) * 100));
 
-    // ── Uptime & Last Sync ──
+    if (metricHistory.cpu.length > HISTORY_MAX) {
+        metricHistory.cpu.shift();
+        metricHistory.mem.shift();
+        metricHistory.disk.shift();
+        metricHistory.net.shift();
+    }
+
+    renderBarGraph('.graph-container-cpu', metricHistory.cpu, 'primary');
+    // Memory uses ram_percent for the bar graph height (so map it 0-100)
+    renderBarGraph('.graph-container-mem', metricHistory.mem.map(v => (v / state.ram_total) * 100), 'secondary');
+    renderBarGraph('.graph-container-disk', metricHistory.disk, 'tertiary');
+    renderBarGraph('.graph-container-net', metricHistory.net, 'outline');
+
+    // ── Update Bento Grid Cards (both in Processes and Performance tabs) ──
+    // CPU Card
+    const cpuCards = document.querySelectorAll('.text-metric-cpu');
+    cpuCards.forEach(icon => {
+        const valueContainer = icon.closest('.glass-card').querySelector('.font-headline');
+        if (valueContainer) {
+            valueContainer.innerHTML = `${Math.round(state.cpu_percent)}<span class="text-xl text-outline-variant">%</span>`;
+        }
+        const descContainer = icon.closest('.glass-card').querySelector('.font-body');
+        if (descContainer) {
+            descContainer.textContent = `Active processing load`;
+        }
+    });
+
+    // RAM Card
+    const memCards = document.querySelectorAll('.text-metric-mem');
+    memCards.forEach(icon => {
+        const valueContainer = icon.closest('.glass-card').querySelector('.font-headline');
+        if (valueContainer) {
+            valueContainer.innerHTML = `${state.ram_used.toFixed(1)}<span class="text-xl text-outline-variant">GB</span>`;
+        }
+        const descContainer = icon.closest('.glass-card').querySelector('.font-body');
+        if (descContainer) {
+            descContainer.textContent = `${Math.round(state.ram_percent)}% of total capacity`;
+        }
+    });
+
+    // Disk Card
+    const diskCards = document.querySelectorAll('.text-metric-disk');
+    diskCards.forEach(icon => {
+        const valueContainer = icon.closest('.glass-card').querySelector('.font-headline');
+        if (valueContainer) {
+            valueContainer.innerHTML = `${diskTotal.toFixed(1)}<span class="text-xl text-outline-variant">MB/s</span>`;
+        }
+        const descContainer = icon.closest('.glass-card').querySelector('.font-body');
+        if (descContainer) {
+            descContainer.textContent = `R: ${state.disk_read_rate.toFixed(1)} W: ${state.disk_write_rate.toFixed(1)}`;
+        }
+    });
+
+    // Network Card
+    const netCards = document.querySelectorAll('.text-metric-net');
+    netCards.forEach(icon => {
+        const valueContainer = icon.closest('.glass-card').querySelector('.font-headline');
+        if (valueContainer) {
+            valueContainer.innerHTML = `${Math.round(netTotal)}<span class="text-xl text-outline-variant">KB/s</span>`;
+        }
+        const descContainer = icon.closest('.glass-card').querySelector('.font-body');
+        if (descContainer) {
+            descContainer.textContent = `↑ ${state.net_sent_rate.toFixed(1)} ↓ ${state.net_recv_rate.toFixed(1)}`;
+        }
+    });
+
+    // ── Update Live Analytics ──
+    const safeMax = arr => arr.length ? Math.max(...arr) : 0;
+    const safeAvg = arr => arr.length ? (arr.reduce((a,b)=>a+b, 0) / arr.length) : 0;
+
+    const elCpuVal = document.getElementById('perf-cpu-val');
+    const elCpuPeak = document.getElementById('perf-cpu-peak');
+    const elCpuAvg = document.getElementById('perf-cpu-avg');
+    if(elCpuVal) elCpuVal.textContent = state.cpu_percent.toFixed(1);
+    if(elCpuPeak) elCpuPeak.textContent = safeMax(metricHistory.cpu).toFixed(1) + '%';
+    if(elCpuAvg) elCpuAvg.textContent = safeAvg(metricHistory.cpu).toFixed(1) + '%';
+
+    const elMemVal = document.getElementById('perf-mem-val');
+    const elMemPeak = document.getElementById('perf-mem-peak');
+    const elMemAvg = document.getElementById('perf-mem-avg');
+    if(elMemVal) elMemVal.textContent = state.ram_used.toFixed(1);
+    if(elMemPeak) elMemPeak.textContent = safeMax(metricHistory.mem).toFixed(1) + ' GB';
+    if(elMemAvg) elMemAvg.textContent = safeAvg(metricHistory.mem).toFixed(1) + ' GB';
+
+    const elDiskVal = document.getElementById('perf-disk-val');
+    const elDiskWrite = document.getElementById('perf-disk-write');
+    const elDiskRead = document.getElementById('perf-disk-read');
+    if(elDiskVal) elDiskVal.textContent = diskTotal.toFixed(0);
+    if(elDiskWrite) elDiskWrite.textContent = state.disk_write_rate.toFixed(1) + ' MB/s';
+    if(elDiskRead) elDiskRead.textContent = state.disk_read_rate.toFixed(1) + ' MB/s';
+
+    const elNetVal = document.getElementById('perf-net-val');
+    const elNetDown = document.getElementById('perf-net-down');
+    const elNetUp = document.getElementById('perf-net-up');
+    if(elNetVal) elNetVal.textContent = Math.round(state.net_recv_rate + state.net_sent_rate);
+    if(elNetDown) elNetDown.textContent = state.net_recv_rate.toFixed(1) + ' KB/s';
+    if(elNetUp) elNetUp.textContent = state.net_sent_rate.toFixed(1) + ' KB/s';
+    const elNetTotal = document.getElementById('perf-net-total');
+    if(elNetTotal) elNetTotal.textContent = (state.net_recv_rate + state.net_sent_rate).toFixed(1) + ' KB/s';
+
+    // ── Uptime ──
     if (state.boot_time) {
         const uptimeSec = Math.floor(Date.now() / 1000 - state.boot_time);
         const days = Math.floor(uptimeSec / 86400);
@@ -107,17 +184,12 @@ function updateMetrics(state) {
         if (uptimeEl) {
             let parts = [];
             if (days > 0) parts.push(`${days}d`);
-            parts.push(`${String(hrs).padStart(2,'0')}h`);
-            parts.push(`${String(mins).padStart(2,'0')}m`);
-            uptimeEl.textContent = `Uptime: ${parts.join(' ')}`;
+            parts.push(`${String(hrs).padStart(2,'0')}:${String(mins).padStart(2,'0')}`);
+            uptimeEl.textContent = parts.join(' ');
         }
     }
-    const syncEl = document.getElementById('perf-last-sync');
-    if (syncEl) {
-        const now = new Date();
-        syncEl.textContent = `Last Sync: ${now.toLocaleTimeString()}`;
-    }
 }
+
 
 /**
  * Renders a bar chart inside a container from a rolling history array.
@@ -126,112 +198,128 @@ function updateMetrics(state) {
  * @param {number[]} history - Array of 0-100 percentage values
  * @param {string} colorName - Tailwind color token name (e.g. 'primary', 'secondary')
  */
-function renderBarGraph(containerId, history, colorName) {
-    const container = document.getElementById(containerId);
-    if (!container) return;
+function renderBarGraph(containerSelector, history, colorName) {
+    const containers = document.querySelectorAll(containerSelector);
+    if (containers.length === 0) return;
     
     const len = history.length;
     
-    // Only rebuild DOM if bar count changed (first render or history size change)
-    if (container.children.length !== len) {
-        let barsHtml = '';
+    containers.forEach(container => {
+        // Only rebuild DOM if bar count changed
+        if (container.children.length !== len) {
+            let barsHtml = '';
+            for (let i = 0; i < len; i++) {
+                barsHtml += `<div class="flex-1 min-w-[6px] rounded-t-sm transition-all duration-500 ease-out" style="height: 0%"></div>`;
+            }
+            container.innerHTML = barsHtml;
+        }
+        
+        const bars = container.children;
         for (let i = 0; i < len; i++) {
-            barsHtml += `<div class="w-full rounded-t-sm transition-all duration-500 ease-out" style="height: 0%"></div>`;
+            const val = Math.max(0, Math.min(100, history[i]));
+            const pct = Math.max(1, val); 
+            const bar = bars[i];
+            
+            const age = (i / len);
+            let opacity, bgColor;
+            
+            // For the custom tailwind colors, use standard tailwind arbitrary opacity syntax or just raw classes
+            // Our index.html has var(--theme-...) so it's safer to use the standard colors directly if we want
+            // but the original code used `bg-${colorName}-fixed-dim`. We'll keep it as is, since our 
+            // python script generated --theme-primary-bg etc instead of Tailwind classes for everything.
+            // Wait, we can just use `bg-[var(--theme-${colorName}-text)]`!
+            
+            // Map colorName to CSS variables injected in index.html
+            const themeColorMap = {
+                'primary': '--theme-primary-text',
+                'secondary': '--theme-secondary-dim-text',
+                'tertiary': '--theme-tertiary-text',
+                'outline': '--theme-secondary-text' 
+            };
+            
+            let colorVar = themeColorMap[colorName] || '--theme-primary-text';
+            
+            if (age < 0.33) {
+                opacity = 0.2;
+            } else if (age < 0.66) {
+                opacity = 0.4;
+            } else {
+                opacity = 0.8; 
+            }
+            
+            // To ensure compatibility across both themes, set background color via inline style
+            // using the CSS variables.
+            bar.className = `w-full rounded-t-sm transition-all duration-500 ease-out`;
+            bar.style.height = `${pct}%`;
+            bar.style.backgroundColor = `var(${colorVar})`;
+            bar.style.opacity = opacity;
         }
-        container.innerHTML = barsHtml;
-    }
-    
-    const bars = container.children;
-    for (let i = 0; i < len; i++) {
-        const val = Math.max(0, Math.min(100, history[i]));
-        const pct = Math.max(1, val); // minimum 1% height so bars are visible
-        const bar = bars[i];
-        
-        // Determine opacity tier based on position (older = more transparent)
-        const age = (i / len); // 0 = oldest, 1 = newest
-        let opacity, bgColor;
-        if (age > 0.85) {
-            // Most recent bars: full/high opacity
-            opacity = val > 50 ? 1.0 : 0.6;
-            bgColor = `var(--tw-${colorName})`;
-            bar.style.background = bgColor;
-            bar.style.opacity = opacity;
-        } else if (age > 0.5) {
-            opacity = 0.35;
-            bgColor = `var(--tw-${colorName})`;
-            bar.style.background = bgColor;
-            bar.style.opacity = opacity;
-        } else {
-            opacity = 0.18;
-            bgColor = `var(--tw-${colorName})`;
-            bar.style.background = bgColor;
-            bar.style.opacity = opacity;
-        }
-        
-        bar.style.height = `${pct}%`;
-    }
+    });
 }
 
 // Generates the Tailwind grid row for a process
+
 function createProcessRowHTML(proc, isApp) {
     const isSelected = proc.pid === selectedPid;
-    let rowClass = 'grid grid-cols-[2fr_1fr_90px_100px_100px_100px] items-center px-6 py-3 hover:bg-surface-container-lowest transition-colors text-sm row-hover-advanced';
-    
+    let rowClass = 'transition-colors group';
     if (isSelected) {
-        rowClass += ' selected';
-    }
-    if (!isApp) {
-        rowClass += 'opacity-80'; // Dim background processes
-    }
-
-    // Material Icon selection logic based on name
-    let icon = 'wysiwyg';
-    let iconClass = 'bg-primary/10 text-primary';
-    
-    let loweredName = proc.name.toLowerCase();
-    if (loweredName.includes('brave') || loweredName.includes('chrome') || loweredName.includes('edge') || loweredName.includes('firefox')) {
-        icon = 'language';
-        iconClass = 'bg-orange-100 text-orange-600';
-    } else if (loweredName.includes('spotify') || loweredName.includes('music')) {
-        icon = 'music_note';
-        iconClass = 'bg-green-100 text-green-600';
-    } else if (loweredName.includes('python') || loweredName.includes('code')) {
-        icon = 'terminal';
-        iconClass = 'bg-blue-100 text-blue-600';
-    }
-
-    let iconHtml = '';
-    if (isApp) {
-        iconHtml = `
-        <div class="w-5 h-5 ${iconClass} rounded flex items-center justify-center">
-            <span class="material-symbols-outlined text-sm" data-icon="${icon}">${icon}</span>
-        </div>`;
+        rowClass += ' bg-white/10 border-l-2 border-primary-fixed-dim'; 
     } else {
-        iconHtml = `<span class="material-symbols-outlined text-on-surface-variant text-[18px]" data-icon="settings_applications">settings_applications</span>`;
+        rowClass += ' hover:bg-white/10';
+    }
+
+    let icon = 'settings_applications';
+    let iconClass = 'bg-outline-variant/10 text-outline-variant border-outline-variant/20';
+    if (isApp) {
+        icon = 'wysiwyg';
+        iconClass = 'bg-primary-fixed-dim/20 text-primary-fixed-dim border-primary-fixed-dim/30';
+        let loweredName = proc.name.toLowerCase();
+        if (loweredName.includes('brave') || loweredName.includes('chrome') || loweredName.includes('edge') || loweredName.includes('firefox')) {
+            icon = 'language';
+            iconClass = 'bg-orange-500/20 text-orange-400 border-orange-500/30';
+        } else if (loweredName.includes('spotify') || loweredName.includes('music')) {
+            icon = 'music_note';
+            iconClass = 'bg-green-500/20 text-green-400 border-green-500/30';
+        } else if (loweredName.includes('python') || loweredName.includes('code')) {
+            icon = 'terminal';
+            iconClass = 'bg-blue-500/20 text-blue-400 border-blue-500/30';
+        }
+    }
+
+    let statusHtml = '<span class="px-2 py-0.5 rounded text-[10px] font-label uppercase tracking-wider bg-outline-variant/10 text-outline-variant border border-outline-variant/20">Background</span>';
+    if (proc.status.toLowerCase().includes('running')) {
+        statusHtml = '<span class="px-2 py-0.5 rounded text-[10px] font-label uppercase tracking-wider bg-tertiary-fixed-dim/10 text-tertiary-fixed-dim border border-tertiary-fixed-dim/20">Stable</span>';
+    } else if (proc.status.toLowerCase().includes('not responding')) {
+        statusHtml = '<span class="px-2 py-0.5 rounded text-[10px] font-label uppercase tracking-wider bg-error-container/10 text-error border border-error/20 status-critical">Critical</span>';
+    } else if (proc.status.toLowerCase().includes('suspended')) {
+        statusHtml = '<span class="px-2 py-0.5 rounded text-[10px] font-label uppercase tracking-wider bg-secondary-container/10 text-secondary-container border border-secondary-container/20 status-warning">Suspended</span>';
+    }
+
+    if (proc.cpu > 10) {
+        statusHtml = '<span class="px-2 py-0.5 rounded text-[10px] font-label uppercase tracking-wider bg-error-container/10 text-error border border-error/20 status-critical">High Load</span>';
     }
 
     const cpuText = proc.cpu >= 0.1 ? proc.cpu.toFixed(1) + '%' : '0%';
-    const cpuHtml = proc.cpu >= 2.0 
-        ? `<div class="text-right font-bold text-primary bg-primary/10 rounded px-2 py-1 inline-block float-right">${cpuText}</div>`
-        : `<div class="text-right font-medium">${cpuText}</div>`;
-
     let memText = `${proc.memory.toFixed(1)} MB`;
     if (proc.memory >= 1000) memText = `${(proc.memory / 1024).toFixed(1)} GB`;
 
     return `
-    <div class="${rowClass}" onclick="selectProcess(${proc.pid})">
-        <div class="flex items-center gap-3">
-            <span class="material-symbols-outlined ${isSelected ? 'text-primary' : 'text-transparent'} text-[18px] transition-colors" data-icon="chevron_right">chevron_right</span>
-            ${iconHtml}
-            <span class="${isApp ? 'font-medium' : ''} text-on-surface">${proc.name} ${isApp ? `(${proc.threads})` : ''}</span>
-        </div>
-        <div class="text-on-surface-variant text-xs">${proc.status}</div>
-        <div>${cpuHtml}</div>
-        <div class="text-right text-on-surface-variant">${memText}</div>
-        <div class="text-right text-on-surface-variant">0 MB/s</div>
-        <div class="text-right text-on-surface-variant">0 Mbps</div>
-    </div>`;
+    <tr class="${rowClass} hover:bg-primary/10 dark:hover:bg-white/10 transition-colors group cursor-pointer border-b border-white/10 dark:border-white/5" id="proc-${proc.pid}" onclick="selectProcess(${proc.pid})">
+        <td class="px-6 py-4 text-outline-variant font-mono">${proc.pid}</td>
+        <td class="px-6 py-4 font-semibold flex items-center gap-3">
+            <div class="w-8 h-8 shrink-0 rounded flex items-center justify-center border ${iconClass}">
+                <span class="material-symbols-outlined text-sm">${icon}</span>
+            </div>
+            <span class="truncate">${proc.name} ${isApp ? `(${proc.threads})` : ''}</span>
+        </td>
+        <td class="px-6 py-4">${statusHtml}</td>
+        <td class="px-6 py-4 text-metric-unified font-mono font-medium">${cpuText}</td>
+        <td class="px-6 py-4 text-metric-unified font-mono font-medium">${memText}</td>
+        <td class="px-6 py-4 text-metric-unified font-mono font-medium">0 MB/s</td>
+        <td class="px-6 py-4 text-metric-unified font-mono font-medium">0 Kbps</td>
+    </tr>`;
 }
+
 
 function renderProcesses() {
     if (!cachedState) return;
@@ -269,14 +357,18 @@ function renderProcesses() {
 
     // Apps Section
     if (apps.length > 0) {
+        
         const arrowRotation = appsCollapsed ? '-rotate-90' : '';
         html += `
-        <div class="px-4 py-2 bg-surface-container-low/30 cursor-pointer select-none" onclick="toggleSection('apps')">
-            <div class="flex items-center gap-2 text-xs font-bold text-on-surface-variant">
-                <span class="material-symbols-outlined text-sm transition-transform duration-200 hover:bg-surface-variant rounded-full p-0.5 ${arrowRotation}" data-icon="expand_more">expand_more</span>
-                Apps (${apps.length})
-            </div>
-        </div>`;
+        <tr class="bg-white/5 cursor-pointer select-none" onclick="toggleSection('apps')">
+            <td colspan="7" class="px-6 py-2 text-xs font-bold text-outline-variant border-y border-white/5">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-sm transition-transform duration-200 hover:text-white ${arrowRotation}">expand_more</span>
+                    Apps (${apps.length})
+                </div>
+            </td>
+        </tr>`;
+
         if (!appsCollapsed) {
             apps.forEach(proc => {
                 html += createProcessRowHTML(proc, true);
@@ -286,14 +378,18 @@ function renderProcesses() {
 
     // BG Section
     if (bg.length > 0) {
+        
         const arrowRotation = bgCollapsed ? '-rotate-90' : '';
         html += `
-        <div class="px-4 py-2 bg-surface-container-low/30 mt-2 cursor-pointer select-none" onclick="toggleSection('bg')">
-            <div class="flex items-center gap-2 text-xs font-bold text-on-surface-variant">
-                <span class="material-symbols-outlined text-sm transition-transform duration-200 hover:bg-surface-variant rounded-full p-0.5 ${arrowRotation}" data-icon="expand_more">expand_more</span>
-                Background processes (${bg.length})
-            </div>
-        </div>`;
+        <tr class="bg-white/5 cursor-pointer select-none" onclick="toggleSection('bg')">
+            <td colspan="7" class="px-6 py-2 text-xs font-bold text-outline-variant border-y border-white/5">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-sm transition-transform duration-200 hover:text-white ${arrowRotation}">expand_more</span>
+                    Background processes (${bg.length})
+                </div>
+            </td>
+        </tr>`;
+
         if (!bgCollapsed) {
             bg.forEach(proc => {
                 html += createProcessRowHTML(proc, false);
@@ -322,17 +418,19 @@ function selectProcess(pid) {
     renderProcesses();
 }
 
+
 function updateEndTaskButton() {
     const btn = document.getElementById('btn-end-task');
     if (!btn) return;
     if (selectedPid !== null) {
         btn.disabled = false;
-        btn.className = 'flex items-center gap-2 text-xs font-bold text-error hover:bg-error/10 px-4 py-2 rounded-lg transition-colors border border-error/20 btn-advanced shadow-sm cursor-pointer';
+        btn.className = 'flex items-center gap-2 px-3 py-1.5 rounded-lg bg-error/20 border border-error/50 backdrop-blur-md text-xs font-semibold text-error transition-all hover:scale-105 shadow-[0_0_15px_rgba(186,26,26,0.4)]';
     } else {
         btn.disabled = true;
-        btn.className = 'flex items-center gap-2 text-xs font-bold text-on-surface-variant/40 cursor-not-allowed px-4 py-2 rounded-lg border border-outline-variant/20 btn-advanced';
+        btn.className = 'flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[var(--theme-glass)] border border-[var(--theme-border-strong)] backdrop-blur-md text-xs font-semibold text-[var(--theme-text-muted)] transition-all cursor-not-allowed';
     }
 }
+
 
 document.getElementById('search-input').addEventListener('input', () => {
     renderProcesses();

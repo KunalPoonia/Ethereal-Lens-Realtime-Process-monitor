@@ -1,404 +1,1180 @@
 <!DOCTYPE html>
-<html class="light" lang="en">
 
-<head>
-    <meta charset="utf-8" />
-    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>Process Monitor</title></title>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
-        rel="stylesheet" />
-    <script src="/static/theme.js"></script>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <script id="tailwind-config">
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        "on-background": "var(--tw-on-background)",
-                        "primary-fixed-dim": "var(--tw-primary-fixed-dim)",
-                        "tertiary-fixed": "var(--tw-tertiary-fixed)",
-                        "primary-dim": "var(--tw-primary-dim)",
-                        "inverse-on-surface": "var(--tw-inverse-on-surface)",
-                        "tertiary-dim": "var(--tw-tertiary-dim)",
-                        "surface-container-lowest": "var(--tw-surface-container-lowest)",
-                        "surface-variant": "var(--tw-surface-variant)",
-                        "on-error": "var(--tw-on-error)",
-                        "error-container": "var(--tw-error-container)",
-                        "background": "var(--tw-background)",
-                        "surface-container-high": "var(--tw-surface-container-high)",
-                        "on-primary-fixed": "var(--tw-on-primary-fixed)",
-                        "error-dim": "var(--tw-error-dim)",
-                        "inverse-surface": "var(--tw-inverse-surface)",
-                        "secondary-fixed-dim": "var(--tw-secondary-fixed-dim)",
-                        "secondary-container": "var(--tw-secondary-container)",
-                        "primary": "var(--tw-primary)",
-                        "inverse-primary": "var(--tw-inverse-primary)",
-                        "surface": "var(--tw-surface)",
-                        "on-secondary-container": "var(--tw-on-secondary-container)",
-                        "on-surface": "var(--tw-on-surface)",
-                        "on-secondary": "var(--tw-on-secondary)",
-                        "surface-tint": "var(--tw-surface-tint)",
-                        "secondary-dim": "var(--tw-secondary-dim)",
-                        "surface-bright": "var(--tw-surface-bright)",
-                        "on-surface-variant": "var(--tw-on-surface-variant)",
-                        "on-primary-fixed-variant": "var(--tw-on-primary-fixed-variant)",
-                        "on-primary": "var(--tw-on-primary)",
-                        "tertiary-container": "var(--tw-tertiary-container)",
-                        "surface-container-low": "var(--tw-surface-container-low)",
-                        "on-secondary-fixed": "var(--tw-on-secondary-fixed)",
-                        "on-primary-container": "var(--tw-on-primary-container)",
-                        "surface-container": "var(--tw-surface-container)",
-                        "secondary-fixed": "var(--tw-secondary-fixed)",
-                        "outline": "var(--tw-outline)",
-                        "primary-fixed": "var(--tw-primary-fixed)",
-                        "error": "var(--tw-error)",
-                        "on-tertiary-container": "var(--tw-on-tertiary-container)",
-                        "tertiary": "var(--tw-tertiary)",
-                        "surface-container-highest": "var(--tw-surface-container-highest)",
-                        "on-tertiary-fixed-variant": "var(--tw-on-tertiary-fixed-variant)",
-                        "on-tertiary-fixed": "var(--tw-on-tertiary-fixed)",
-                        "on-secondary-fixed-variant": "var(--tw-on-secondary-fixed-variant)",
-                        "on-tertiary": "var(--tw-on-tertiary)",
-                        "secondary": "var(--tw-secondary)",
-                        "primary-container": "var(--tw-primary-container)",
-                        "surface-dim": "var(--tw-surface-dim)",
-                        "tertiary-fixed-dim": "var(--tw-tertiary-fixed-dim)",
-                        "outline-variant": "var(--tw-outline-variant)",
-                        "on-error-container": "var(--tw-on-error-container)"
-                    },
-                    borderRadius: {
-                        DEFAULT: "0.25rem",
-                        lg: "0.5rem",
-                        xl: "0.75rem",
-                        full: "9999px"
-                    },
-                    fontFamily: {
-                        headline: ["Space Grotesk"],
-                        body: ["Manrope"],
-                        label: ["Manrope"]
-                    }
-                }
-            }
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Ethereal Lens - Process Monitor</title>
+<!-- Google Fonts: Manrope & Inter -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@400;600;700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration -->
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "primary-container": "#7459f7",
+            "on-error-container": "#93000a",
+            "primary": "#5b3cdd",
+            "secondary-fixed-dim": "#89ceff",
+            "outline-variant": "#c9c4d8",
+            "surface": "#f7f9fb",
+            "on-tertiary-fixed-variant": "#005236",
+            "inverse-primary": "#c9bfff",
+            "on-primary": "#ffffff",
+            "tertiary-container": "#00855b",
+            "surface-variant": "#e0e3e5",
+            "tertiary": "#006947",
+            "on-surface": "#191c1e",
+            "surface-dim": "#d8dadc",
+            "on-secondary-fixed-variant": "#004c6e",
+            "on-surface-variant": "#484555",
+            "surface-tint": "#5d3fe0",
+            "on-error": "#ffffff",
+            "tertiary-fixed": "#6ffbbe",
+            "surface-container-low": "#f2f4f6",
+            "primary-fixed": "#e5deff",
+            "on-tertiary": "#ffffff",
+            "inverse-surface": "#2d3133",
+            "on-secondary-fixed": "#001e2f",
+            "on-primary-container": "#fffbff",
+            "secondary-container": "#39b8fd",
+            "surface-container-lowest": "#ffffff",
+            "on-tertiary-fixed": "#002113",
+            "background": "#f7f9fb",
+            "surface-container-highest": "#e0e3e5",
+            "on-background": "#191c1e",
+            "surface-bright": "#f7f9fb",
+            "error-container": "#ffdad6",
+            "secondary": "#006591",
+            "inverse-on-surface": "#eff1f3",
+            "on-primary-fixed": "#1a0063",
+            "on-tertiary-container": "#f5fff6",
+            "on-secondary-container": "#004666",
+            "on-secondary": "#ffffff",
+            "outline": "#797587",
+            "tertiary-fixed-dim": "#4edea3",
+            "surface-container-high": "#e6e8ea",
+            "on-primary-fixed-variant": "#441cc8",
+            "primary-fixed-dim": "#c9bfff",
+            "error": "#ba1a1a",
+            "secondary-fixed": "#c9e6ff",
+            "surface-container": "#eceef0"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {},
+          "fontFamily": {
+            "headline": ["Manrope"],
+            "body": ["Inter"],
+            "label": ["Inter"]
+          }
         }
-    </script>
-    <link rel="stylesheet" href="/static/style.css">
+      }
+    }
+  </script>
+<style>/* Ambient Diffusion & Glass Enhancements */
+    .glass-card {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0) 100%);
+      backdrop-filter: blur(50px);
+      -webkit-backdrop-filter: blur(50px);
+      border: none;
+      box-shadow:
+        0 25px 50px -12px rgba(0, 0, 0, 0.5),
+        inset 0 1px 1px rgba(255, 255, 255, 0.15),
+        inset 0 -1px 1px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+      position: relative;
+    }
+    .glass-footer-enhanced {
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(60px);
+      -webkit-backdrop-filter: blur(60px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.02), 0 20px 40px rgba(0, 0, 0, 0.4);
+    }
+    .glass-card-transparent {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0) 100%);
+      backdrop-filter: blur(50px);
+      -webkit-backdrop-filter: blur(50px);
+      border: none;
+      box-shadow:
+        0 25px 50px -12px rgba(0, 0, 0, 0.5),
+        inset 0 1px 1px rgba(255, 255, 255, 0.15),
+        inset 0 -1px 1px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+      position: relative;
+    }
+    .luminous-edge {
+      position: relative;
+    }
+    .luminous-edge::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      padding: 1px;
+      background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.25) 0%,
+        rgba(255, 255, 255, 0.05) 40%,
+        rgba(255, 255, 255, 0) 60%,
+        rgba(255, 255, 255, 0.1) 100%
+      );
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+    
+    /* Metric Identity Colors */
+    .text-metric-cpu { color: #c9bfff; }
+    .text-metric-mem { color: #89ceff; }
+    .text-metric-disk { color: #4edea3; }
+    .text-metric-net { color: #39b8fd; }
+
+    /* Unified Metric Color for Tables */
+    .text-metric-unified { color: #c9bfff; }
+
+    /* Super Glass Search Bar Animations */
+    .glass-search-focus:focus {
+      box-shadow: 0 0 20px rgba(123, 97, 255, 0.2);
+    }
+
+    @keyframes scan-line {
+      0% { transform: translateY(-100%); }
+      100% { transform: translateY(100%); }
+    }
+
+    .in-use-glow:focus-within::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(123, 97, 255, 0.5), transparent);
+      animation: scan-line 2s linear infinite;
+    }
+
+    @keyframes pulse-red {
+      0% { box-shadow: 0 0 0 0 rgba(186, 26, 26, 0.4); }
+      70% { box-shadow: 0 0 0 10px rgba(186, 26, 26, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(186, 26, 26, 0); }
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-1px); }
+      75% { transform: translateX(1px); }
+    }
+    @keyframes pulse-blue {
+      0% { box-shadow: 0 0 0 0 rgba(57, 184, 253, 0.3); }
+      70% { box-shadow: 0 0 0 8px rgba(57, 184, 253, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(57, 184, 253, 0); }
+    }
+    .btn-glow:hover {
+      box-shadow: 0 0 15px rgba(123, 97, 255, 0.4);
+      transform: scale(1.05);
+    }
+    .btn-glow:active {
+      transform: scale(0.95);
+    }
+    .status-critical {
+      animation: pulse-red 2s infinite, shake 0.5s infinite;
+      box-shadow: 0 0 10px rgba(186, 26, 26, 0.3);
+    }
+    .status-warning {
+      animation: pulse-blue 2s infinite;
+    }
+    .glass-graph-panel {
+      background: linear-gradient(140deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 42%, rgba(255, 255, 255, 0) 100%);
+      box-shadow:
+        0 30px 55px -18px rgba(0, 0, 0, 0.58),
+        inset 0 1px 1px rgba(255, 255, 255, 0.18),
+        inset 0 -1px 1px rgba(0, 0, 0, 0.24);
+    }
+    .snapshot-shell {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.09) 0%, rgba(255, 255, 255, 0.02) 50%, rgba(255, 255, 255, 0) 100%);
+      backdrop-filter: blur(44px);
+      -webkit-backdrop-filter: blur(44px);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      box-shadow:
+        0 28px 56px -18px rgba(0, 0, 0, 0.55),
+        inset 0 1px 1px rgba(255, 255, 255, 0.22),
+        inset 0 -1px 1px rgba(0, 0, 0, 0.24);
+    }
+
+    /* Transition Animations */
+    .tab-content {
+      transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .slide-out-left {
+      opacity: 0;
+      transform: translateX(-30px);
+      pointer-events: none;
+    }
+    .slide-out-right {
+      opacity: 0;
+      transform: translateX(30px);
+      pointer-events: none;
+    }
+    .slide-in-right {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    .slide-in-left {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    /* Keep the fixed performance sidebar anchored during tab transitions. */
+    #performance-tab.slide-out-left,
+    #performance-tab.slide-out-right,
+    #performance-tab.slide-in-left,
+    #performance-tab.slide-in-right {
+      transform: none !important;
+    }
+    .hidden-tab {
+      display: none !important;
+    }
+    /* Tab Hover Expansion */
+    .group\/tab:hover {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+    .tab-expanded {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+    .tab-expanded .tab-label {
+      max-width: 150px !important;
+      margin-left: 0.5rem !important;
+    }
+    @keyframes selected-bar-pulse {
+      0% { opacity: 0.45; box-shadow: 0 0 0 rgba(116, 89, 247, 0); }
+      50% { opacity: 1; box-shadow: 0 0 10px rgba(116, 89, 247, 0.65); }
+      100% { opacity: 0.45; box-shadow: 0 0 0 rgba(116, 89, 247, 0); }
+    }
+    tr.process-row-selected .pid-cell {
+      position: relative;
+      padding-left: 1.25rem;
+      display: inline-block;
+    }
+    tr.process-row-selected .pid-cell::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0.15rem;
+      bottom: 0.15rem;
+      width: 4px;
+      border-radius: 9999px;
+      background: #7459f7;
+      animation: selected-bar-pulse 1.6s ease-in-out infinite;
+    }
+
+    /* Performance hover sidebar */
+    .perf-sidebar {
+      width: 12px; /* slim visible indicator */
+      transition: width 260ms ease;
+      overflow: hidden;
+      pointer-events: auto;
+      z-index: 40;
+    }
+    .perf-sidebar:hover,
+    .perf-sidebar:focus-within {
+      width: 20rem; /* expanded */
+    }
+    .perf-sidebar-shell {
+      position: relative;
+      width: 100%;
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+      border-top-right-radius: 1rem;
+      border-bottom-right-radius: 1rem;
+      overflow: hidden;
+      opacity: 0;
+      transform: translateX(-12px);
+      transition: opacity 220ms ease, transform 220ms ease;
+    }
+    .perf-sidebar::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 12px;
+      border-top-right-radius: 12px;
+      border-bottom-right-radius: 12px;
+      background: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-right: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.18);
+      opacity: 1;
+      transition: opacity 180ms ease;
+      pointer-events: none;
+    }
+    .perf-sidebar:hover::before,
+    .perf-sidebar:focus-within::before {
+      opacity: 0;
+    }
+    .perf-sidebar:hover .perf-sidebar-shell,
+    .perf-sidebar:focus-within .perf-sidebar-shell {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    .perf-sidebar-content {
+      margin-left: 0;
+    }
+    /* Remove hover highlighting inside sidebar */
+    .perf-sidebar .perf-item {
+      background: transparent !important;
+      box-shadow: none !important;
+    }
+    .perf-sidebar .perf-sidebar-label,
+    .perf-sidebar .perf-sidebar-sub {
+      opacity: 0;
+      transform: translateX(-4px);
+      transition: opacity 180ms ease, transform 180ms ease;
+      white-space: nowrap;
+    }
+    .perf-sidebar:hover .perf-sidebar-label,
+    .perf-sidebar:hover .perf-sidebar-sub,
+    .perf-sidebar:focus-within .perf-sidebar-label,
+    .perf-sidebar:focus-within .perf-sidebar-sub {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    .perf-mini-graph {
+      width: 44px;
+      height: 28px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 1px;
+      overflow: hidden;
+      border-radius: 0.5rem;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      padding: 4px;
+      flex: 0 0 auto;
+    }
+    .perf-sidebar:hover .perf-mini-graph,
+    .perf-sidebar:focus-within .perf-mini-graph {
+      width: 52px;
+    }
+    /* Modal Overlay + blur target */
+    #modal-overlay {
+      transition: all 0.3s ease;
+      opacity: 0;
+      pointer-events: none;
+    }
+    #modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .modal-blur-target {
+      transition: filter 0.3s ease;
+    }
+    .modal-blur-active {
+      filter: blur(10px) saturate(120%);
+    }
+    #modal-content {
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      transform: scale(0.92) translateY(14px);
+    }
+    #modal-overlay.active #modal-content {
+      transform: scale(1) translateY(0);
+    }
+    </style>
+
+    <style>
+        :root {
+            --theme-bg: #0d0b18;
+            --theme-text: #eff1f3;
+            --theme-text-strong: #ffffff;
+            --theme-text-muted: #c9c4d8;
+            --theme-placeholder: rgba(255, 255, 255, 0.3);
+            --theme-glass: rgba(255, 255, 255, 0.05);
+            --theme-header: rgba(15, 23, 42, 0.4);
+            --theme-dropdown: rgba(26, 28, 30, 0.95);
+            --theme-hover: rgba(255, 255, 255, 0.1);
+            --theme-border: rgba(255, 255, 255, 0.05);
+            --theme-border-strong: rgba(255, 255, 255, 0.1);
+            
+            --theme-error-bg: rgba(255, 218, 214, 0.1);
+            --theme-error-text: #ba1a1a;
+            --theme-error-border: rgba(186, 26, 26, 0.2);
+            
+            --theme-tertiary-bg: rgba(78, 222, 163, 0.1);
+            --theme-tertiary-text: #4edea3;
+            --theme-tertiary-border: rgba(78, 222, 163, 0.2);
+            
+            --theme-secondary-bg: rgba(57, 184, 253, 0.1);
+            --theme-secondary-text: #39b8fd;
+            --theme-secondary-border: rgba(57, 184, 253, 0.2);
+            
+            --theme-outline-bg: rgba(201, 196, 216, 0.1);
+            --theme-outline-border: rgba(201, 196, 216, 0.2);
+            
+            --theme-primary-bg: rgba(201, 191, 255, 0.2);
+            --theme-primary-text: #c9bfff;
+            --theme-primary-border: rgba(201, 191, 255, 0.3);
+            
+            --theme-secondary-dim-bg: rgba(137, 206, 255, 0.2);
+            --theme-secondary-dim-text: #89ceff;
+            --theme-secondary-dim-border: rgba(137, 206, 255, 0.3);
+
+            --theme-navbar-bg: linear-gradient(to bottom, #0f172a, rgba(2, 6, 23, 0.9));
+            --theme-navbar-border: rgba(255, 255, 255, 0.06);
+        }
+
+        html.light {
+            --theme-bg: #f0f2f5;
+            --theme-text: #18162e;
+            --theme-text-strong: #18162e;
+            --theme-text-muted: #5a5871;
+            --theme-placeholder: rgba(24, 22, 46, 0.4);
+            --theme-glass: rgba(255, 255, 255, 0.82);
+            --theme-header: rgba(255, 255, 255, 0.78);
+            --theme-dropdown: rgba(255, 255, 255, 0.98);
+            --theme-hover: rgba(90, 88, 113, 0.08);
+            --theme-border: rgba(121, 117, 135, 0.18);
+            --theme-border-strong: rgba(90, 88, 113, 0.28);
+            
+            --theme-error-bg: rgba(186, 26, 26, 0.1);
+            --theme-error-text: #ba1a1a;
+            --theme-error-border: rgba(186, 26, 26, 0.2);
+            
+            --theme-tertiary-bg: rgba(0, 105, 71, 0.1);
+            --theme-tertiary-text: #006947;
+            --theme-tertiary-border: rgba(0, 105, 71, 0.2);
+            
+            --theme-secondary-bg: rgba(0, 101, 145, 0.1);
+            --theme-secondary-text: #006591;
+            --theme-secondary-border: rgba(0, 101, 145, 0.2);
+            
+            --theme-outline-bg: rgba(121, 117, 135, 0.1);
+            --theme-outline-border: rgba(121, 117, 135, 0.2);
+            
+            --theme-primary-bg: rgba(124, 58, 237, 0.1);
+            --theme-primary-text: #7c3aed;
+            --theme-primary-border: rgba(124, 58, 237, 0.2);
+            
+            --theme-secondary-dim-bg: rgba(0, 101, 145, 0.1);
+            --theme-secondary-dim-text: #006591;
+            --theme-secondary-dim-border: rgba(0, 101, 145, 0.2);
+
+            --theme-navbar-bg: linear-gradient(to bottom, #ffffff, rgba(245, 247, 251, 0.96));
+            --theme-navbar-border: rgba(121, 117, 135, 0.18);
+        }
+        
+        html.light .glass-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.78) 0%, rgba(255, 255, 255, 0.42) 100%);
+            box-shadow:
+              0 18px 42px -12px rgba(0, 0, 0, 0.12),
+              inset 0 1px 1px rgba(255, 255, 255, 0.75),
+              inset 0 -1px 1px rgba(0, 0, 0, 0.05);
+            border: none;
+        }
+        
+        html.light .glass-card-transparent {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.78) 0%, rgba(255, 255, 255, 0.42) 100%);
+            box-shadow:
+              0 18px 42px -12px rgba(0, 0, 0, 0.12),
+              inset 0 1px 1px rgba(255, 255, 255, 0.75),
+              inset 0 -1px 1px rgba(0, 0, 0, 0.05);
+            border: none;
+        }
+
+        html.light .glass-footer-enhanced {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0.3) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 10px 50px rgba(0, 0, 0, 0.08);
+        }
+
+        html.light #modal-content,
+        html.light #filter-menu,
+        html.light #more-menu {
+            border-color: rgba(90, 88, 113, 0.18);
+            box-shadow: 0 18px 40px rgba(24, 22, 46, 0.08);
+        }
+
+        html.light #modal-command-input,
+        html.light #btn-run-task,
+        html.light #btn-filter,
+        html.light #btn-more,
+        html.light #modal-content button:not(#modal-action-btn) {
+            border-color: rgba(90, 88, 113, 0.28) !important;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.92), 0 1px 8px rgba(24, 22, 46, 0.05);
+        }
+
+        html.light #modal-content button:not(#modal-action-btn),
+        html.light #btn-run-task,
+        html.light #btn-filter,
+        html.light #btn-more {
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        html.light #modal-content button:not(#modal-action-btn):hover,
+        html.light #btn-run-task:hover,
+        html.light #btn-filter:hover,
+        html.light #btn-more:hover {
+            background: rgba(255, 255, 255, 0.98);
+            border-color: rgba(124, 58, 237, 0.24) !important;
+        }
+
+        /* Make the collapsed perf sidebar discoverable in light mode */
+        html.light .perf-sidebar::before {
+            width: 14px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+            border-right: 1px solid rgba(0, 0, 0, 0.08);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.08);
+        }
+
+        html.light .text-metric-cpu { color: #7c3aed; }
+        html.light .text-metric-mem { color: #006591; }
+        html.light .text-metric-disk { color: #006947; }
+        html.light .text-metric-net { color: #0369a1; }
+        html.light .text-metric-unified { color: #18162e; }
+
+        /* Improve light-mode control visibility */
+        html.light #high-usage-alert-stack .high-usage-alert-dontshow {
+            background: rgba(255, 255, 255, 0.95);
+            border-color: rgba(90, 88, 113, 0.45);
+            box-shadow: 0 0 0 1px rgba(90, 88, 113, 0.2);
+        }
+        html.light #high-usage-alert-stack .high-usage-alert-dontshow:checked {
+            background: #7c3aed;
+            border-color: #7c3aed;
+            box-shadow: 0 0 0 1px rgba(124, 58, 237, 0.35);
+        }
+        html.light #search-input {
+            background: rgba(255, 255, 255, 0.72);
+            border-color: rgba(121, 117, 135, 0.26) !important;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 2px 12px rgba(24, 22, 46, 0.08);
+        }
+        html.light #search-input:focus {
+            border-color: rgba(124, 58, 237, 0.45) !important;
+            box-shadow: 0 0 0 1px rgba(124, 58, 237, 0.2), 0 0 20px rgba(124, 58, 237, 0.16);
+        }
+
+        #btn-end-task:disabled {
+            opacity: 1;
+        }
+        #btn-end-task:disabled,
+        #btn-end-task:disabled .material-symbols-outlined {
+            color: var(--theme-text-muted);
+        }
+        html.light #btn-end-task:disabled {
+            background: rgba(255, 255, 255, 0.88);
+            border-color: rgba(90, 88, 113, 0.28);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 1px 8px rgba(24, 22, 46, 0.05);
+        }
+        html.light #btn-end-task:disabled,
+        html.light #btn-end-task:disabled .material-symbols-outlined {
+            color: #5a5871;
+        }
+        
+        /* Show/Hide Ambient Backgrounds Based on Theme */
+        #ambient-dark { display: block; }
+        #ambient-light { display: none; }
+        html.light #ambient-dark { display: none; }
+        html.light #ambient-light { display: block; }
+    </style>
+    
 </head>
+<body class="bg-[var(--theme-bg)] text-[var(--theme-text)] font-body overflow-x-hidden min-h-screen selection:bg-primary-container selection:text-on-primary-container">
+<!-- High usage alert stack (bottom-left) -->
+<div id="high-usage-alert-stack" class="fixed bottom-6 left-6 z-[90] max-w-sm flex flex-col gap-3 pointer-events-none"></div>
+<!-- Modal Portal -->
+<div class="fixed inset-0 z-[100] flex items-center justify-center p-6" id="modal-overlay">
+<div class="absolute inset-0 bg-[var(--theme-bg)]/40 backdrop-blur-sm" onclick="window.closeTaskModal && window.closeTaskModal()"></div>
+<div class="glass-card w-full max-w-lg rounded-3xl p-8 relative z-10 luminous-edge overflow-hidden" id="modal-content">
+<div class="absolute top-0 right-0 w-48 h-48 bg-primary-container/20 rounded-full blur-[60px] -mr-20 -mt-20"></div>
+<div class="flex flex-col gap-6 relative z-10">
+<div class="flex justify-between items-start">
+<div class="flex items-center gap-4">
+<div id="modal-icon-wrap" class="w-14 h-14 rounded-full bg-primary-container/20 border border-primary-container/30 flex items-center justify-center text-primary-fixed-dim">
+<span class="material-symbols-outlined text-3xl" id="modal-icon">terminal</span>
+</div>
+<div>
+<h2 class="text-2xl font-headline font-bold text-[var(--theme-text-strong)] tracking-tight" id="modal-title">Run New Task</h2>
+<p class="text-[var(--theme-text-muted)] text-sm mt-0.5" id="modal-subtitle">Enter a process name or command</p>
+</div>
+</div>
+<button class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[var(--theme-hover)] text-[var(--theme-text-muted)] transition-colors" onclick="window.closeTaskModal && window.closeTaskModal()">
+<span class="material-symbols-outlined text-lg">close</span>
+</button>
+</div>
+<div class="flex flex-col gap-4">
+<div id="modal-command-row" class="relative group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[var(--theme-text-muted)]/60 text-lg transition-colors group-focus-within:text-[var(--theme-primary-text)]">keyboard</span>
+<input id="modal-command-input" class="w-full bg-[var(--theme-glass)] border border-[var(--theme-border-strong)] rounded-xl py-3.5 pl-12 pr-4 text-[var(--theme-text-strong)] placeholder-[var(--theme-placeholder)] focus:outline-none focus:ring-2 focus:ring-primary-fixed-dim/30 focus:bg-[var(--theme-hover)] transition-all" placeholder="e.g. notepad or code" type="text"/>
+</div>
+<p id="modal-selection-note" class="text-sm font-semibold text-[var(--theme-text-muted)] px-1 hidden"></p>
+</div>
+<div class="flex items-center gap-4 mt-2">
+<button class="flex-1 px-6 py-3 rounded-xl bg-[var(--theme-glass)] border border-[var(--theme-border-strong)] text-[var(--theme-text-strong)] font-bold text-sm hover:bg-[var(--theme-hover)] transition-all active:scale-95" onclick="window.closeTaskModal && window.closeTaskModal()">CANCEL</button>
+<button id="modal-action-btn" class="flex-1 px-6 py-3 rounded-xl bg-primary text-[var(--theme-text-strong)] font-bold text-sm shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all hover:-translate-y-0.5 active:translate-y-0 active:scale-95 btn-glow">EXECUTE TASK</button>
+</div>
+</div>
+</div>
+</div>
 
-<body class="bg-background text-on-background font-body selection:bg-primary/20 min-h-screen overflow-x-hidden">
-
-    <!-- TopNavBar -->
-    <nav class="fixed top-0 w-full z-50 flex justify-between items-center px-8 h-20 bg-[var(--tw-surface)]/60 backdrop-blur-3xl shadow-[0_10px_30px_-5px_rgba(0,0,0,0.1)] border-b border-outline-variant/10">
-        <div class="flex items-center gap-4">
-            <span class="text-2xl font-headline font-bold tracking-tight text-primary">Process Monitor</span>
-        </div>
-        <div class="flex items-center gap-6">
-            <button id="theme-toggle" class="text-secondary hover:bg-surface-variant transition-all rounded-full active:scale-95 duration-200 btn-advanced w-12 h-12 flex items-center justify-center">
-                <span class="material-symbols-outlined" data-icon="light_mode">light_mode</span>
-            </button>
-        </div>
-    </nav>
-
-    <!-- SideNavBar -->
-    <aside class="fixed left-0 top-0 h-full w-52 bg-surface-container-low flex flex-col pt-24 hidden md:flex border-r border-outline-variant/30">
-        <div class="px-8 mb-12">
-            <h2 class="font-headline font-bold text-primary text-xl tracking-wide uppercase text-xs opacity-60">System</h2>
-            <p class="text-on-surface-variant text-xs font-medium">V2.0.4</p>
-        </div>
-        <nav class="flex flex-col gap-2">
-            <button id="nav-processes" onclick="switchView('processes')"
-                class="flex items-center gap-4 bg-primary text-white rounded-full px-6 py-3 mx-3 my-1 font-['Manrope'] font-medium shadow-md btn-advanced nav-active-pulse"
-                style="width: calc(100% - 1.5rem)">
-                <span class="material-symbols-outlined" data-icon="terminal">terminal</span>
-                <span>Processes</span>
-            </button>
-            <button id="nav-performance" onclick="switchView('performance')"
-                class="flex items-center gap-4 text-on-surface-variant px-6 py-3 mx-3 my-1 font-['Manrope'] font-medium hover:bg-surface-container transition-colors rounded-full btn-advanced"
-                style="width: calc(100% - 1.5rem)">
-                <span class="material-symbols-outlined" data-icon="monitoring">monitoring</span>
-                <span>Performance</span>
-            </button>
-        </nav>
-        <div class="mt-auto px-4 py-3">
-            <div class="flex items-center gap-2 px-4">
-                <div class="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
-                <span id="connection-status" class="text-[10px] font-bold tracking-widest text-on-surface-variant uppercase">Connecting...</span>
-            </div>
-        </div>
-    </aside>
-
-    <!-- Main Canvas -->
-    <main class="md:pl-60 pt-24 pb-12 px-8 min-h-screen">
-
-        <!-- ======================= PROCESSES VIEW ======================= -->
-        <div id="view-processes" class="max-w-[1400px] mx-auto space-y-6">
-            <!-- Utility Actions Bar -->
-            <div
-                class="flex flex-wrap items-center justify-between gap-4 bg-surface-container-low px-6 py-4 rounded-xl border border-outline-variant/20 animate-entrance relative z-30 overflow-visible">
-                <div class="flex items-center gap-2">
-                    <span class="font-headline font-bold text-lg text-on-surface">Processes</span>
-                </div>
-                <div class="flex items-center gap-4">
-                    <button id="btn-run-task" onclick="openRunTaskModal()"
-                        class="flex items-center gap-2 text-xs font-bold text-primary hover:bg-primary/10 px-4 py-2 rounded-lg transition-colors border border-primary/20 btn-advanced shadow-sm hover:shadow-primary/20">
-                        <span class="material-symbols-outlined text-sm" data-icon="add">add</span>
-                        Run new task
-                    </button>
-                    <button id="btn-end-task" onclick="endSelectedTask()"
-                        class="flex items-center gap-2 text-xs font-bold text-on-surface-variant/40 cursor-not-allowed px-4 py-2 rounded-lg border border-outline-variant/20 btn-advanced"
-                        disabled>
-                        <span class="material-symbols-outlined text-sm" data-icon="block">block</span>
-                        End task
-                    </button>
-                    <div class="relative">
-                        <button id="btn-more" onclick="toggleMoreMenu()"
-                            class="text-on-surface-variant hover:bg-surface-variant p-2 rounded-lg transition-colors btn-advanced">
-                            <span class="material-symbols-outlined" data-icon="more_horiz">more_horiz</span>
-                        </button>
-                        <div id="more-menu" class="hidden absolute right-0 top-full mt-2 w-48 bg-surface-container-lowest rounded-xl border border-outline-variant/20 shadow-xl z-50 overflow-hidden">
-                            <button onclick="refreshProcessList()" class="w-full text-left px-4 py-3 text-sm text-on-surface hover:bg-surface-container transition-colors flex items-center gap-3">
-                                <span class="material-symbols-outlined text-sm">refresh</span> Refresh
-                            </button>
-                            <button onclick="sortByMemory()" class="w-full text-left px-4 py-3 text-sm text-on-surface hover:bg-surface-container transition-colors flex items-center gap-3">
-                                <span class="material-symbols-outlined text-sm">sort</span> Sort by Memory
-                            </button>
-                            <button onclick="sortByCPU()" class="w-full text-left px-4 py-3 text-sm text-on-surface hover:bg-surface-container transition-colors flex items-center gap-3">
-                                <span class="material-symbols-outlined text-sm">speed</span> Sort by CPU
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Search Area -->
-            <div class="relative group animate-entrance">
-                <div
-                    class="absolute inset-y-0 left-5 flex items-center pointer-events-none text-on-surface-variant group-focus-within:text-primary transition-colors">
-                    <span class="material-symbols-outlined" data-icon="search">search</span>
-                </div>
-                <input id="search-input"
-                    class="w-full h-12 pl-14 pr-6 bg-surface-container-lowest rounded-xl border-none focus:ring-2 focus:ring-primary/20 text-on-surface placeholder:text-on-surface-variant/50 font-body transition-all focus:bg-white shadow-sm"
-                    placeholder="Type a name, publisher, or PID to search" type="text" />
-            </div>
-
-            <!-- Table Section -->
-            <div
-                class="bg-surface-container-low rounded-2xl overflow-hidden border border-outline-variant/20 animate-entrance">
-                <div
-                    class="grid grid-cols-[2fr_1fr_90px_100px_100px_100px] bg-surface-container/50 px-6 py-3 text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/70">
-                    <div class="flex items-center gap-2">Name</div>
-                    <div>Status</div>
-                    <div class="text-right">CPU (%)</div>
-                    <div class="text-right">Memory (MB)</div>
-                    <div class="text-right">Disk (MB/s)</div>
-                    <div class="text-right">Network (Mbps)</div>
-                </div>
-                <!-- Scrollable Body for Processes -->
-                <div id="process-list" class="max-h-[70vh] overflow-y-auto custom-scrollbar pb-8">
-                    <!-- Populated by JS -->
-                </div>
-            </div>
-
-            <!-- Summary Bar -->
-            <div
-                class="flex justify-between items-center px-8 py-6 bg-primary text-white rounded-xl shadow-lg animate-entrance">
-                <div class="flex gap-12">
-                    <div class="flex flex-col">
-                        <span class="text-[10px] uppercase tracking-widest opacity-70">CPU</span>
-                        <span id="sum-cpu" class="text-xl font-bold">0%</span>
-                    </div>
-                    <div class="flex flex-col">
-                        <span class="text-[10px] uppercase tracking-widest opacity-70">Memory</span>
-                        <span id="sum-mem" class="text-xl font-bold">0%</span>
-                    </div>
-                </div>
-                <button onclick="snapshotSystem()"
-                    class="bg-white/20 hover:bg-white/30 px-8 py-3 rounded-xl text-xs font-bold transition-all uppercase tracking-widest btn-advanced">
-                    Snapshot System
-                </button>
-            </div>
-
-            <footer class="py-2 mt-2">
-                <div class="flex items-center gap-2">
-                    <div class="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
-                    <span class="text-xs font-bold tracking-widest text-on-surface-variant uppercase">All Systems Nominal</span>
-                </div>
-            </footer>
-        </div>
-
-        <!-- ======================= PERFORMANCE VIEW ======================= -->
-        <div id="view-performance" class="max-w-7xl mx-auto space-y-4 hidden">
-            <!-- Header Section -->
-            <div class="mb-4 animate-entrance">
-                <h1 class="text-2xl font-headline font-bold text-on-background tracking-tight mb-1">System Analytics</h1>
-                <p class="text-on-surface-variant font-body text-sm">Real-time performance metrics and resource utilization.</p>
-            </div>
-
-            <!-- Bento Grid Layout -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                <!-- CPU Card -->
-                <section class="glass-card rounded-xl p-5 transition-all hover:shadow-xl group hover-lift animate-fade-in">
-                    <div class="flex justify-between items-start mb-6">
-                        <div>
-                            <h3 class="font-headline text-primary text-sm font-bold uppercase tracking-wider mb-4">CPU Usage</h3>
-                            <div class="flex items-baseline gap-2">
-                                <span id="perf-cpu" class="text-5xl font-headline font-bold text-on-background">0%</span>
-                                <span id="perf-cpu-delta" class="text-primary font-bold flex items-center text-lg"><span class="material-symbols-outlined text-sm">north_east</span> 0%</span>
-                            </div>
-                        </div>
-                        <div class="text-right hidden sm:block">
-                            <p class="text-[10px] text-on-surface-variant uppercase tracking-widest mb-1">Peak Value</p>
-                            <p id="perf-cpu-peak" class="font-headline font-bold text-lg text-on-background">0%</p>
-                        </div>
-                    </div>
-                    <!-- Live Bar Graph -->
-                    <div id="graph-cpu" class="h-48 w-full mt-4 flex items-end gap-[2px] overflow-hidden">
-                    </div>
-                </section>
-
-                <!-- RAM Card -->
-                <section class="glass-card rounded-xl p-5 transition-all hover:shadow-xl group hover-lift animate-fade-in" style="animation-delay: 0.1s;">
-                    <div class="flex justify-between items-start mb-6">
-                        <div>
-                            <h3 class="font-headline text-secondary text-sm font-bold uppercase tracking-wider mb-4">Memory</h3>
-                            <div class="flex items-baseline gap-2">
-                                <span id="perf-mem" class="text-5xl font-headline font-bold text-on-background">0 <span class="text-xl font-light text-on-surface-variant">/ 0 GB</span></span>
-                            </div>
-                        </div>
-                        <div class="text-right hidden sm:block">
-                            <p class="text-[10px] text-on-surface-variant uppercase tracking-widest mb-1">Usage</p>
-                            <p id="perf-mem-pct" class="font-headline font-bold text-lg text-on-background">0%</p>
-                        </div>
-                    </div>
-                    <!-- Live Bar Graph -->
-                    <div id="graph-mem" class="h-48 w-full mt-4 flex items-end gap-[2px] overflow-hidden">
-                    </div>
-                </section>
-
-                <!-- Disk Card -->
-                <section class="glass-card rounded-xl p-5 transition-all hover:shadow-xl group hover-lift animate-fade-in" style="animation-delay: 0.2s;">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <h3 class="font-headline text-on-surface-variant text-sm font-bold uppercase tracking-wider mb-4">Disk I/O</h3>
-                            <div class="flex items-baseline gap-2">
-                                <span id="perf-disk" class="text-5xl font-headline font-bold text-on-background">0 <span class="text-xl font-light text-on-surface-variant">MB/s</span></span>
-                            </div>
-                        </div>
-                        <div class="text-right hidden sm:block">
-                            <p class="text-[10px] text-on-surface-variant uppercase tracking-widest mb-1">Read</p>
-                            <p id="perf-disk-read" class="font-headline font-bold text-lg text-on-background">0 MB/s</p>
-                            <p class="text-[10px] text-on-surface-variant uppercase tracking-widest mb-1 mt-2">Write</p>
-                            <p id="perf-disk-write" class="font-headline font-bold text-lg text-on-background">0 MB/s</p>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Network Card -->
-                <section class="glass-card rounded-xl p-5 transition-all hover:shadow-xl group hover-lift animate-fade-in" style="animation-delay: 0.3s;">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <h3 class="font-headline text-outline text-sm font-bold uppercase tracking-wider mb-4">Network</h3>
-                            <div class="flex items-baseline gap-2">
-                                <span id="perf-net" class="text-5xl font-headline font-bold text-on-background">0 <span class="text-xl font-light text-on-surface-variant">Kbps</span></span>
-                            </div>
-                        </div>
-                        <div class="text-right hidden sm:block">
-                            <p class="text-[10px] text-on-surface-variant uppercase tracking-widest mb-1">Download</p>
-                            <p id="perf-net-recv" class="font-headline font-bold text-lg text-on-background">0 KB/s</p>
-                            <p class="text-[10px] text-on-surface-variant uppercase tracking-widest mb-1 mt-2">Upload</p>
-                            <p id="perf-net-sent" class="font-headline font-bold text-lg text-on-background">0 KB/s</p>
-                        </div>
-                    </div>
-                </section>
-            </div>
-
-            <!-- Footer Meta Info -->
-            <footer class="mt-4 py-4 border-t border-outline-variant/30">
-                <div class="flex flex-col md:flex-row justify-between items-center gap-4">
-                    <div class="flex items-center gap-6">
-                        <div class="flex items-center gap-2">
-                            <div class="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
-                            <span class="text-xs font-bold tracking-widest text-on-surface-variant uppercase">All Systems Nominal</span>
-                        </div>
-                        <span id="perf-uptime" class="text-on-surface-variant text-xs font-medium">Uptime: —</span>
-                        <span id="perf-last-sync" class="text-on-surface-variant text-xs font-medium">Last Sync: —</span>
-                    </div>
-                </div>
-            </footer>
-        </div>
-
-    </main>
-
-    <!-- Mobile Bottom Navigation -->
-    <nav
-        class="md:hidden fixed bottom-0 w-full bg-white/90 backdrop-blur-xl border-t border-outline-variant/10 flex justify-around py-4 px-2 z-50">
-        <button onclick="switchView('processes')" id="mob-nav-processes"
-            class="flex flex-col items-center gap-1 text-primary btn-hover-effect active-pulse">
-            <span class="material-symbols-outlined" data-icon="terminal">terminal</span>
-            <span class="text-[10px] font-bold uppercase">Procs</span>
-        </button>
-        <button onclick="switchView('performance')" id="mob-nav-performance"
-            class="flex flex-col items-center gap-1 text-on-surface-variant btn-hover-effect">
-            <span class="material-symbols-outlined" data-icon="monitoring">monitoring</span>
-            <span class="text-[10px] font-bold uppercase">Perf</span>
-        </button>
-    </nav>
-
-    <!-- Run Task Modal -->
-    <div id="run-task-modal" class="fixed inset-0 z-[100] hidden items-center justify-center">
-        <div class="absolute inset-0 bg-black/30 backdrop-blur-sm" onclick="closeRunTaskModal()"></div>
-        <div class="relative bg-surface-container-lowest rounded-2xl shadow-2xl w-full max-w-md mx-4 p-8 animate-entrance">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="font-headline font-bold text-xl text-on-surface">Run New Task</h2>
-                <button onclick="closeRunTaskModal()" class="text-on-surface-variant hover:bg-surface-variant w-8 h-8 flex items-center justify-center rounded-full transition-colors">
-                    <span class="material-symbols-outlined text-sm">close</span>
-                </button>
-            </div>
-            <p class="text-sm text-on-surface-variant mb-4">Enter the name of a program, folder, or command to open.</p>
-            <input id="run-task-input" type="text" placeholder="e.g. notepad, calc, cmd"
-                class="w-full h-12 px-4 bg-surface-container rounded-xl border border-outline-variant/30 focus:ring-2 focus:ring-primary/20 text-on-surface placeholder:text-on-surface-variant/50 font-body transition-all mb-6"
-                onkeydown="if(event.key==='Enter') executeRunTask()" />
-            <div class="flex justify-end gap-3">
-                <button onclick="closeRunTaskModal()" class="px-5 py-2.5 text-sm font-bold text-on-surface-variant hover:bg-surface-container rounded-lg transition-colors">
-                    Cancel
-                </button>
-                <button onclick="executeRunTask()" class="px-5 py-2.5 text-sm font-bold text-white bg-primary hover:bg-primary-dim rounded-lg transition-colors shadow-md">
-                    Run
-                </button>
-            </div>
-        </div>
+    <!-- Decorative Ambient Background -->
+    <div id="ambient-dark" class="fixed inset-0 z-[-1] overflow-hidden pointer-events-none">
+        <div class="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] rounded-full bg-primary-container/20 blur-[120px]"></div>
+        <div class="absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] rounded-full bg-secondary-container/10 blur-[150px]"></div>
     </div>
-
-    <!-- Toast Notifications -->
-    <div id="toast-container" class="fixed bottom-8 right-8 z-[200] flex flex-col gap-3"></div>
-
-    <!-- Confirm End Task Modal -->
-    <div id="end-task-modal" class="fixed inset-0 z-[100] hidden items-center justify-center">
-        <div class="absolute inset-0 bg-black/30 backdrop-blur-sm" onclick="closeEndTaskModal()"></div>
-        <div class="relative bg-surface-container-lowest rounded-2xl shadow-2xl w-full max-w-sm mx-4 p-8 animate-entrance">
-            <div class="flex items-center gap-3 mb-5">
-                <div class="w-10 h-10 rounded-full bg-error/10 flex items-center justify-center">
-                    <span class="material-symbols-outlined text-error">warning</span>
-                </div>
-                <h2 class="font-headline font-bold text-lg text-on-surface">End Task</h2>
-            </div>
-            <p id="end-task-msg" class="text-sm text-on-surface-variant mb-6">Are you sure you want to end this process? Unsaved data may be lost.</p>
-            <div class="flex justify-end gap-3">
-                <button onclick="closeEndTaskModal()" class="px-5 py-2.5 text-sm font-bold text-on-surface-variant hover:bg-surface-container rounded-lg transition-colors">
-                    Cancel
-                </button>
-                <button onclick="confirmEndTask()" class="px-5 py-2.5 text-sm font-bold text-white bg-error hover:bg-error-dim rounded-lg transition-colors shadow-md">
-                    End Task
-                </button>
-            </div>
-        </div>
+    <div id="ambient-light" class="fixed inset-0 z-[-1] overflow-hidden pointer-events-none bg-gradient-to-br from-[#e5e9f0] via-[#f0f2f5] to-[#eceef5]">
+        <div class="absolute top-[-10%] left-[-5%] w-[60%] h-[60%] rounded-full bg-primary/20 blur-[130px]"></div>
+        <div class="absolute bottom-[10%] right-[-5%] w-[70%] h-[70%] rounded-full bg-secondary/15 blur-[160px]"></div>
+        <div class="absolute top-[30%] right-[10%] w-[30%] h-[30%] rounded-full bg-purple-300/25 blur-[110px]"></div>
     </div>
+    
+<!-- Main Wrapper -->
+<div class="flex flex-col min-h-screen modal-blur-target" id="main-wrapper">
+<!-- TopNavBar -->
+<header class="font-manrope tracking-tight font-bold shadow-none top-0 grid grid-cols-3 items-center w-full px-8 h-20 z-50 sticky border-b" style="background: var(--theme-navbar-bg); border-color: var(--theme-navbar-border);">
+<div class="flex items-center gap-8 justify-self-start">
+<h1 class="text-3xl font-bold tracking-tighter text-[var(--theme-text-strong)] dark:text-[var(--theme-text-strong)]">Ethereal Lens</h1>
+<!-- Tab Switches -->
+<div class="hidden md:flex items-center gap-3">
+<button class="w-10 h-10 rounded-full flex items-center justify-center bg-[var(--theme-hover)] text-[var(--theme-text-strong)] hover:bg-[var(--theme-hover)] transition-all btn-glow group/tab w-auto px-2.5 tab-expanded" id="btn-processes" onclick="switchTab('processes')" title="Processes"><span class="material-symbols-outlined shrink-0 text-[24px]">list_alt</span>
+<span class="tab-label max-w-0 overflow-hidden whitespace-nowrap group-hover/tab:max-w-[150px] transition-all duration-300 ease-in-out font-semibold text-base ml-0 group-hover/tab:ml-2">Processes</span></button>
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-[var(--theme-text-muted)] hover:text-[var(--theme-text-strong)] hover:bg-[var(--theme-hover)] transition-all btn-glow group/tab w-auto px-2.5" id="btn-performance" onclick="switchTab('performance')" title="Performance"><span class="material-symbols-outlined shrink-0 text-[24px]">monitoring</span>
+<span class="tab-label max-w-0 overflow-hidden whitespace-nowrap group-hover/tab:max-w-[150px] transition-all duration-300 ease-in-out font-semibold text-base ml-0 group-hover/tab:ml-2">Performance</span></button>
+</div>
+</div>
+<!-- Search Bar -->
+<div id="top-search-bar" class="relative w-full max-w-lg justify-self-center group transition-opacity duration-300">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[var(--theme-text-muted)]/60 text-lg transition-colors group-focus-within:text-[var(--theme-primary-text)]">search</span>
+<input id="search-input" class="w-full border border-transparent bg-[var(--theme-glass)] backdrop-blur-2xl rounded-full py-3 pl-12 pr-6 text-sm text-[var(--theme-text-strong)] placeholder-[var(--theme-placeholder)] focus:outline-none focus:ring-2 focus:ring-primary-fixed-dim/30 focus:bg-[var(--theme-hover)] focus:border-transparent transition-all duration-300 shadow-xl focus:shadow-primary-fixed-dim/20 glass-search-focus" placeholder="Search system processes..." type="text"/>
+</div>
+<div class="flex items-center gap-4 justify-self-end">
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-[var(--theme-text-muted)] hover:bg-[var(--theme-hover)] transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined" data-icon="dark_mode">dark_mode</span>
+</button>
+</div>
+</header>
+<!-- Canvas / Content Area -->
+<main class="flex-1 px-16 pt-10 pb-8 relative overflow-hidden">
+<div class="flex flex-col gap-8 relative h-full" id="main-content-container">
+<!-- Performance View Content -->
+<div class="tab-content hidden-tab flex flex-col gap-8" id="performance-tab">
+  <!-- Hover sidebar (Performance only) -->
+  <aside class="perf-sidebar fixed left-0 top-28 z-40">
+    <div class="perf-sidebar-shell glass-card rounded-r-2xl rounded-l-none p-3 luminous-edge">
+      <div class="perf-sidebar-content flex flex-col gap-2">
+        <div class="perf-item flex items-center gap-3 px-1 py-2 rounded-xl">
+          <div class="perf-mini-graph perf-sb-graph-cpu"></div>
+          <div class="min-w-0">
+            <div id="sb-cpu-name" class="perf-sidebar-label text-[11px] font-semibold text-[var(--theme-text-muted)]">CPU</div>
+            <div id="sb-cpu-val" class="perf-sidebar-sub text-sm font-bold text-[var(--theme-text-strong)] truncate">--</div>
+          </div>
+        </div>
 
-    <script src="/static/app.js"></script>
-</body>
+        <div class="perf-item flex items-center gap-3 px-1 py-2 rounded-xl">
+          <div class="perf-mini-graph perf-sb-graph-mem"></div>
+          <div class="min-w-0">
+            <div class="perf-sidebar-label text-[11px] font-semibold text-[var(--theme-text-muted)]">Memory</div>
+            <div id="sb-mem-val" class="perf-sidebar-sub text-sm font-bold text-[var(--theme-text-strong)] truncate">--</div>
+          </div>
+        </div>
 
-</html>
+        <div class="perf-item flex items-center gap-3 px-1 py-2 rounded-xl">
+          <div class="perf-mini-graph perf-sb-graph-disk"></div>
+          <div class="min-w-0">
+            <div class="perf-sidebar-label text-[11px] font-semibold text-[var(--theme-text-muted)]">Disk 0 (C:)</div>
+            <div id="sb-disk-val" class="perf-sidebar-sub text-sm font-bold text-[var(--theme-text-strong)] truncate">--</div>
+          </div>
+        </div>
+
+        <div class="perf-item flex items-center gap-3 px-1 py-2 rounded-xl">
+          <div class="perf-mini-graph perf-sb-graph-net"></div>
+          <div class="min-w-0">
+            <div id="sb-eth-name" class="perf-sidebar-label text-[11px] font-semibold text-[var(--theme-text-muted)]">Ethernet</div>
+            <div id="sb-net-val" class="perf-sidebar-sub text-sm font-bold text-[var(--theme-text-strong)] truncate">--</div>
+          </div>
+        </div>
+
+        <div class="perf-item flex items-center gap-3 px-1 py-2 rounded-xl opacity-80">
+          <div class="perf-mini-graph perf-sb-graph-wifi"></div>
+          <div class="min-w-0">
+            <div id="sb-wifi-name" class="perf-sidebar-label text-[11px] font-semibold text-[var(--theme-text-muted)]">Wi‑Fi</div>
+            <div id="sb-wifi-val" class="perf-sidebar-sub text-sm font-bold text-[var(--theme-text-strong)] truncate">--</div>
+          </div>
+        </div>
+
+        <div class="h-px bg-[var(--theme-border)] my-1"></div>
+
+        <div class="perf-item flex items-center gap-3 px-1 py-2 rounded-xl opacity-70">
+          <div class="perf-mini-graph perf-sb-graph-gpu0"></div>
+          <div class="min-w-0">
+            <div id="sb-gpu0-name" class="perf-sidebar-label text-[11px] font-semibold text-[var(--theme-text-muted)]">GPU 0</div>
+            <div id="sb-gpu0-val" class="perf-sidebar-sub text-sm font-bold text-[var(--theme-text-strong)] truncate">N/A</div>
+          </div>
+        </div>
+
+        <div class="perf-item flex items-center gap-3 px-1 py-2 rounded-xl opacity-70">
+          <div class="perf-mini-graph perf-sb-graph-gpu1"></div>
+          <div class="min-w-0">
+            <div id="sb-gpu1-name" class="perf-sidebar-label text-[11px] font-semibold text-[var(--theme-text-muted)]">GPU 1</div>
+            <div id="sb-gpu1-val" class="perf-sidebar-sub text-sm font-bold text-[var(--theme-text-strong)] truncate">N/A</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </aside>
+<!-- Metric Overview Grid -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 shrink-0">
+<div class="glass-card rounded-[1.75rem] p-6 flex flex-col gap-4 luminous-edge relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-32 h-32 bg-primary-fixed-dim/10 rounded-full blur-2xl -mr-10 -mt-10 transition-transform group-hover:scale-110"></div>
+<div class="flex justify-between items-center relative z-10">
+<span class="font-label text-xs uppercase tracking-widest text-[var(--theme-text-muted)]">CPU</span>
+<span class="material-symbols-outlined text-metric-cpu">memory</span>
+</div>
+<div class="relative z-10">
+<div class="font-headline text-4xl font-bold text-[var(--theme-text-strong)] tracking-tighter">64<span class="text-xl text-[var(--theme-text-muted)]">%</span></div>
+<p class="font-body text-xs text-[var(--theme-text-muted)] mt-1">Spike detected in Thread 4</p>
+</div>
+<div class="graph-container-cpu absolute right-0 bottom-0 h-24 w-32 flex items-end gap-[2px] opacity-20 pointer-events-none p-4 z-0"></div>
+</div>
+<div class="glass-card rounded-[1.75rem] p-6 flex flex-col gap-4 luminous-edge relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-32 h-32 bg-secondary-fixed-dim/10 rounded-full blur-2xl -mr-10 -mt-10 transition-transform group-hover:scale-110"></div>
+<div class="flex justify-between items-center relative z-10">
+<span class="font-label text-xs uppercase tracking-widest text-[var(--theme-text-muted)]">Memory</span>
+<span class="material-symbols-outlined text-metric-mem">memory_alt</span>
+</div>
+<div class="relative z-10">
+<div class="font-headline text-4xl font-bold text-[var(--theme-text-strong)] tracking-tighter">12.4<span class="text-xl text-[var(--theme-text-muted)]">GB</span></div>
+<p class="font-body text-xs text-[var(--theme-text-muted)] mt-1">78% of total capacity</p>
+</div>
+<div class="graph-container-mem absolute right-0 bottom-0 h-24 w-32 flex items-end gap-[2px] opacity-20 pointer-events-none p-4 z-0"></div>
+</div>
+<div class="glass-card rounded-[1.75rem] p-6 flex flex-col gap-4 luminous-edge relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-32 h-32 bg-[var(--theme-tertiary-bg)] rounded-full blur-2xl -mr-10 -mt-10 transition-transform group-hover:scale-110"></div>
+<div class="flex justify-between items-center relative z-10">
+<span class="font-label text-xs uppercase tracking-widest text-[var(--theme-text-muted)]">Disk I/O</span>
+<span class="material-symbols-outlined text-metric-disk">hard_drive</span>
+</div>
+<div class="relative z-10">
+<div class="font-headline text-4xl font-bold text-[var(--theme-text-strong)] tracking-tighter">482<span class="text-xl text-[var(--theme-text-muted)]">MB/s</span></div>
+<p class="font-body text-xs text-[var(--theme-text-muted)] mt-1">Sustained write operation</p>
+</div>
+<div class="graph-container-disk absolute right-0 bottom-0 h-24 w-32 flex items-end gap-[2px] opacity-20 pointer-events-none p-4 z-0"></div>
+</div>
+<div class="glass-card rounded-[1.75rem] p-6 flex flex-col gap-4 luminous-edge relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-32 h-32 bg-[var(--theme-secondary-bg)] rounded-full blur-2xl -mr-10 -mt-10 transition-transform group-hover:scale-110"></div>
+<div class="flex justify-between items-center relative z-10">
+<span class="font-label text-xs uppercase tracking-widest text-[var(--theme-text-muted)]">Network</span>
+<span class="material-symbols-outlined text-metric-net">public</span>
+</div>
+<div class="relative z-10">
+<div class="font-headline text-4xl font-bold text-[var(--theme-text-strong)] tracking-tighter">1.2<span class="text-xl text-[var(--theme-text-muted)]">Gbps</span></div>
+<p class="font-body text-xs text-[var(--theme-text-muted)] mt-1">Active sync to remote server</p>
+</div>
+<div class="graph-container-net absolute right-0 bottom-0 h-24 w-32 flex items-end gap-[2px] opacity-20 pointer-events-none p-4 z-0"></div>
+</div>
+</div>
+
+<!-- Live Analytics Section -->
+<div class="flex flex-col gap-6">
+<div class="flex items-center gap-4">
+<h3 class="font-headline text-xl text-[var(--theme-text-strong)] font-bold tracking-tight">Live Analytics</h3>
+<div class="h-px flex-1 bg-[var(--theme-border)]"></div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- CPU Analytics -->
+<div class="glass-card glass-graph-panel rounded-[1.75rem] p-6 luminous-edge flex flex-col gap-4 h-[23rem]">
+<div class="flex justify-between items-start">
+<div class="flex flex-col">
+<h4 class="text-xs font-semibold uppercase tracking-widest text-[var(--theme-text-muted)] mb-2">CPU Usage</h4>
+<div class="text-7xl font-bold tracking-tighter text-[var(--theme-text-strong)]"><span id="perf-cpu-val">0.0</span><span class="text-3xl text-[var(--theme-text-muted)] ml-2">%</span></div>
+</div>
+<div class="text-right flex flex-col gap-1">
+<span class="text-[10px] font-mono text-[var(--theme-text-muted)] font-bold">PEAK: <span class="text-[var(--theme-text-strong)]" id="perf-cpu-peak">0%</span></span>
+<span class="text-[10px] font-mono text-[var(--theme-text-muted)] font-bold">AVG: <span class="text-[var(--theme-text-strong)]" id="perf-cpu-avg">0%</span></span>
+</div>
+</div>
+<div class="flex-1 w-full h-full pt-4"><div class="graph-container-cpu h-full flex items-end justify-between gap-[4px] opacity-90 z-0"></div></div>
+</div>
+<!-- Memory Analytics -->
+<div class="glass-card glass-graph-panel rounded-[1.75rem] p-6 luminous-edge flex flex-col gap-4 h-[23rem]">
+<div class="flex justify-between items-start">
+<div class="flex flex-col">
+<h4 class="text-xs font-semibold uppercase tracking-widest text-[var(--theme-text-muted)] mb-2">Memory Allocation</h4>
+<div class="text-7xl font-bold tracking-tighter text-[var(--theme-text-strong)]"><span id="perf-mem-val">0.0</span><span class="text-3xl text-[var(--theme-text-muted)] ml-2">GB</span></div>
+</div>
+<div class="text-right flex flex-col gap-1.5">
+<span class="text-[12px] font-mono text-[var(--theme-text-muted)] font-bold">PEAK: <span class="text-[var(--theme-text-strong)]" id="perf-mem-peak">0 GB</span></span>
+<span class="text-[12px] font-mono text-[var(--theme-text-muted)] font-bold">AVG: <span class="text-[var(--theme-text-strong)]" id="perf-mem-avg">0 GB</span></span>
+</div>
+</div>
+<div class="flex-1 w-full h-full pt-4"><div class="graph-container-mem h-full flex items-end justify-between gap-[4px] opacity-90 z-0"></div></div>
+</div>
+<!-- Disk Analytics -->
+<div class="glass-card glass-graph-panel rounded-[1.75rem] p-3 luminous-edge flex flex-col justify-between h-40">
+<div class="flex justify-between items-start">
+<h4 class="text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--theme-text-muted)]">Disk Throughput</h4>
+</div>
+<div class="flex items-baseline gap-2 mt-1 mb-1">
+<span class="text-4xl font-bold tracking-tighter text-[var(--theme-text-strong)]" id="perf-disk-val">0</span>
+<span class="text-sm text-[var(--theme-text-muted)] font-medium uppercase">MB/s</span>
+</div>
+<div class="grid grid-cols-3 gap-2 border-t border-[var(--theme-border)] pt-2">
+<div>
+<span class="block text-[9px] text-[var(--theme-text-muted)] uppercase font-bold tracking-wider mb-1">Write</span>
+<span class="text-xs font-semibold text-[var(--theme-text-strong)]" id="perf-disk-write">0 MB/s</span>
+</div>
+<div>
+<span class="block text-[9px] text-[var(--theme-text-muted)] uppercase font-bold tracking-wider mb-1">Read</span>
+<span class="text-xs font-semibold text-[var(--theme-text-strong)]" id="perf-disk-read">0 MB/s</span>
+</div>
+<div>
+<span class="block text-[9px] text-[var(--theme-text-muted)] uppercase font-bold tracking-wider mb-1">Status</span>
+<span class="text-xs font-bold text-metric-disk">Healthy</span>
+</div>
+</div>
+</div>
+<!-- Network Analytics -->
+<div class="glass-card glass-graph-panel rounded-[1.75rem] p-3 luminous-edge flex flex-col justify-between h-40">
+<div class="flex justify-between items-start">
+<h4 class="text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--theme-text-muted)]">Network Latency</h4>
+</div>
+<div class="flex items-baseline gap-2 mt-1 mb-1">
+<span class="text-4xl font-bold tracking-tighter text-[var(--theme-text-strong)]" id="perf-net-val">0</span>
+<span class="text-sm text-[var(--theme-text-muted)] font-medium">ms</span>
+</div>
+<div class="grid grid-cols-3 gap-2 border-t border-[var(--theme-border)] pt-2">
+<div>
+<span class="block text-[9px] text-[var(--theme-text-muted)] uppercase font-bold tracking-wider mb-1">Down</span>
+<span class="text-xs font-semibold text-[var(--theme-text-strong)]" id="perf-net-down">0 KB/s</span>
+</div>
+<div>
+<span class="block text-[9px] text-[var(--theme-text-muted)] uppercase font-bold tracking-wider mb-1">Up</span>
+<span class="text-xs font-semibold text-[var(--theme-text-strong)]" id="perf-net-up">0 KB/s</span>
+</div>
+<div>
+<span class="block text-[9px] text-[var(--theme-text-muted)] uppercase font-bold tracking-wider mb-1">Jitter</span>
+<span class="text-xs font-semibold text-cyan-400">1.4 ms</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Processes View Content -->
+<div class="tab-content flex flex-col gap-8 opacity-100 transform-none" id="processes-tab">
+<!-- Bento Grid -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+<div class="glass-card rounded-[1.75rem] p-6 flex flex-col gap-4 luminous-edge relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-32 h-32 bg-primary-fixed-dim/10 rounded-full blur-2xl -mr-10 -mt-10 transition-transform group-hover:scale-110"></div>
+<div class="flex justify-between items-center relative z-10">
+<span class="font-label text-xs uppercase tracking-widest text-[var(--theme-text-muted)]">CPU</span>
+<span class="material-symbols-outlined text-metric-cpu">memory</span>
+</div>
+<div class="relative z-10">
+<div class="font-headline text-4xl font-bold text-[var(--theme-text-strong)] tracking-tighter">64<span class="text-xl text-[var(--theme-text-muted)]">%</span></div>
+<p class="font-body text-xs text-[var(--theme-text-muted)] mt-1">Spike detected in Thread 4</p>
+</div>
+<div class="graph-container-cpu absolute right-0 bottom-0 h-24 w-32 flex items-end gap-[2px] opacity-20 pointer-events-none p-4 z-0"></div>
+</div>
+<div class="glass-card rounded-[1.75rem] p-6 flex flex-col gap-4 luminous-edge relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-32 h-32 bg-secondary-fixed-dim/10 rounded-full blur-2xl -mr-10 -mt-10 transition-transform group-hover:scale-110"></div>
+<div class="flex justify-between items-center relative z-10">
+<span class="font-label text-xs uppercase tracking-widest text-[var(--theme-text-muted)]">Memory</span>
+<span class="material-symbols-outlined text-metric-mem">memory_alt</span>
+</div>
+<div class="relative z-10">
+<div class="font-headline text-4xl font-bold text-[var(--theme-text-strong)] tracking-tighter">12.4<span class="text-xl text-[var(--theme-text-muted)]">GB</span></div>
+<p class="font-body text-xs text-[var(--theme-text-muted)] mt-1">78% of total capacity</p>
+</div>
+<div class="graph-container-mem absolute right-0 bottom-0 h-24 w-32 flex items-end gap-[2px] opacity-20 pointer-events-none p-4 z-0"></div>
+</div>
+<div class="glass-card rounded-[1.75rem] p-6 flex flex-col gap-4 luminous-edge relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-32 h-32 bg-[var(--theme-tertiary-bg)] rounded-full blur-2xl -mr-10 -mt-10 transition-transform group-hover:scale-110"></div>
+<div class="flex justify-between items-center relative z-10">
+<span class="font-label text-xs uppercase tracking-widest text-[var(--theme-text-muted)]">Disk I/O</span>
+<span class="material-symbols-outlined text-metric-disk">hard_drive</span>
+</div>
+<div class="relative z-10">
+<div class="font-headline text-4xl font-bold text-[var(--theme-text-strong)] tracking-tighter">482<span class="text-xl text-[var(--theme-text-muted)]">MB/s</span></div>
+<p class="font-body text-xs text-[var(--theme-text-muted)] mt-1">Sustained write operation</p>
+</div>
+<div class="graph-container-disk absolute right-0 bottom-0 h-24 w-32 flex items-end gap-[2px] opacity-20 pointer-events-none p-4 z-0"></div>
+</div>
+<div class="glass-card rounded-[1.75rem] p-6 flex flex-col gap-4 luminous-edge relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-32 h-32 bg-[var(--theme-secondary-bg)] rounded-full blur-2xl -mr-10 -mt-10 transition-transform group-hover:scale-110"></div>
+<div class="flex justify-between items-center relative z-10">
+<span class="font-label text-xs uppercase tracking-widest text-[var(--theme-text-muted)]">Network</span>
+<span class="material-symbols-outlined text-metric-net">public</span>
+</div>
+<div class="relative z-10">
+<div class="font-headline text-4xl font-bold text-[var(--theme-text-strong)] tracking-tighter">1.2<span class="text-xl text-[var(--theme-text-muted)]">Gbps</span></div>
+<p class="font-body text-xs text-[var(--theme-text-muted)] mt-1">Active sync to remote server</p>
+</div>
+<div class="graph-container-net absolute right-0 bottom-0 h-24 w-32 flex items-end gap-[2px] opacity-20 pointer-events-none p-4 z-0"></div>
+</div>
+</div>
+<!-- Process List Container -->
+<div class="flex flex-col gap-0 glass-card-transparent rounded-[1.75rem] overflow-hidden luminous-edge">
+<div class="px-6 py-5 border-b border-outline-variant/10 bg-[var(--theme-glass)] flex justify-between items-center">
+<h3 class="font-headline text-xl text-[var(--theme-text-strong)] font-semibold flex items-center gap-3">
+<span class="material-symbols-outlined text-[var(--theme-primary-text)]">analytics</span>
+                Process List
+              </h3>
+<div class="flex items-center gap-3">
+<button id="btn-run-task" onclick="window.runNewTask && window.runNewTask()" class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[var(--theme-glass)] hover:bg-[var(--theme-hover)] border border-[var(--theme-border-strong)] backdrop-blur-md text-xs font-semibold text-[var(--theme-text-strong)] transition-all hover:scale-105">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                  Run new task
+                </button>
+<button id="btn-end-task" onclick="window.endSelectedTasks && window.endSelectedTasks()" class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[var(--theme-glass)] border border-[var(--theme-border-strong)] backdrop-blur-md text-xs font-semibold text-[var(--theme-text-muted)] transition-all cursor-not-allowed" disabled>
+<span class="material-symbols-outlined text-[18px]">stop_circle</span>
+                  End task
+                </button>
+<div class="relative">
+<button id="btn-filter" class="flex items-center gap-2 py-1.5 rounded-lg bg-[var(--theme-glass)] hover:bg-[var(--theme-hover)] border border-[var(--theme-border-strong)] backdrop-blur-md text-xs font-semibold text-[var(--theme-text-strong)] transition-all hover:scale-105 px-2" onclick="this.nextElementSibling.classList.toggle('hidden')"><span class="material-symbols-outlined text-[18px]">filter_alt</span></button>
+<div id="filter-menu" class="hidden absolute right-0 mt-3 w-56 bg-[var(--theme-dropdown)] backdrop-blur-md border border-[var(--theme-border-strong)] rounded-xl p-1 z-50 shadow-2xl overflow-hidden luminous-edge">
+<div class="flex flex-col gap-0.5">
+<button onclick="window.setProcessFilter && window.setProcessFilter('all')" class="flex items-center gap-3 w-full px-3 py-2.5 text-xs font-semibold text-[var(--theme-text-strong)] hover:bg-[var(--theme-hover)] transition-colors rounded-lg">
+<span class="material-symbols-outlined text-[var(--theme-primary-text)] text-[18px]">list</span>
+                                    All Processes
+                                </button>
+<button onclick="window.setProcessFilter && window.setProcessFilter('active')" class="flex items-center gap-3 w-full px-3 py-2.5 text-xs font-semibold text-[var(--theme-text-strong)] hover:bg-[var(--theme-hover)] transition-colors rounded-lg">
+<span class="material-symbols-outlined text-[var(--theme-secondary-dim-text)] text-[18px]">bolt</span>
+                                    Active Only
+                                </button>
+<button onclick="window.setProcessFilter && window.setProcessFilter('high')" class="flex items-center gap-3 w-full px-3 py-2.5 text-xs font-semibold text-[var(--theme-text-strong)] hover:bg-[var(--theme-hover)] transition-colors rounded-lg">
+<span class="material-symbols-outlined text-[var(--theme-error-text)] text-[18px]">warning</span>
+                                    High CPU/Memory
+                                </button>
+<div class="h-px bg-[var(--theme-hover)] my-1 mx-2"></div>
+<button onclick="window.setProcessFilter && window.setProcessFilter('system')" class="flex items-center gap-3 w-full px-3 py-2.5 text-xs font-semibold text-[var(--theme-text-strong)] hover:bg-[var(--theme-hover)] transition-colors rounded-lg">
+<span class="material-symbols-outlined text-[var(--theme-text-muted)] text-[18px]">settings</span>
+                                    System Processes
+                                </button>
+</div>
+</div>
+</div>
+<div class="w-px h-4 bg-[var(--theme-hover)] mx-1"></div>
+<div class="relative">
+<button id="btn-more" class="text-[var(--theme-text-muted)] hover:text-[var(--theme-text-strong)] transition-all hover:scale-105 px-2 py-1.5 rounded-lg bg-[var(--theme-glass)] hover:bg-[var(--theme-hover)] border border-[var(--theme-border-strong)] backdrop-blur-md flex items-center justify-center" onclick="this.nextElementSibling.classList.toggle('hidden')">
+<span class="material-symbols-outlined text-sm">more_horiz</span>
+</button>
+<div id="more-menu" class="hidden absolute right-0 mt-3 w-56 bg-[var(--theme-dropdown)] backdrop-blur-md border border-[var(--theme-border-strong)] rounded-xl p-1 z-50 shadow-2xl overflow-hidden">
+<div class="flex flex-col gap-0.5">
+<button onclick="window.refreshProcessList && window.refreshProcessList()" class="flex items-center gap-3 w-full px-3 py-2.5 text-xs font-semibold text-[var(--theme-text-strong)] hover:bg-[var(--theme-hover)] transition-colors rounded-lg">
+<span class="material-symbols-outlined text-[var(--theme-primary-text)] text-[18px]">refresh</span>
+                        Refresh Process List
+                      </button>
+<button onclick="window.collapseAllGroups && window.collapseAllGroups()" class="flex items-center gap-3 w-full px-3 py-2.5 text-xs font-semibold text-[var(--theme-text-strong)] hover:bg-[var(--theme-hover)] transition-colors rounded-lg">
+<span class="material-symbols-outlined text-[var(--theme-secondary-dim-text)] text-[18px]">unfold_less</span>
+                        Collapse All Groups
+                      </button>
+<button onclick="window.expandAllGroups && window.expandAllGroups()" class="flex items-center gap-3 w-full px-3 py-2.5 text-xs font-semibold text-[var(--theme-text-strong)] hover:bg-[var(--theme-hover)] transition-colors rounded-lg">
+<span class="material-symbols-outlined text-[var(--theme-tertiary-text)] text-[18px]">visibility</span>
+                        Expand All Groups
+                      </button>
+<div class="h-px bg-[var(--theme-hover)] my-1 mx-2"></div>
+<button onclick="window.clearSelectedProcess && window.clearSelectedProcess()" class="flex items-center gap-3 w-full px-3 py-2.5 text-xs font-semibold text-[var(--theme-text-strong)] hover:bg-[var(--theme-hover)] transition-colors rounded-lg">
+<span class="material-symbols-outlined text-[var(--theme-text-muted)] text-[18px]">file_export</span>
+                        Clear Selection
+                      </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse table-fixed">
+<thead>
+<tr class="bg-[var(--theme-glass)] border-b border-outline-variant/10 text-[10px] font-label uppercase tracking-[0.2em] text-[var(--theme-text-muted)]">
+<th class="px-6 py-4 font-semibold w-24">PID</th>
+<th class="px-6 py-4 font-semibold">Name</th>
+<th class="px-6 py-4 font-semibold w-32">Status</th>
+<th class="px-6 py-4 font-semibold w-28">CPU</th>
+<th class="px-6 py-4 font-semibold w-32">Memory</th>
+<th class="px-6 py-4 font-semibold w-32">Disk</th>
+<th class="px-6 py-4 font-semibold w-32">Network</th>
+</tr>
+</thead>
+<tbody id="process-list" class="text-sm font-body text-[var(--theme-text-strong)] divide-y divide-white/5">
+<tr class="hover:bg-[var(--theme-hover)] transition-colors group">
+<td class="px-6 py-4 text-[var(--theme-text-muted)] font-mono">4920</td>
+<td class="px-6 py-4 font-semibold flex items-center gap-3">
+<div class="w-8 h-8 shrink-0 rounded bg-[var(--theme-primary-bg)] flex items-center justify-center text-[var(--theme-primary-text)] border border-[var(--theme-primary-border)]">
+<span class="material-symbols-outlined text-sm">terminal</span>
+</div>
+<span class="truncate">Ethereal_Render_Engine.exe</span>
+</td>
+<td class="px-6 py-4">
+<span class="px-2 py-0.5 rounded text-[10px] font-label uppercase tracking-wider bg-[var(--theme-error-bg)] text-[var(--theme-error-text)] border border-[var(--theme-error-border)] status-critical">High Load</span>
+</td>
+<td class="px-6 py-4 text-metric-unified font-mono font-medium">42.8%</td>
+<td class="px-6 py-4 text-metric-unified font-mono font-medium">4.2 GB</td>
+<td class="px-6 py-4 text-metric-unified font-mono font-medium">12 MB/s</td>
+<td class="px-6 py-4 text-metric-unified font-mono font-medium">0 Kbps</td>
+</tr>
+<tr class="hover:bg-[var(--theme-hover)] transition-colors group">
+<td class="px-6 py-4 text-[var(--theme-text-muted)] font-mono">1024</td>
+<td class="px-6 py-4 font-semibold flex items-center gap-3">
+<div class="w-8 h-8 shrink-0 rounded bg-[var(--theme-secondary-dim-bg)] flex items-center justify-center text-[var(--theme-secondary-dim-text)] border border-[var(--theme-secondary-dim-border)]">
+<span class="material-symbols-outlined text-sm">database</span>
+</div>
+<span class="truncate">PostgreSQL_Daemon</span>
+</td>
+<td class="px-6 py-4">
+<span class="px-2 py-0.5 rounded text-[10px] font-label uppercase tracking-wider bg-[var(--theme-tertiary-bg)] text-[var(--theme-tertiary-text)] border border-[var(--theme-tertiary-border)]">Stable</span>
+</td>
+<td class="px-6 py-4 text-metric-unified font-mono font-medium">2.4%</td>
+<td class="px-6 py-4 text-metric-unified font-mono font-medium">2.8 GB</td>
+<td class="px-6 py-4 text-metric-unified font-mono font-medium">45 MB/s</td>
+<td class="px-6 py-4 text-metric-unified font-mono font-medium">0 Kbps</td>
+</tr>
+<tr class="hover:bg-[var(--theme-hover)] transition-colors group">
+<td class="px-6 py-4 text-[var(--theme-text-muted)] font-mono">8842</td>
+<td class="px-6 py-4 font-semibold flex items-center gap-3">
+<div class="w-8 h-8 shrink-0 rounded bg-secondary-container/20 flex items-center justify-center text-[var(--theme-secondary-text)] border border-secondary-container/30">
+<span class="material-symbols-outlined text-sm">sync_alt</span>
+</div>
+<span class="truncate">Cloud_Sync_Service</span>
+</td>
+<td class="px-6 py-4">
+<span class="px-2 py-0.5 rounded text-[10px] font-label uppercase tracking-wider bg-[var(--theme-secondary-bg)] text-[var(--theme-secondary-text)] border border-[var(--theme-secondary-border)] status-warning">Syncing</span>
+</td>
+<td class="px-6 py-4 text-metric-unified font-mono font-medium">0.8%</td>
+<td class="px-6 py-4 text-metric-unified font-mono font-medium">156 MB</td>
+<td class="px-6 py-4 text-metric-unified font-mono font-medium">2 MB/s</td>
+<td class="px-6 py-4 text-metric-unified font-mono font-medium">145 MB/s</td>
+</tr>
+<tr class="hover:bg-[var(--theme-hover)] transition-colors group">
+<td class="px-6 py-4 text-[var(--theme-text-muted)] font-mono">0</td>
+<td class="px-6 py-4 font-semibold flex items-center gap-3">
+<div class="w-8 h-8 shrink-0 rounded bg-[var(--theme-outline-bg)] flex items-center justify-center text-[var(--theme-text-muted)] border border-[var(--theme-outline-border)]">
+<span class="material-symbols-outlined text-sm">settings_system_daydream</span>
+</div>
+<span class="truncate">System_Idle_Process</span>
+</td>
+<td class="px-6 py-4">
+<span class="px-2 py-0.5 rounded text-[10px] font-label uppercase tracking-wider bg-[var(--theme-outline-bg)] text-[var(--theme-text-muted)] border border-[var(--theme-outline-border)]">Background</span>
+</td>
+<td class="px-6 py-4 text-metric-unified font-mono font-medium">45.2%</td>
+<td class="px-6 py-4 text-metric-unified font-mono font-medium">8 KB</td>
+<td class="px-6 py-4 text-metric-unified font-mono font-medium">0 MB/s</td>
+<td class="px-6 py-4 text-metric-unified font-mono font-medium">0 Kbps</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</main>
+<!-- Floating Status Bar -->
+<div id="floating-status-bar" class="fixed bottom-6 right-6 z-50 transition-all duration-500 ease-out opacity-100 translate-y-0">
+<div class="group snapshot-shell rounded-full px-4 py-3 flex items-center overflow-hidden">
+<div class="max-w-0 opacity-0 mr-0 overflow-hidden transition-all duration-300 ease-out group-hover:max-w-[320px] group-hover:opacity-100 group-hover:mr-5">
+<div class="flex items-center gap-5">
+<div class="flex flex-col items-center gap-0.5">
+<span class="text-xs uppercase tracking-widest text-[var(--theme-text-muted)] font-semibold">CPU</span>
+<span class="text-base font-bold text-[var(--theme-primary-text)]" id="sum-cpu">0%</span>
+</div>
+<div class="flex flex-col items-center gap-0.5">
+<span class="text-xs uppercase tracking-widest text-[var(--theme-text-muted)] font-semibold">MEM</span>
+<span class="text-base font-bold text-[var(--theme-secondary-dim-text)]" id="sum-mem">0%</span>
+</div>
+<div class="flex flex-col items-center gap-0.5">
+<span class="text-xs uppercase tracking-widest text-[var(--theme-text-muted)] font-semibold">UPTIME</span>
+<span class="text-base font-bold text-[var(--theme-tertiary-text)]" id="perf-uptime">--:--</span>
+</div>
+<div class="w-px h-8 bg-[var(--theme-border-strong)]"></div>
+</div>
+</div>
+<button id="snapshot-btn" class="flex items-center gap-2 px-6 py-2.5 rounded-full bg-primary-container hover:bg-primary text-[var(--theme-text-strong)] text-sm font-bold uppercase tracking-wider shadow-lg shadow-primary/20 transition-all hover:-translate-y-0.5 active:translate-y-0">
+<span class="material-symbols-outlined text-[20px]">camera</span>
+SNAPSHOT
+</button>
+</div>
+</div>
+<script src="/static/live.js"></script>
+<script>
+    let currentTabId = 'processes';
+
+    function switchTab(newTabId) {
+      if (currentTabId === newTabId) return;
+
+      const outgoing = document.getElementById(`${currentTabId}-tab`);
+      const incoming = document.getElementById(`${newTabId}-tab`);
+      
+      const btnProcesses = document.getElementById('btn-processes');
+      const btnPerformance = document.getElementById('btn-performance');
+
+      // Determine direction
+      const isMovingForward = (currentTabId === 'processes' && newTabId === 'performance');
+
+      // Set button states
+      const searchBar = document.getElementById('top-search-bar');
+      if (newTabId === 'processes') {
+        btnProcesses.classList.add('bg-[var(--theme-hover)]', 'text-[var(--theme-text-strong)]');
+        btnProcesses.classList.remove('text-[var(--theme-text-muted)]');
+        btnProcesses.classList.add('tab-expanded');
+        btnPerformance.classList.add('text-[var(--theme-text-muted)]');
+        btnPerformance.classList.remove('bg-[var(--theme-hover)]', 'text-[var(--theme-text-strong)]');
+        btnPerformance.classList.remove('tab-expanded');
+        if (searchBar) searchBar.classList.remove('opacity-0', 'pointer-events-none');
+      } else {
+        btnPerformance.classList.add('bg-[var(--theme-hover)]', 'text-[var(--theme-text-strong)]');
+        btnPerformance.classList.remove('text-[var(--theme-text-muted)]');
+        btnPerformance.classList.add('tab-expanded');
+        btnProcesses.classList.add('text-[var(--theme-text-muted)]');
+        btnProcesses.classList.remove('bg-[var(--theme-hover)]', 'text-[var(--theme-text-strong)]');
+        btnProcesses.classList.remove('tab-expanded');
+        if (searchBar) searchBar.classList.add('opacity-0', 'pointer-events-none');
+      }
+
+      // Animate outgoing
+      outgoing.classList.add(isMovingForward ? 'slide-out-left' : 'slide-out-right');
+      outgoing.classList.remove('transform-none', 'opacity-100');
+
+      setTimeout(() => {
+        outgoing.classList.add('hidden-tab');
+        
+        // Reset incoming state for start of animation
+        incoming.classList.remove('hidden-tab');
+        incoming.classList.add(isMovingForward ? 'slide-out-right' : 'slide-out-left');
+        incoming.classList.remove('transform-none', 'opacity-100');
+
+        // Trigger reflow
+        incoming.offsetHeight;
+
+        // Animate incoming
+        incoming.classList.remove('slide-out-left', 'slide-out-right');
+        incoming.classList.add('opacity-100', 'transform-none');
+        
+        currentTabId = newTabId;
+      }, 300);
+    }
+  </script>
+
+    <script>
+        document.querySelector('[data-icon="dark_mode"]').parentElement.addEventListener('click', function() {
+            document.documentElement.classList.toggle('light');
+            const icon = this.querySelector('span');
+            if(document.documentElement.classList.contains('light')) {
+                icon.textContent = 'light_mode';
+            } else {
+                icon.textContent = 'dark_mode';
+            }
+        });
+    </script>
+    
+</body></html>

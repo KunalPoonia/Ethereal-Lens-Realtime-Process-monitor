@@ -104,8 +104,8 @@ Real-time Process monitor/
 
 ```bash
 # Clone the repo
-git clone https://github.com/KunalPoonia/Real-time-Process-monitor.git
-cd Real-time-Process-monitor
+git clone https://github.com/KunalPoonia/Ethereal-Lens-Realtime-Process-monitor.git
+cd Ethereal-Lens-Realtime-Process-monitor
 
 # Install dependencies
 pip install -r requirements.txt

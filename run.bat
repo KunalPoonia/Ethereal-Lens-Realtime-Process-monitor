@@ -1,5 +1,7 @@
-import os
-import subprocess
-
-os.chdir(os.path.join(os.path.dirname(__file__), "rt_dashboard"))
-subprocess.run(["python", "-m", "uvicorn", "server:app", "--reload"])
+@echo off
+cd /d "%~dp0"
+echo Starting Process Monitor Web Server...
+echo.
+cd rt_dashboard
+python -m uvicorn server:app --reload
+pause

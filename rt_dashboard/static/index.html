@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html class="light" lang="en"><head>
+<html lang="en"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Ethereal Lens - Process Monitor</title>
@@ -192,6 +192,31 @@
     }
     .status-warning {
       animation: pulse-blue 2s infinite;
+    }
+    @keyframes high-usage-alert-enter {
+      0% { opacity: 0; transform: translateY(18px) translateX(-14px) scale(0.98); }
+      100% { opacity: 1; transform: translateY(0) translateX(0) scale(1); }
+    }
+    @keyframes high-usage-alert-exit {
+      0% { opacity: 1; transform: translateY(0) translateX(0) scale(1); }
+      100% { opacity: 0; transform: translateY(14px) translateX(-18px) scale(0.97); }
+    }
+    .high-usage-alert {
+      animation: high-usage-alert-enter 260ms cubic-bezier(0.22, 1, 0.36, 1);
+      will-change: transform, opacity;
+    }
+    .high-usage-alert-exit {
+      animation: high-usage-alert-exit 320ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+    .high-usage-alert-dismiss {
+      accent-color: var(--theme-primary-text);
+      box-shadow: none !important;
+      outline: none !important;
+    }
+    .high-usage-alert-dismiss:focus,
+    .high-usage-alert-dismiss:focus-visible {
+      box-shadow: none !important;
+      outline: none !important;
     }
     .glass-graph-panel {
       background: linear-gradient(140deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 42%, rgba(255, 255, 255, 0) 100%);
@@ -547,15 +572,15 @@
         html.light .text-metric-unified { color: #18162e; }
 
         /* Improve light-mode control visibility */
-        html.light #high-usage-alert-stack .high-usage-alert-dontshow {
+        html.light #high-usage-alert-stack .high-usage-alert-dismiss {
             background: rgba(255, 255, 255, 0.95);
             border-color: rgba(90, 88, 113, 0.45);
-            box-shadow: 0 0 0 1px rgba(90, 88, 113, 0.2);
+            box-shadow: none !important;
         }
-        html.light #high-usage-alert-stack .high-usage-alert-dontshow:checked {
+        html.light #high-usage-alert-stack .high-usage-alert-dismiss:checked {
             background: #7c3aed;
             border-color: #7c3aed;
-            box-shadow: 0 0 0 1px rgba(124, 58, 237, 0.35);
+            box-shadow: none !important;
         }
         html.light #search-input {
             background: rgba(255, 255, 255, 0.72);

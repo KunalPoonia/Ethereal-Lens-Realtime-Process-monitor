@@ -9,20 +9,15 @@
   let lastHighUsageAlertAt = 0;
   let lastHighUsageAlertKey = "";
   const alertCooldownByKey = new Map();
+  const suppressedAlertKeys = new Set();
 
-  const HIGH_USAGE_ALERT_HIDE_KEY = "rtpm_hide_high_usage_alert";
-  const HIGH_USAGE_THRESHOLD = 80;
+  const PROCESS_CPU_ALERT_THRESHOLD = 20;
+  const PROCESS_MEM_ALERT_THRESHOLD = 80;
   const OVERALL_CPU_ALERT_THRESHOLD = 90;
   const OVERALL_MEM_ALERT_THRESHOLD = 90;
   const OVERALL_GPU_ALERT_THRESHOLD = 90;
+  const ALERT_AUTO_DISMISS_MS = 10000;
 
-  function shouldHideHighUsageAlert() {
-    return localStorage.getItem(HIGH_USAGE_ALERT_HIDE_KEY) === "1";
-  }
-
-  function setHideHighUsageAlert(value) {
-    localStorage.setItem(HIGH_USAGE_ALERT_HIDE_KEY, value ? "1" : "0");
-  }
   const metricHistory = { cpu: [], mem: [], disk: [], net: [], gpu0: [], gpu1: [] };
   const HISTORY_MAX = 20;
 
@@ -231,26 +226,66 @@
     return Number(proc.pid) <= 4 || criticalNames.has(lowered);
   }
 
-  function showHighUsageAlert(key, title, message) {
+  function dismissHighUsageAlert(wrap) {
+    if (!wrap || !wrap.isConnected) return;
+    if (wrap.dataset.dismissing === "1") return;
+    wrap.dataset.dismissing = "1";
+
+    const existingTimer = Number(wrap.dataset.timeoutId || 0);
+    if (existingTimer) {
+      window.clearTimeout(existingTimer);
+      delete wrap.dataset.timeoutId;
+    }
+
+    wrap.classList.add("high-usage-alert-exit");
+    window.setTimeout(() => {
+      if (wrap.isConnected) wrap.remove();
+    }, 320);
+  }
+
+  function scheduleHighUsageAlertDismiss(wrap) {
+    if (!wrap) return;
+    const existingTimer = Number(wrap.dataset.timeoutId || 0);
+    if (existingTimer) {
+      window.clearTimeout(existingTimer);
+    }
+    const timeoutId = window.setTimeout(() => {
+      dismissHighUsageAlert(wrap);
+    }, ALERT_AUTO_DISMISS_MS);
+    wrap.dataset.timeoutId = String(timeoutId);
+  }
+
+  function showHighUsageAlert(key, title, message, suppressKey = key) {
     const stack = document.getElementById("high-usage-alert-stack");
     if (!stack) return;
+    if (suppressedAlertKeys.has(suppressKey)) return;
 
     const existing = stack.querySelector(`[data-alert-key="${key}"]`);
     if (existing) {
+      const titleEl = existing.querySelector(".high-usage-alert-title");
       const textEl = existing.querySelector(".high-usage-alert-text");
+      const checkboxEl = existing.querySelector(".high-usage-alert-dismiss");
+      existing.dataset.suppressKey = suppressKey;
+      if (titleEl) titleEl.textContent = title;
       if (textEl) textEl.textContent = message;
+      if (checkboxEl) checkboxEl.checked = suppressedAlertKeys.has(suppressKey);
+      existing.dataset.dismissing = "0";
+      existing.classList.remove("high-usage-alert-exit");
+      scheduleHighUsageAlertDismiss(existing);
       return;
     }
 
     const wrap = document.createElement("div");
-    wrap.className = "glass-card rounded-2xl p-4 luminous-edge border border-[var(--theme-border-strong)] shadow-2xl shadow-black/30 pointer-events-auto";
+    wrap.className = "glass-card high-usage-alert rounded-2xl p-4 luminous-edge border border-[var(--theme-border-strong)] shadow-2xl shadow-black/30 pointer-events-auto";
     wrap.setAttribute("data-alert-key", key);
+    wrap.dataset.dismissing = "0";
+    wrap.dataset.suppressKey = suppressKey;
     wrap.innerHTML = `
       <div class="flex items-start justify-between gap-3">
         <div class="flex flex-col gap-0.5">
           <div class="flex items-center gap-2">
             <span class="material-symbols-outlined text-[var(--theme-error-text)] text-[20px]">warning</span>
-            <h4 class="font-headline font-bold text-[var(--theme-text-strong)] text-sm tracking-tight">${title}</h4>
+            <h4 class="high-usage-alert-title font-headline font-bold text-[var(--theme-text-strong)] text-sm tracking-tight">${title}</h4>
           </div>
           <p class="high-usage-alert-text text-xs text-[var(--theme-text-muted)] leading-snug">${message}</p>
         </div>
@@ -259,23 +294,23 @@
         </button>
       </div>
       <label class="mt-3 flex items-center gap-2 text-xs text-[var(--theme-text-muted)] select-none cursor-pointer">
-        <input type="checkbox" class="high-usage-alert-dontshow rounded border-[var(--theme-border-strong)] bg-[var(--theme-glass)] text-primary focus:ring-primary-container" ${shouldHideHighUsageAlert() ? "checked" : ""} />
-        Don’t show again
+        <input type="checkbox" class="high-usage-alert-dismiss rounded border-[var(--theme-border-strong)] bg-[var(--theme-glass)] text-primary" />
+        Don't show again
       </label>
     `;
 
-    wrap.querySelector(".high-usage-alert-close")?.addEventListener("click", () => wrap.remove());
-    wrap.querySelector(".high-usage-alert-dontshow")?.addEventListener("change", (e) => {
-      const shouldHide = Boolean(e.target.checked);
-      setHideHighUsageAlert(shouldHide);
-      if (shouldHide) hideHighUsageAlert();
+    wrap.querySelector(".high-usage-alert-close")?.addEventListener("click", () => dismissHighUsageAlert(wrap));
+    wrap.querySelector(".high-usage-alert-dismiss")?.addEventListener("change", (e) => {
+      const currentSuppressKey = wrap.dataset.suppressKey || key;
+      if (e.target.checked) {
+        suppressedAlertKeys.add(currentSuppressKey);
+      } else {
+        suppressedAlertKeys.delete(currentSuppressKey);
+      }
     });
 
     stack.appendChild(wrap);
-    // Auto-dismiss anomaly popups after a short visibility window.
-    window.setTimeout(() => {
-      if (wrap.isConnected) wrap.remove();
-    }, 6000);
+    scheduleHighUsageAlertDismiss(wrap);
   }
 
   function hideHighUsageAlert() {
@@ -284,8 +319,6 @@
   }
 
   function maybeShowHighUsageAlert(state) {
-    if (shouldHideHighUsageAlert()) return;
-
     const now = Date.now();
     const canShow = (key) => {
       const prev = alertCooldownByKey.get(key) || 0;
@@ -298,10 +331,10 @@
     const overallMem = Number(state.ram_percent || 0);
     const gpus = Array.isArray(state.gpus) ? state.gpus : [];
     if (overallCpu >= OVERALL_CPU_ALERT_THRESHOLD && canShow("overall-cpu")) {
-      showHighUsageAlert("overall-cpu", "CPU anomaly detected", `Overall CPU usage is ${overallCpu.toFixed(1)}%.`);
+      showHighUsageAlert("overall-cpu", "CPU anomaly detected", `Overall CPU usage is ${overallCpu.toFixed(1)}%.`, "overall-cpu");
     }
     if (overallMem >= OVERALL_MEM_ALERT_THRESHOLD && canShow("overall-mem")) {
-      showHighUsageAlert("overall-mem", "Memory anomaly detected", `Overall memory usage is ${overallMem.toFixed(1)}%.`);
+      showHighUsageAlert("overall-mem", "Memory anomaly detected", `Overall memory usage is ${overallMem.toFixed(1)}%.`, "overall-mem");
     }
     for (let i = 0; i < gpus.length; i += 1) {
       const util = Number(gpus[i]?.util);
@@ -310,7 +343,7 @@
         const name = String(gpus[i]?.name || `GPU ${i}`).trim();
         const gpuKey = `overall-gpu-${i}`;
         if (canShow(gpuKey)) {
-          showHighUsageAlert(gpuKey, "GPU anomaly detected", `${name} usage is ${util.toFixed(1)}%.`);
+          showHighUsageAlert(gpuKey, "GPU anomaly detected", `${name} usage is ${util.toFixed(1)}%.`, gpuKey);
         }
       }
     }
@@ -325,8 +358,11 @@
 
       const cpuPct = Number(p.cpu || 0);
       const memPct = (Number(p.memory || 0) / totalRamMb) * 100;
-      const score = Math.max(cpuPct, memPct);
-      if (score < HIGH_USAGE_THRESHOLD) continue;
+      const score = Math.max(
+        cpuPct >= PROCESS_CPU_ALERT_THRESHOLD ? cpuPct : 0,
+        memPct >= PROCESS_MEM_ALERT_THRESHOLD ? memPct : 0
+      );
+      if (score <= 0) continue;
 
       if (!best || score > best.score) {
         best = { proc: p, cpuPct, memPct, score };
@@ -343,12 +379,13 @@
     lastHighUsageAlertAt = now;
 
     const parts = [];
-    if (best.cpuPct >= HIGH_USAGE_THRESHOLD) parts.push(`CPU ${best.cpuPct.toFixed(1)}%`);
-    if (best.memPct >= HIGH_USAGE_THRESHOLD) parts.push(`Memory ${best.memPct.toFixed(1)}%`);
+    if (best.cpuPct >= PROCESS_CPU_ALERT_THRESHOLD) parts.push(`CPU ${best.cpuPct.toFixed(1)}%`);
+    if (best.memPct >= PROCESS_MEM_ALERT_THRESHOLD) parts.push(`Memory ${best.memPct.toFixed(1)}%`);
     showHighUsageAlert(
       "process-high-usage",
       "High usage detected",
-      `${best.proc.name} (PID ${best.proc.pid}) is high: ${parts.join(" · ")}`
+      `${best.proc.name} (PID ${best.proc.pid}) is high: ${parts.join(" · ")}`,
+      `process:${best.proc.pid}`
     );
   }
 

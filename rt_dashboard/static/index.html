@@ -186,6 +186,33 @@
     .btn-glow:active {
       transform: scale(0.95);
     }
+    /* Glassmorphic nav tab buttons (matches the glass cards) — applied at rest
+       and intensified on hover. */
+    .tab-btn {
+      background: var(--theme-glass);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--theme-border-strong);
+      box-shadow:
+        inset 0 1px 1px rgba(255, 255, 255, 0.1),
+        0 4px 16px rgba(0, 0, 0, 0.18);
+      transition: background 0.3s ease, backdrop-filter 0.3s ease,
+                  border-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
+    }
+    .tab-btn:hover {
+      background: var(--theme-glass) !important;
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-color: var(--theme-border-strong);
+      box-shadow:
+        inset 0 1px 1px rgba(255, 255, 255, 0.15),
+        0 10px 30px rgba(0, 0, 0, 0.3),
+        0 0 15px rgba(123, 97, 255, 0.3);
+      transform: scale(1.04);
+    }
+    .tab-btn:active {
+      transform: scale(0.96);
+    }
     .status-critical {
       animation: pulse-red 2s infinite, shake 0.5s infinite;
       box-shadow: 0 0 10px rgba(186, 26, 26, 0.3);
@@ -417,6 +444,7 @@
     #modal-overlay.active #modal-content {
       transform: scale(1) translateY(0);
     }
+
     </style>
 
     <style>
@@ -674,15 +702,15 @@
 <h1 class="text-3xl font-bold tracking-tighter text-[var(--theme-text-strong)] dark:text-[var(--theme-text-strong)]">Ethereal Lens</h1>
 <!-- Tab Switches -->
 <div class="hidden md:flex items-center gap-3">
-<button class="w-10 h-10 rounded-full flex items-center justify-center bg-[var(--theme-hover)] text-[var(--theme-text-strong)] hover:bg-[var(--theme-hover)] transition-all btn-glow group/tab w-auto px-2.5 tab-expanded" id="btn-processes" onclick="switchTab('processes')" title="Processes"><span class="material-symbols-outlined shrink-0 text-[24px]">list_alt</span>
+<button class="w-10 h-10 rounded-full flex items-center justify-center bg-[var(--theme-hover)] text-[var(--theme-text-strong)] transition-all tab-btn group/tab w-auto px-2.5 tab-expanded" id="btn-processes" onclick="switchTab('processes')" title="Processes"><span class="material-symbols-outlined shrink-0 text-[24px]">list_alt</span>
 <span class="tab-label max-w-0 overflow-hidden whitespace-nowrap group-hover/tab:max-w-[150px] transition-all duration-300 ease-in-out font-semibold text-base ml-0 group-hover/tab:ml-2">Processes</span></button>
-<button class="w-10 h-10 rounded-full flex items-center justify-center text-[var(--theme-text-muted)] hover:text-[var(--theme-text-strong)] hover:bg-[var(--theme-hover)] transition-all btn-glow group/tab w-auto px-2.5" id="btn-performance" onclick="switchTab('performance')" title="Performance"><span class="material-symbols-outlined shrink-0 text-[24px]">monitoring</span>
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-[var(--theme-text-muted)] hover:text-[var(--theme-text-strong)] transition-all tab-btn group/tab w-auto px-2.5" id="btn-performance" onclick="switchTab('performance')" title="Performance"><span class="material-symbols-outlined shrink-0 text-[24px]">monitoring</span>
 <span class="tab-label max-w-0 overflow-hidden whitespace-nowrap group-hover/tab:max-w-[150px] transition-all duration-300 ease-in-out font-semibold text-base ml-0 group-hover/tab:ml-2">Performance</span></button>
 </div>
 </div>
 <!-- Search Bar -->
 <div id="top-search-bar" class="relative w-full max-w-lg justify-self-center group transition-opacity duration-300">
-<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[var(--theme-text-muted)]/60 text-lg transition-colors group-focus-within:text-[var(--theme-primary-text)]">search</span>
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 z-10 pointer-events-none text-[var(--theme-text-muted)]/60 text-lg transition-colors group-focus-within:text-[var(--theme-primary-text)]">search</span>
 <input id="search-input" class="w-full border border-transparent bg-[var(--theme-glass)] backdrop-blur-2xl rounded-full py-3 pl-12 pr-6 text-sm text-[var(--theme-text-strong)] placeholder-[var(--theme-placeholder)] focus:outline-none focus:ring-2 focus:ring-primary-fixed-dim/30 focus:bg-[var(--theme-hover)] focus:border-transparent transition-all duration-300 shadow-xl focus:shadow-primary-fixed-dim/20 glass-search-focus" placeholder="Search system processes..." type="text"/>
 </div>
 <div class="flex items-center gap-4 justify-self-end">
@@ -740,9 +768,9 @@
           </div>
         </div>
 
-        <div class="h-px bg-[var(--theme-border)] my-1"></div>
+        <div id="sb-gpu-divider" class="h-px bg-[var(--theme-border)] my-1"></div>
 
-        <div class="perf-item flex items-center gap-3 px-1 py-2 rounded-xl opacity-70">
+        <div id="sb-gpu0-row" class="perf-item flex items-center gap-3 px-1 py-2 rounded-xl opacity-70">
           <div class="perf-mini-graph perf-sb-graph-gpu0"></div>
           <div class="min-w-0">
             <div id="sb-gpu0-name" class="perf-sidebar-label text-[11px] font-semibold text-[var(--theme-text-muted)]">GPU 0</div>
@@ -750,7 +778,7 @@
           </div>
         </div>
 
-        <div class="perf-item flex items-center gap-3 px-1 py-2 rounded-xl opacity-70">
+        <div id="sb-gpu1-row" class="perf-item flex items-center gap-3 px-1 py-2 rounded-xl opacity-70">
           <div class="perf-mini-graph perf-sb-graph-gpu1"></div>
           <div class="min-w-0">
             <div id="sb-gpu1-name" class="perf-sidebar-label text-[11px] font-semibold text-[var(--theme-text-muted)]">GPU 1</div>
@@ -1119,7 +1147,7 @@
 </div>
 <div class="flex flex-col items-center gap-0.5">
 <span class="text-xs uppercase tracking-widest text-[var(--theme-text-muted)] font-semibold">UPTIME</span>
-<span class="text-base font-bold text-[var(--theme-tertiary-text)]" id="perf-uptime">--:--</span>
+<span class="text-base font-bold text-[var(--theme-tertiary-text)]" id="perf-uptime">--</span>
 </div>
 <div class="w-px h-8 bg-[var(--theme-border-strong)]"></div>
 </div>
@@ -1130,7 +1158,7 @@ SNAPSHOT
 </button>
 </div>
 </div>
-<script src="/static/live.js"></script>
+<script src="/static/live.js?v=2"></script>
 <script>
     let currentTabId = 'processes';
 

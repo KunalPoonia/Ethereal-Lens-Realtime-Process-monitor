@@ -27,13 +27,16 @@
   }
 
   function formatUptime(bootTime) {
-    if (!bootTime) return "--:--";
-    const uptimeSec = Math.floor(Date.now() / 1000 - bootTime);
+    if (!bootTime) return "--";
+    const uptimeSec = Math.max(0, Math.floor(Date.now() / 1000 - bootTime));
     const days = Math.floor(uptimeSec / 86400);
     const hrs = Math.floor((uptimeSec % 86400) / 3600);
     const mins = Math.floor((uptimeSec % 3600) / 60);
-    const base = `${String(hrs).padStart(2, "0")}:${String(mins).padStart(2, "0")}`;
-    return days > 0 ? `${days}d ${base}` : base;
+    const parts = [];
+    if (days > 0) parts.push(`${days}d`);
+    if (hrs > 0) parts.push(`${hrs}h`);
+    parts.push(`${mins}m`);
+    return parts.join(" ");
   }
 
   function updateSummary(state) {
@@ -154,6 +157,17 @@
     setText("sb-gpu1-name", gpuName(gpus[1], "GPU 1"));
     setText("sb-gpu0-val", fmtGpu(gpus[0]));
     setText("sb-gpu1-val", fmtGpu(gpus[1]));
+
+    // Only show GPU rows for adapters that actually exist on this machine.
+    const setRowVisible = (id, visible) => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = visible ? "" : "none";
+    };
+    const gpu0Present = !!gpus[0];
+    const gpu1Present = !!gpus[1];
+    setRowVisible("sb-gpu0-row", gpu0Present);
+    setRowVisible("sb-gpu1-row", gpu1Present);
+    setRowVisible("sb-gpu-divider", gpu0Present || gpu1Present);
 
     // Mini graphs (use last 14 points)
     const tail = (arr, n) => (Array.isArray(arr) ? arr.slice(-n) : []);

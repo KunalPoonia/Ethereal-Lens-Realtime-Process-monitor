@@ -132,3 +132,7 @@ class DataStore:
     def push_processes(self, proc_list: list[dict]):
         with self._lock:
             self.processes = proc_list
+
+    def push_gpus(self, gpus: list[dict]):
+        with self._lock:
+            self.gpus = gpus

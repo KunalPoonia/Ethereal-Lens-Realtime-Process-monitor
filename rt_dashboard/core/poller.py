@@ -120,7 +120,6 @@ class StatsPoller(threading.Thread):
                 disk_io = psutil.disk_io_counters()
                 net = psutil.net_io_counters()
                 pernic = psutil.net_io_counters(pernic=True)
-                gpus = get_gpus()
 
                 eth_sent_kb = 0.0
                 eth_recv_kb = 0.0
@@ -174,7 +173,6 @@ class StatsPoller(threading.Thread):
                     wifi_recv_rate=wifi_recv_kb,
                     eth_adapter_name=eth_adapter_name,
                     wifi_adapter_name=wifi_adapter_name,
-                    gpus=gpus,
                 )
             except Exception:
                 pass
@@ -328,21 +326,54 @@ class ProcessPoller(threading.Thread):
 
 
 # ═══════════════════════════════════════════════════════════════════════
-#  Combined Poller (starts both sub-pollers)
+#  GPU Poller (separate thread — isolates slow subprocess calls)
+# ═══════════════════════════════════════════════════════════════════════
+
+class GpuPoller(threading.Thread):
+    """Polls GPU telemetry on its own thread.
+
+    nvidia-smi / Get-Counter spawn subprocesses that can take hundreds of ms;
+    running them here keeps them from stalling the 1s CPU/RAM/disk/net sampling
+    in StatsPoller (which would otherwise skew the rate deltas).
+    """
+
+    def __init__(self, store: DataStore):
+        super().__init__(daemon=True)
+        self._store = store
+        self._running = True
+
+    def run(self):
+        while self._running:
+            try:
+                self._store.push_gpus(get_gpus())
+            except Exception:
+                pass
+            time.sleep(POLL_INTERVAL_MS / 1000.0)
+
+    def stop(self):
+        self._running = False
+        self.join(timeout=3.0)
+
+
+# ═══════════════════════════════════════════════════════════════════════
+#  Combined Poller (starts all sub-pollers)
 # ═══════════════════════════════════════════════════════════════════════
 
 class Poller:
-    """Starts both stats and process pollers."""
+    """Starts the stats, process, and GPU pollers."""
 
     def __init__(self, store: DataStore):
         self._store = store
         self._stats_poller = StatsPoller(store)
         self._proc_poller = ProcessPoller(store)
+        self._gpu_poller = GpuPoller(store)
 
     def start(self):
         self._stats_poller.start()
         self._proc_poller.start()
+        self._gpu_poller.start()
 
     def stop(self):
         self._stats_poller.stop()
         self._proc_poller.stop()
+        self._gpu_poller.stop()

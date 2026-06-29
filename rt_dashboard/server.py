@@ -12,6 +12,10 @@ from core.poller import Poller
 
 app = FastAPI(title="Process Monitor Backend")
 
+# Boot time is constant for the life of the OS session — fetch it once instead
+# of calling into psutil on every WebSocket frame.
+BOOT_TIME = psutil.boot_time()
+
 
 class RunTaskRequest(BaseModel):
     command: str
@@ -272,7 +276,7 @@ async def websocket_endpoint(websocket: WebSocket):
                     "eth_total_history": list(store.eth_total_history),
                     "wifi_total_history": list(store.wifi_total_history),
                     "gpus": list(store.gpus),
-                    "boot_time": psutil.boot_time(),
+                    "boot_time": BOOT_TIME,
                     "processes": store.processes
                 }
             

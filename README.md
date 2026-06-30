@@ -39,7 +39,8 @@ A modern, browser-based system monitor built with **FastAPI**, **WebSockets**, a
 - **Hover-reveal sidebar** — a slim 12px indicator on the left edge that expands to 20rem on hover
 - **Mini bar graphs** — real-time sparkline-style graphs for CPU, Memory, Disk, Ethernet, Wi-Fi, and GPUs
 - **Per-adapter network stats** — separate Ethernet and Wi-Fi send/receive rates with auto-detected adapter names
-- **GPU monitoring** — NVIDIA GPU utilization and temperature via `nvidia-smi`, with Intel/AMD adapter name detection via WMIC
+- **GPU monitoring** — NVIDIA GPU utilization and temperature via `nvidia-smi`, Intel/AMD utilization via Windows GPU Engine performance counters, with adapter name caching to minimize overhead
+- **Dynamic GPU visibility** — GPU rows automatically hide when adapters aren't present on the system
 - **CPU name detection** — reads the processor name from Windows Registry, PowerShell, or WMIC fallback
 
 ### ⚠️ High Usage Alerts
@@ -77,9 +78,9 @@ Real-time Process monitor/
     ├── server.py               # FastAPI app — REST API + WebSocket streaming
     ├── config.py               # Poll intervals, history length, theme palettes
     ├── core/
-    │   ├── poller.py           # Background threads — stats + process enumeration
+    │   ├── poller.py           # Background threads — stats, process, and GPU polling
     │   ├── datastore.py        # Thread-safe shared state with rolling deques
-    │   └── gpu.py              # GPU detection (nvidia-smi, WMIC, PowerShell)
+    │   └── gpu.py              # GPU detection (nvidia-smi, Windows perf counters, WMIC, PowerShell)
     └── static/
         ├── index.html          # Dashboard UI (Tailwind CSS + custom CSS vars)
         ├── app.js              # Legacy WebSocket client (kept for reference)
@@ -94,22 +95,33 @@ Real-time Process monitor/
 ┌──────────────┐    psutil     ┌──────────────┐   Thread Lock   ┌──────────────┐
 │  StatsPoller │──────────────▸│   DataStore  │◂──────────────▸│ProcessPoller │
 │  (1s loop)   │   CPU/RAM/    │  (deques +   │                │ (child proc) │
-│  + GPU poll  │   Disk/Net    │   snapshots)  │  process list  │  2s interval │
-│  + NIC stats │   GPU/NIC     │   + per-NIC   │  + grouping    │              │
+│              │   Disk/Net    │   snapshots)  │  process list  │  2s interval │
+│              │   NIC stats   │   + per-NIC   │  + grouping    │              │
 └──────────────┘               └──────┬───────┘                └──────────────┘
-                                      │
-                               WebSocket /ws
-                               (JSON, 1s push)
-                                      │
-                                      ▼
-                               ┌──────────────┐
-                               │   Browser    │
-                               │  (live.js)   │
-                               │  Bar graphs  │
-                               │  Sidebar     │
-                               │  Alerts      │
-                               │  Process tbl │
-                               └──────────────┘
+                                      │ ▲
+                                      │ │  GPU telemetry
+                         ┌────────────┘ └─────────────┐
+                         │                            │
+                         │                    ┌──────────────┐
+                         │                    │   GpuPoller  │
+                         │                    │  (isolated   │
+                         │                    │   thread)    │
+                         │                    │ nvidia-smi + │
+                         │                    │ perf counters│
+                         │                    └──────────────┘
+                         │
+                  WebSocket /ws
+                  (JSON, 1s push)
+                         │
+                         ▼
+                  ┌──────────────┐
+                  │   Browser    │
+                  │  (live.js)   │
+                  │  Bar graphs  │
+                  │  Sidebar     │
+                  │  Alerts      │
+                  │  Process tbl │
+                  └──────────────┘
 ```
 
 ### API Endpoints
@@ -192,7 +204,7 @@ Then open **http://127.0.0.1:8000** in your browser.
 | Tool | Purpose |
 |------|---------|
 | `nvidia-smi` | NVIDIA GPU utilization and temperature telemetry |
-| `wmic` / `PowerShell` | GPU adapter name detection (Intel/AMD fallback) |
+| `wmic` / `PowerShell` | GPU adapter name detection and Windows performance counter queries for Intel/AMD GPU utilization |
 
 ---
 
@@ -202,13 +214,33 @@ Then open **http://127.0.0.1:8000** in your browser.
 |-------|-----------|
 | **Backend** | Python 3.10+, FastAPI, uvicorn |
 | **System Metrics** | psutil, ctypes (Win32 API), winreg (CPU name) |
-| **GPU Telemetry** | nvidia-smi (NVIDIA), WMIC/PowerShell (adapter names) |
+| **GPU Telemetry** | nvidia-smi (NVIDIA), Windows GPU Engine performance counters (Intel/AMD), cached adapter name detection via WMIC/PowerShell |
 | **Data Transport** | WebSocket (1s push interval) |
 | **Frontend** | HTML5, Vanilla JavaScript |
 | **Styling** | Tailwind CSS (CDN), Custom CSS variables, Glassmorphism |
 | **Fonts** | Manrope (headlines), Inter (body/labels) |
 | **Icons** | Google Material Symbols Outlined |
-| **Concurrency** | threading + multiprocessing (process poller runs in child process) |
+| **Concurrency** | threading + multiprocessing (process poller + isolated GPU poller threads) |
+
+---
+
+## ⚡ Performance Optimizations
+
+### GPU Polling Architecture
+- **Isolated thread** — GPU telemetry runs on a dedicated `GpuPoller` thread to prevent blocking the main 1-second stats loop
+- **Subprocess isolation** — `nvidia-smi` and PowerShell perf counter calls (200-500ms each) no longer delay CPU/RAM/disk/net sampling
+- **Adapter name caching** — GPU adapter names cached for 30 seconds (refreshed only on rare hot-plug events)
+- **Performance counter throttling** — Windows GPU Engine counters queried every 2.5 seconds instead of every second
+- **Intel/AMD support** — Full utilization metrics for non-NVIDIA GPUs via `\\GPU Engine(*)\\Utilization Percentage` performance counters
+
+### Boot Time Optimization
+- **Constant caching** — System boot time fetched once at startup instead of calling `psutil.boot_time()` on every WebSocket frame
+- **Reduced psutil overhead** — Eliminates ~1ms per frame from unnecessary boot time lookups
+
+### UI Responsiveness
+- **Dynamic element visibility** — GPU sidebar rows only rendered when physical adapters are present
+- **Glassmorphic tab styling** — Smooth hover effects with backdrop blur on navigation tabs
+- **Improved uptime format** — Changed from `HH:MM` to `1d 2h 30m` for better readability at-a-glance
 
 ---
 
